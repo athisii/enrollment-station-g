@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cdac.javafxproject1.ARCNoController">
+
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <bottom>
+            <AnchorPane prefHeight="33.0" prefWidth="1024.0" style="-fx-background-color: #522e75;"
+                        BorderPane.alignment="CENTER">
+
+                <Text fill="#f2e9e4" layoutX="17.0" layoutY="22.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Copyright @2010-2020 CDAC. All Rights Reserved.">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Text>
+            </AnchorPane>
+        </bottom>
+        <center>
+            <AnchorPane prefHeight="618.0" prefWidth="1024.0" style="-fx-background-color: #f3f4f4;"
+                        BorderPane.alignment="CENTER">
+
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="90.0" layoutY="56.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/blue_enrollment.png"/>
+
+                </ImageView>
+                <ImageView layoutX="299.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
+
+                    <Image url="@img/muted_fingerprint.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="505.0" layoutY="54.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_eye.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="701.0" layoutY="53.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_camera.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="883.0" layoutY="53.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_complete.png"/>
+
+                </ImageView>
+                <Button layoutX="547.0" layoutY="537.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0"
+                        minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
+                        style="-fx-background-color: #522e75;" text="Next" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Button>
+                <Button layoutX="320.0" layoutY="539.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0"
+                        minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
+                        style="-fx-background-color: #522e75;" text="Previous" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Button>
+                <Text fill="#22223b" layoutX="67.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Enrollment">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="250.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Fingerprint">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="482.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Iris">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="663.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Camera">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="867.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Complete">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <SplitPane layoutX="4.0" layoutY="158.0" prefHeight="324.0" prefWidth="1013.0">
+                    <items>
+                        <AnchorPane maxHeight="322.0" maxWidth="1012.0" minHeight="322.0" minWidth="298.0"
+                                    prefHeight="322.0" prefWidth="1005.0">
+
+                            <Label layoutX="365.0" layoutY="60.0" text="Enter ARC No"/>
+                            <TextField layoutX="365.0" layoutY="84.0"/>
+                            <Button fx:id="fetchdetails" layoutX="365.0" layoutY="129.0" mnemonicParsing="false"
+                                    onAction="#showARCDetails" style="-fx-background-color: #522E75;"
+                                    text="Fetch Details " textFill="WHITE"/>
+                            <Button layoutX="521.0" layoutY="129.0" mnemonicParsing="false"
+                                    style="-fx-background-color: #522E75;" text="Previous" textFill="WHITE"/>
+                            <Button layoutX="642.0" layoutY="129.0" mnemonicParsing="false"
+                                    style="-fx-background-color: #522E75;" text="Cancel" textFill="WHITE"/>
+
+                        </AnchorPane>
+                    </items>
+                </SplitPane>
+                <Line endX="93.0" layoutX="202.0" layoutY="80.0" opacity="0.3" startX="-63.0" stroke="#8a8a8a"
+                      strokeWidth="2.0"/>
+                <Line endX="74.0" layoutX="422.0" layoutY="79.0" opacity="0.3" startX="-63.0" stroke="#8a8a8a"
+                      strokeWidth="2.0"/>
+                <Line endX="66.66668701171875" layoutX="620.0" layoutY="78.0" opacity="0.3" startX="-63.0"
+                      stroke="#8a8a8a" strokeWidth="2.0"/>
+                <Line endX="60.33331298828125" layoutX="809.0" layoutY="77.0" opacity="0.3" startX="-50.33331298828125"
+                      stroke="#8a8a8a" strokeWidth="2.0"/>
+
+            </AnchorPane>
+        </center>
+        <top>
+            <AnchorPane maxHeight="100.0" maxWidth="1024.0" minHeight="100.0" minWidth="1024.0" prefHeight="100.0"
+                        prefWidth="1024.0" style="-fx-background-color: #522e75;" BorderPane.alignment="CENTER">
+
+                <AnchorPane layoutY="-1.0" maxHeight="101.0" maxWidth="85.0" minHeight="101.0" minWidth="85.0"
+                            prefHeight="101.0" prefWidth="85.0" style="-fx-background-color: #9a8c98;">
+
+                    <ImageView fitHeight="86.0" fitWidth="53.0" layoutX="16.0" layoutY="6.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@img/logo.png"/>
+
+                    </ImageView>
+
+                </AnchorPane>
+                <Text fill="#f2e9e4" layoutX="104.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="INDIAN NAVY">
+                    <font>
+                        <Font name="Calibri Bold" size="40.0"/>
+                    </font>
+                </Text>
+                <Text fill="#f2e9e4" layoutX="105.0" layoutY="80.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="ENROLLMENT APPLICATION">
+                    <font>
+                        <Font name="Calibri Bold" size="25.0"/>
+                    </font>
+                </Text>
+
+            </AnchorPane>
+        </top>
+    </BorderPane>
+
+</VBox>

@@ -1,0 +1,9 @@
+/target/**
+/build/**
+.idea
+.gradle
+*.iws
+*.iml
+*.ipr
+nb-configuration.xml
+nbactions.xml

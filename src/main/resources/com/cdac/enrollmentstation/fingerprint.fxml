@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.FingerPrintController">
+
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <top>
+            <AnchorPane maxHeight="100.0" maxWidth="1024.0" minHeight="100.0" minWidth="1024.0" prefHeight="100.0"
+                        prefWidth="1024.0" style="-fx-background-color: #522e75;" BorderPane.alignment="CENTER">
+
+                <AnchorPane layoutY="-1.0" prefHeight="124.0" prefWidth="85.0" style="-fx-background-color: #9a8c98;">
+
+                    <ImageView fitHeight="86.0" fitWidth="53.0" layoutX="16.0" layoutY="6.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@img/logo.png"/>
+
+                    </ImageView>
+
+                </AnchorPane>
+                <Text fill="#f2e9e4" layoutX="105.0" layoutY="80.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="ENROLLMENT APPLICATION">
+                    <font>
+                        <Font name="Calibri Bold" size="25.0"/>
+                    </font>
+                </Text>
+                <Text fill="#f2e9e4" layoutX="104.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="INDIAN NAVY">
+                    <font>
+                        <Font name="Calibri Bold" size="40.0"/>
+                    </font>
+                </Text>
+
+            </AnchorPane>
+        </top>
+        <bottom>
+            <AnchorPane maxHeight="35.0" maxWidth="1024.0" minHeight="35.0" minWidth="1024.0" prefHeight="35.0"
+                        prefWidth="1024.0" style="-fx-background-color: #522E75;" BorderPane.alignment="CENTER">
+
+                <Text fill="#f2e9e4" layoutX="27.0" layoutY="23.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Copyright @2010-2020 CDAC. All Rights Reserved.">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Text>
+
+            </AnchorPane>
+        </bottom>
+        <center>
+            <AnchorPane fx:id="previous" onDragDetected="#showARCInput" prefHeight="607.0" prefWidth="1024.0"
+                        style="-fx-background-color: #F4F3F4;" BorderPane.alignment="CENTER">
+
+                <AnchorPane layoutX="46.0" layoutY="21.0" prefHeight="231.0" prefWidth="433.0"
+                            style="-fx-background-color: #dadada;">
+
+                    <ImageView fitHeight="163.0" fitWidth="142.0" layoutX="23.0" layoutY="13.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@img/blue_fourfinger_left.png"/>
+
+                    </ImageView>
+                    <AnchorPane layoutX="210.0" layoutY="14.0" minHeight="70.0" minWidth="80.0" prefHeight="77.0"
+                                prefWidth="77.0" style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="297.0" layoutY="14.0" prefHeight="77.0" prefWidth="79.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="208.0" layoutY="104.0" prefHeight="81.0" prefWidth="81.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="298.0" layoutY="105.0" prefHeight="81.0" prefWidth="79.0"
+                                style="-fx-background-color: #fff;"/>
+                    <Button fx:id="scan111" layoutX="31.0" layoutY="167.0" maxHeight="35.0" maxWidth="150.0"
+                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureSlap"
+                            onTouchPressed="#captureSlap" prefHeight="35.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="LEFT SCAN" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+
+                </AnchorPane>
+                <AnchorPane layoutX="549.0" layoutY="21.0" prefHeight="231.0" prefWidth="433.0"
+                            style="-fx-background-color: #dadada;">
+
+                    <ImageView fitHeight="157.0" fitWidth="149.0" layoutX="29.0" layoutY="14.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@img/blue_fourfinger_right.png"/>
+
+                    </ImageView>
+                    <Button layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
+                            minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="SCAN" textFill="WHITE" visible="false">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <AnchorPane layoutX="204.0" layoutY="12.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="316.0" layoutY="14.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="204.0" layoutY="120.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="316.0" layoutY="122.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <Button fx:id="scan1" layoutX="33.0" layoutY="177.0" maxHeight="35.0" maxWidth="150.0"
+                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureRightSlap"
+                            onTouchPressed="#captureSlap" prefHeight="35.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="RIGHT SCAN" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+
+                </AnchorPane>
+                <AnchorPane layoutX="299.0" layoutY="299.0" prefHeight="231.0" prefWidth="433.0"
+                            style="-fx-background-color: #dadada;">
+
+                    <ImageView fitHeight="145.0" fitWidth="139.0" layoutX="32.0" layoutY="19.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@img/blue_thumb.png"/>
+
+                    </ImageView>
+                    <Button layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
+                            minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="SCAN" textFill="WHITE" visible="false">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <AnchorPane layoutX="206.0" layoutY="41.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <AnchorPane layoutX="318.0" layoutY="43.0" prefHeight="93.0" prefWidth="95.0"
+                                style="-fx-background-color: #fff;"/>
+                    <Button fx:id="scan11" layoutX="23.0" layoutY="163.0" maxHeight="35.0" maxWidth="150.0"
+                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureThumb"
+                            onTouchPressed="#captureSlap" prefHeight="35.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="THUMB SCAN" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+
+                </AnchorPane>
+                <Text layoutX="208.0" layoutY="272.0" strokeType="OUTSIDE" strokeWidth="0.0" text="LEFT HAND FINGERS"/>
+                <Text layoutX="706.0" layoutY="272.0" strokeType="OUTSIDE" strokeWidth="0.0" text="RIGHT HAND FINGERS"/>
+                <Text layoutX="474.0" layoutY="549.0" strokeType="OUTSIDE" strokeWidth="0.0" text="THUMB FINGER"/>
+                <Button fx:id="previous" layoutX="237.0" layoutY="575.0" maxHeight="35.0" maxWidth="150.0"
+                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showARCInput"
+                        onTouchPressed="#showARCInput" prefHeight="35.0" prefWidth="150.0"
+                        style="-fx-background-color: #522e75;" text="Previous" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Button>
+                <Button fx:id="fingerprint" layoutX="631.0" layoutY="575.0" maxHeight="35.0" maxWidth="150.0"
+                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showIris"
+                        onTouchPressed="#showIris" prefHeight="35.0" prefWidth="150.0"
+                        style="-fx-background-color: #522e75;" text="Next" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Button>
+                <Button fx:id="scan" layoutX="431.0" layoutY="573.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
+                        minWidth="150.0" mnemonicParsing="false" onAction="#captureSlap" onTouchPressed="#captureSlap"
+                        prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #522e75;" text="SCAN"
+                        textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0"/>
+                    </font>
+                </Button>
+
+            </AnchorPane>
+        </center>
+    </BorderPane>
+
+</VBox>

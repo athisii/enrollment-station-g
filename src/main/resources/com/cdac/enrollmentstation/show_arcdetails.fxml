@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cdac.enrollmentstation.controller.ShowARCManualController">
+
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <left>
+            <AnchorPane prefHeight="618.0" prefWidth="1024.0" style="-fx-background-color: #f2f2f2;"
+                        BorderPane.alignment="CENTER">
+
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="276.0" layoutY="57.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/blue_enrollment.png"/>
+
+                </ImageView>
+                <ImageView layoutX="452.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
+
+                    <Image url="@img/muted_fingerprint.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="652.0" layoutY="57.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_eye.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="807.0" layoutY="54.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_camera.png"/>
+
+                </ImageView>
+                <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="976.0" layoutY="53.0" pickOnBounds="true"
+                           preserveRatio="true">
+
+                    <Image url="@img/muted_complete.png"/>
+
+                </ImageView>
+                <Text fill="#22223b" layoutX="259.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Enrollment">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="389.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Fingerprint">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="621.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Iris">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="767.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Capture Photo">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Text fill="#8a8a8a" layoutX="946.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"
+                      text="Complete">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Text>
+                <Line endX="93.0" layoutX="332.0" layoutY="80.0" opacity="0.3" startX="-2.0" stroke="#8a8a8a"
+                      strokeWidth="2.0"/>
+                <Line endX="58.0" layoutX="575.0" layoutY="79.0" opacity="0.3" startX="-56.0" stroke="#8a8a8a"
+                      strokeWidth="2.0"/>
+                <Line endX="78.0" layoutX="713.0" layoutY="78.0" opacity="0.3" startX="-14.0" stroke="#8a8a8a"
+                      strokeWidth="2.0"/>
+                <Line endX="60.33331298828125" layoutX="902.0" layoutY="77.0" opacity="0.3" startX="-38.0"
+                      stroke="#8a8a8a" strokeWidth="2.0"/>
+                <AnchorPane layoutX="281.0" layoutY="220.0" minHeight="0.0" minWidth="0.0" prefHeight="322.0"
+                            prefWidth="754.0" style="-fx-background-color: #fff;">
+
+                    <Label fx:id="lblName1" layoutX="17.0" layoutY="49.0" text="Name"/>
+                    <Label fx:id="lblUnit1" layoutX="17.0" layoutY="114.0" text="Unit"/>
+                    <Label fx:id="lblDlink1" layoutX="17.0" layoutY="180.0" text="Detail Link"/>
+                    <TextField fx:id="txtName1" editable="false" layoutX="17.0" layoutY="72.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <TextField fx:id="txtUnit1" editable="false" layoutX="17.0" layoutY="134.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <Label fx:id="lblRank1" layoutX="243.0" layoutY="49.0" text="Rank"/>
+                    <Label fx:id="lblFinger1" layoutX="243.0" layoutY="114.0" text="Fingers"/>
+                    <Label fx:id="lblarcstatus1" layoutX="243.0" layoutY="180.0" text="ARC No"/>
+                    <TextField fx:id="txtRank1" editable="false" layoutX="243.0" layoutY="72.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <TextField fx:id="txtFinger1" editable="false" layoutX="243.0" layoutY="134.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <TextField fx:id="txtarcno1" editable="false" layoutX="243.0" layoutY="199.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <Label fx:id="lblapp1" layoutX="475.0" layoutY="49.0" text="Application ID"/>
+                    <Label fx:id="lblIris1" layoutX="475.0" layoutY="114.0" text="Iris"/>
+                    <Label fx:id="lblerrcode1" layoutX="475.0" layoutY="180.0" text="ARC Status"/>
+                    <TextField fx:id="txtapp1" editable="false" layoutX="475.0" layoutY="72.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <TextField fx:id="txtiris1" editable="false" layoutX="475.0" layoutY="134.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <TextField fx:id="txtarcstatus1" editable="false" layoutX="475.0" layoutY="199.0" prefHeight="26.0"
+                               prefWidth="204.0"/>
+                    <Hyperlink fx:id="txtDlink1" layoutX="18.0" layoutY="199.0" onAction="#showDlink" prefHeight="24.0"
+                               prefWidth="205.0" text="Hyperlink"/>
+                    <Button fx:id="show_arcdetails_next1" layoutX="516.0" layoutY="272.0" maxHeight="36.0"
+                            maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false"
+                            onAction="#showFingerPrint" prefHeight="36.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="Next" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="show_arcdetails_prev1" layoutX="345.0" layoutY="272.0" maxHeight="36.0"
+                            maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false"
+                            onAction="#showARCInput" prefHeight="36.0" prefWidth="150.0"
+                            style="-fx-background-color: #522e75;" text="Previous" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+
+                </AnchorPane>
+                <AnchorPane prefHeight="778.0" prefWidth="253.0" style="-fx-background-color: #1990ea;">
+
+                    <Label alignment="CENTER" layoutX="64.0" layoutY="184.0" prefHeight="40.0" prefWidth="189.0"
+                           style="-fx-background-color: #f2f2f2; -fx-background-radius: 30 0 0 30;"
+                           text="  Biometric Enrollment" textAlignment="CENTER">
+                        <font>
+                            <Font name="Lato Regular" size="18.0"/>
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="61.0" layoutY="273.0" prefHeight="40.0" prefWidth="189.0"
+                           style="-fx-background-color: #1990ea; -fx-background-radius: 30 0 0 30;" text="Issue Token"
+                           textAlignment="CENTER" textFill="WHITE">
+                        <font>
+                            <Font name="Lato Regular" size="18.0"/>
+                        </font>
+                    </Label>
+                    <Label alignment="CENTER" layoutX="52.0" layoutY="363.0" prefHeight="40.0" prefWidth="201.0"
+                           style="-fx-background-color: #1990ea; -fx-background-radius: 30 0 0 30;"
+                           text="  Application Settings" textAlignment="CENTER" textFill="WHITE">
+                        <font>
+                            <Font name="Lato Regular" size="18.0"/>
+                        </font>
+                    </Label>
+
+                </AnchorPane>
+
+            </AnchorPane>
+        </left>
+    </BorderPane>
+
+</VBox>

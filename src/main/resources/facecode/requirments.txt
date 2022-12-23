@@ -1,0 +1,5 @@
+numpy
+dlib
+scikit-image
+opencv-python
+

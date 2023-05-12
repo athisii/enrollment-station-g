@@ -8,7 +8,7 @@ package com.cdac.enrollmentstation.service;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.CardReaderAPI;
 import com.cdac.enrollmentstation.api.CardReaderAPIURLs;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.*;
 import com.cdac.enrollmentstation.security.ASNtoHexFormat;
 import com.cdac.enrollmentstation.security.HextoASNFormat;
@@ -33,7 +33,7 @@ public class CardWrite {
     CardReaderAPI cardReaderAPI = new CardReaderAPI();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

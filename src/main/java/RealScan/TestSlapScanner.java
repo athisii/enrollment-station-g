@@ -6,7 +6,7 @@
 package RealScan;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public class TestSlapScanner {
     private String message = "";
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

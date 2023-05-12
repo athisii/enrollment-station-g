@@ -6,7 +6,7 @@
 package com.cdac.enrollmentstation.util;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.mantra.midirisenroll.MIDIrisEnroll;
 import com.mantra.midirisenroll.MIDIrisEnrollCallback;
 import com.mantra.midirisenroll.enums.DeviceDetection;
@@ -25,7 +25,7 @@ public class TestIris implements MIDIrisEnrollCallback {
     private MIDIrisEnroll mIDIrisEnroll = null;
     private String message = "";
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

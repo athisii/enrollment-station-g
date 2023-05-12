@@ -4,7 +4,7 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
 import com.cdac.enrollmentstation.api.APIServerCheck;
 import com.cdac.enrollmentstation.dto.UpdateTokenResponse;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.*;
 import com.cdac.enrollmentstation.service.CardWrite;
 import com.cdac.enrollmentstation.service.TokenDispense;
@@ -107,7 +107,7 @@ public class FetchLabourDetailsController implements Initializable, MIDFingerAut
     TestProp prop = new TestProp();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

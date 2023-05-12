@@ -7,7 +7,7 @@ package com.cdac.enrollmentstation.controller;
 
 import RealScan.SlapScannerController;
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.*;
 import com.cdac.enrollmentstation.service.ObjectReaderWriter;
 import com.fasterxml.jackson.core.Base64Variants;
@@ -127,7 +127,7 @@ public class IrisController implements MIDIrisEnrollCallback, Initializable {
     Set<IRIS> irisSet = new HashSet<>();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

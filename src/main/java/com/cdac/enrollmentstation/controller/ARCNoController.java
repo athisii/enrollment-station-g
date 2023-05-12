@@ -9,7 +9,7 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
 import com.cdac.enrollmentstation.api.APIServerCheck;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
@@ -73,7 +73,7 @@ public class ARCNoController implements Initializable {
 
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

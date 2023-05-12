@@ -9,7 +9,8 @@ public class HttpHeader {
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String ACCEPT = "Accept";
 
-    //disables instantiation of this class.
+    //Suppress default constructor for noninstantiability
     private HttpHeader() {
+        throw new AssertionError("The HttpHeader fields must be accessed statically.");
     }
 }

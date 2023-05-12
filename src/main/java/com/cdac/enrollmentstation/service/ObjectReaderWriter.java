@@ -11,7 +11,7 @@ package com.cdac.enrollmentstation.service;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 
 public class ObjectReaderWriter {
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

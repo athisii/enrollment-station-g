@@ -3,7 +3,7 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.APIServerCheck;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.ContactDetail;
 import com.cdac.enrollmentstation.model.ContractDetail;
 import com.cdac.enrollmentstation.model.ContractDetailList;
@@ -74,7 +74,7 @@ public class FetchTokenDetailsController implements Initializable {
     TextField searchBox;
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

@@ -7,7 +7,7 @@ package com.cdac.enrollmentstation.security;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -31,7 +31,7 @@ public class PKIUtil {
     TestProp prop = new TestProp();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

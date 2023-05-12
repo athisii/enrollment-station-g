@@ -4,7 +4,7 @@ package com.cdac.enrollmentstation.api;
 import com.cdac.enrollmentstation.constant.HttpHeader;
 import com.cdac.enrollmentstation.dto.ARCNoReqDto;
 import com.cdac.enrollmentstation.exception.GenericException;
-import com.cdac.enrollmentstation.logging.ApplicationLogNew;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.util.Singleton;
 
@@ -19,7 +19,7 @@ import static java.net.http.HttpRequest.BodyPublishers;
 import static java.net.http.HttpResponse.BodyHandlers;
 
 public class ServerAPI {
-    private static final Logger LOGGER = ApplicationLogNew.getLogger(ServerAPI.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(ServerAPI.class);
     private static final HttpClient httpClient;
 
     static {

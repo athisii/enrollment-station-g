@@ -2,7 +2,7 @@ package RealScan;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
@@ -275,7 +275,7 @@ public class SlapScannerController_191022 implements Initializable {
 
     AnsiIso ansiISO = new AnsiIso();
 
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

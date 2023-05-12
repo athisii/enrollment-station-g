@@ -1,7 +1,7 @@
 package com.cdac.enrollmentstation.util;
 
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.logging.ApplicationLogNew;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.innovatrics.iengine.ansiiso.AnsiIso;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * Created on 17/12/22
  */
 public class LicenseUtil {
-    private static final Logger LOGGER = ApplicationLogNew.getLogger(LicenseUtil.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(LicenseUtil.class);
     private static AnsiIso ansiIso;
 
     //Suppress default constructor for noninstantiability

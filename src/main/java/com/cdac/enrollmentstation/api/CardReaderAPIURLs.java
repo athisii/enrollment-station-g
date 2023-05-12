@@ -7,7 +7,7 @@ package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.util.TestProp;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -20,7 +20,7 @@ public class CardReaderAPIURLs {
     TestProp prop = new TestProp();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

@@ -6,7 +6,7 @@
 package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.logging.ApplicationLogOld;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -27,7 +27,7 @@ public class CardReaderAPI {
     private CardReaderAPIURLs cardReaderAPIURLs = new CardReaderAPIURLs();
 
     //For Application Log
-    ApplicationLog appLog = new ApplicationLog();
+    ApplicationLogOld appLog = new ApplicationLogOld();
     private static final Logger LOGGER = Logger.getLogger(App.class.getName());
     Handler handler;
 

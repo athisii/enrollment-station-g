@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.LicenceInfoController">
+
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <center>
+            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
+
+                <Text fill="#04127b" layoutX="181.0" layoutY="307.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Slap/Flat Finger Scanner    :" />
+                <TextField fx:id="finScannerInfo" disable="true" layoutX="372.0" layoutY="289.0" prefHeight="26.0" prefWidth="470.0" />
+                <Button layoutX="696.0" layoutY="420.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="HOME" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+                <AnchorPane layoutY="739.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@../img/navylogo.png" />
+                    </ImageView>
+
+                </AnchorPane>
+                <Label layoutX="67.0" layoutY="105.0" prefHeight="45.0" prefWidth="417.0" text="LICENCE INFO" textFill="#04127b">
+                    <font>
+                        <Font size="22.0" />
+                    </font>
+                </Label>
+                <ImageView fitHeight="40.0" fitWidth="42.0" layoutX="14.0" layoutY="106.0" pickOnBounds="true" preserveRatio="true">
+
+                    <Image url="@../img/settings.jpg" />
+
+                </ImageView>
+                <Button layoutX="478.0" layoutY="420.0" maxHeight="35.0" maxWidth="198.0" minHeight="35.0" minWidth="86.0" mnemonicParsing="false" onAction="#fetchLicenceDetails" prefHeight="35.0" prefWidth="198.0" style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="RELOAD" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+                <Text fill="#04127b" layoutX="334.0" layoutY="233.0" strokeType="OUTSIDE" strokeWidth="0.0" text="System Information For License">
+                    <font>
+                        <Font size="17.0" />
+                    </font>
+                </Text>
+                <Button layoutX="306.0" layoutY="420.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#back" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+
+                <Label fx:id="statusLabel" alignment="CENTER" layoutX="328.0" layoutY="356.0" prefHeight="25.0"
+                       prefWidth="402.0">
+                    <font>
+                        <Font name="System Bold" size="17.0" />
+                    </font>
+                </Label>
+            </AnchorPane>
+        </center>
+    </BorderPane>
+
+</VBox>

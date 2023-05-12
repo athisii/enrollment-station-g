@@ -2,15 +2,12 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
@@ -49,28 +46,12 @@ public class AdminConfigController {
     @FXML
     private AnchorPane confirmPane;
 
-    @FXML
-    private ComboBox<String> cameraComboBox;
-
-
     /**
      * Automatically called by JavaFX runtime.
      */
     public void initialize() {
-//        cameraComboBox.getItems().addAll(ApplicationConstant.INTERNAL, ApplicationConstant.EXTERNAL);
-//        // Internal: value = 0; index = 0
-//        // External: value = 2; index = 1
-//        int cameraId = Integer.parseInt(PropertyFile.getProperty(PropertyName.CAMERA_ID).trim());
-//        // default value to display
-//        cameraComboBox.getSelectionModel().select(cameraId == 0 ? 0 : 1);
-//        cameraComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-//            int camId = ApplicationConstant.EXTERNAL.equalsIgnoreCase(newValue) ? 2 : 0;
-//            PropertyFile.changePropertyValue(PropertyName.CAMERA_ID, "" + camId);
-//            Platform.runLater(() -> messageLabel.setText((camId == 0 ? ApplicationConstant.INTERNAL : ApplicationConstant.EXTERNAL) + " Camera Selected"));
-//            LOGGER.log(Level.INFO, PropertyFile.getProperty(PropertyName.CAMERA_ID));
-//        });
-//        liveFpTextField.setText(String.valueOf(fingerprintLivenessValue));
-//        liveFpBtn.setOnAction(event -> liveFpBtnAction());
+        liveFpTextField.setText(String.valueOf(fingerprintLivenessValue));
+        liveFpBtn.setOnAction(event -> liveFpBtnAction());
 
     }
 
@@ -94,7 +75,7 @@ public class AdminConfigController {
                 messageLabel.setText(displayMessage);
                 return;
             }
-            PropertyFile.changePropertyValue(PropertyName.FINGERPRINT_LIVENESS_VALUE, number + "");
+            PropertyFile.changePropertyValue(PropertyName.FINGERPRINT_LIVENESS_VALUE, String.valueOf(number));
             liveFpBtn.setText("EDIT"); // shows as edit
             messageLabel.setText("Fingerprint liveness value updated successfully.");
         } else {
@@ -106,76 +87,30 @@ public class AdminConfigController {
     }
 
     @FXML
-    public void serverConfig() {
-        try {
-            App.setRoot("server_config");
-        } catch (IOException ex) {
-            Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-            LOGGER.log(Level.INFO, ex + "IOException:");
-        }
+    public void serverConfig() throws IOException {
+        App.setRoot("server_config");
     }
 
     @FXML
-    public void licenseInfo() {
-        LOGGER.log(Level.INFO, "License Info button clicked");
-        try {
-            App.setRoot("license_info");
-        } catch (IOException ex) {
-            Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-            LOGGER.log(Level.INFO, ex + "IOException:");
-        }
-
+    public void licenseInfo() throws IOException {
+        App.setRoot("license_info");
     }
 
     @FXML
-    public void devicecheck() {
-        try {
-            App.setRoot("device_status");
-        } catch (IOException ex) {
-            Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-            LOGGER.log(Level.INFO, () -> ex + "IOException:");
-        }
+    public void deviceCheck() throws IOException {
+        App.setRoot("device_status");
     }
 
 
     @FXML
-    public void logOut() {
-        try {
-            App.setRoot("admin_auth");
-        } catch (IOException ex) {
-            Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-            LOGGER.log(Level.INFO, ex + "IOException:");
-        }
-    }
-
-    @FXML
-    public void initialiseintegrity() {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "echo \"true\" | sudo tee /etc/baseline");
-            Process process = null;
-            try {
-                process = processBuilder.start();
-                int exitCode = process.waitFor();
-                messageLabel.setText("Integrity Check Initialized");
-                LOGGER.log(Level.INFO, "\nExited with error code : " + exitCode);
-                LOGGER.log(Level.INFO, "Integrity Check Initialized");
-            } catch (IOException ex) {
-                Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-                LOGGER.log(Level.INFO, ex + "IOException:");
-            }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Exception:" + e);
-        }
+    public void logOut() throws IOException {
+        App.setRoot("admin_auth");
 
     }
 
     @FXML
-    public void restartsystem() {
-
+    public void restartSystem() {
         confirmPane.setVisible(true);
-
     }
 
     @FXML
@@ -185,30 +120,22 @@ public class AdminConfigController {
 
     @FXML
     private void stayBack() {
-        LOGGER.log(Level.INFO, "inside stay back");
         confirmPane.setVisible(false);
-
     }
 
     private void restartSys() {
-        LOGGER.log(Level.INFO, "restartsystem");
         try {
+            LOGGER.log(Level.INFO, "System restarting..");
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.command("bash", "-c", "init 6");
-            Process process = null;
-            try {
-                process = processBuilder.start();
-                int exitCode = process.waitFor();
-                messageLabel.setText("System Reboot");
-                LOGGER.log(Level.INFO, "System Reboot");
-                LOGGER.log(Level.INFO, "\nExited with error code : " + exitCode);
-            } catch (IOException ex) {
-                Logger.getLogger(AdminConfigController.class.getName()).log(Level.SEVERE, null, ex);
-                LOGGER.log(Level.INFO, ex + "IOException:");
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+            LOGGER.log(Level.INFO, () -> "Exited with error code : " + exitCode);
+        } catch (IOException | InterruptedException ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, e + "Exception:");
+            LOGGER.log(Level.INFO, ex.getMessage());
         }
     }
 

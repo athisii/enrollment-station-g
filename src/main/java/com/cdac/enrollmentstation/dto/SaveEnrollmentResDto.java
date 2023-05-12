@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,17 +8,16 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 /**
- * @author Gandhimathi
+ * @author root
  */
 @Getter
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SaveEnrollmentResponse {
+public class SaveEnrollmentResDto {
     @JsonProperty("ErrorCode")
     String errorCode;
 
     @JsonProperty("Desc")
     String desc;
-
 }

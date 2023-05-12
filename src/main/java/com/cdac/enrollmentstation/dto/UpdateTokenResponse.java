@@ -18,7 +18,7 @@ import lombok.experimental.FieldDefaults;
 public class UpdateTokenResponse {
     @JsonProperty("ErrorCode")
     String errorCode;
-    
+
     @JsonProperty("Desc")
     String desc;
 

@@ -1,65 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ShowTokenController">
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ShowTokenController">
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <top>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
 
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
-                               preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png" />
 
                     </ImageView>
                 </AnchorPane>
 
-                <Label fx:id="lblcarderror" alignment="CENTER" layoutX="230.0" layoutY="140.0" prefHeight="25.0"
-                       prefWidth="608.0" text="Kindly Place the Card in the Reader">
+                <Label fx:id="lblcarderror" alignment="CENTER" layoutX="230.0" layoutY="140.0" prefHeight="25.0" prefWidth="608.0" text="Kindly Place the Card in the Reader">
                     <font>
-                        <Font name="System Bold" size="17.0"/>
+                        <Font name="System Bold" size="17.0" />
                     </font>
                 </Label>
-                <AnchorPane layoutX="262.0" layoutY="229.0" prefHeight="304.0" prefWidth="453.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="262.0" layoutY="229.0" prefHeight="304.0" prefWidth="453.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="170.0" fitWidth="200.0" layoutX="164.0" layoutY="26.0" pickOnBounds="true"
-                               preserveRatio="true">
+                    <ImageView fitHeight="170.0" fitWidth="200.0" layoutX="164.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/showtoken.jpeg"/>
+                        <Image url="@../img/showtoken.jpeg" />
 
                     </ImageView>
-                    <Button fx:id="showContractDetails" layoutX="216.0" layoutY="227.0" maxHeight="35.0"
-                            maxWidth="233.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#readCardDetails" prefHeight="35.0" prefWidth="233.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="SHOW CONTRACTOR CARD" textFill="WHITE">
+                    <Button fx:id="showContractDetails" layoutX="216.0" layoutY="227.0" maxHeight="35.0" maxWidth="233.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#readCardDetails" prefHeight="35.0" prefWidth="233.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SHOW CONTRACTOR CARD" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Button fx:id="show_home_token" layoutX="47.0" layoutY="227.0" maxHeight="36.0" maxWidth="150.0"
-                            minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction"
-                            prefHeight="36.0" prefWidth="150.0"
-                            style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
-                            textFill="WHITE">
+                    <Button fx:id="show_home_token" layoutX="47.0" layoutY="227.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutY="711.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
+                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
             </AnchorPane>
         </top>
     </BorderPane>

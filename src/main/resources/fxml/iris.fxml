@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.IrisController">
+
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <center>
+            <AnchorPane prefHeight="618.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
+
+                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+
+                        <Image url="@../img/navylogo.png" />
+
+                    </ImageView>
+                </AnchorPane>
+                <Button fx:id="capturePhotoBtn" disable="true" layoutX="604.0" layoutY="662.0" maxHeight="36.0" maxWidth="163.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#cameraCapture" onTouchPressed="#cameraCapture" prefHeight="36.0" prefWidth="163.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE PHOTO" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+                <Button fx:id="captureIrisBtn" layoutX="430.0" layoutY="662.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureIrisBtnAction" onTouchPressed="#captureIrisBtnAction" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="IRIS SCAN" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+                <Pane layoutX="544.0" layoutY="367.0" prefHeight="184.0" prefWidth="200.0" style="-fx-border-color: #000000; -fx-border-width: 2px;">
+
+                    <ImageView fx:id="rightIrisImageView" fitHeight="179.0" fitWidth="184.0" layoutX="2.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
+
+                        <Image url="@../img/iris.jpg" />
+                    </ImageView>
+
+                </Pane>
+                <Pane layoutX="266.0" layoutY="368.0" prefHeight="183.0" prefWidth="200.0" style="-fx-border-width: 2px; -fx-border-color: #000000;">
+
+                    <ImageView fx:id="leftIrisImageView" fitHeight="178.0" fitWidth="185.0" layoutX="2.0" layoutY="2.0" pickOnBounds="true" preserveRatio="true">
+
+                        <Image url="@../img/iris.jpg" />
+                    </ImageView>
+
+                </Pane>
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="149.0" layoutY="570.0" prefHeight="25.0" prefWidth="739.0">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+                <Button fx:id="backBtn" layoutX="257.0" layoutY="662.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction" onTouchPressed="#backBtnAction" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Button>
+                <ImageView fitHeight="116.0" fitWidth="118.0" layoutX="790.0" layoutY="293.0" pickOnBounds="true" preserveRatio="true">
+
+                    <Image url="@../img/iris_image.png" />
+                </ImageView>
+                <ImageView fx:id="statusImageView" fitHeight="116.0" fitWidth="118.0" layoutX="800.0" layoutY="435.0" pickOnBounds="true" preserveRatio="true" />
+
+                <AnchorPane layoutY="742.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
+
+                    <Label fx:id="arcLabel" layoutX="21.0" layoutY="19.0" text="ARCNo : " textFill="WHITE">
+                        <font>
+                            <Font size="16.0" />
+                        </font>
+                    </Label>
+
+                </AnchorPane>
+                <Label layoutX="16.0" layoutY="103.0" prefHeight="45.0" prefWidth="278.0" text="IRIS CAPTURE" textFill="#04127b">
+                    <font>
+                        <Font size="22.0" />
+                    </font>
+                </Label>
+
+                <AnchorPane layoutY="227.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #fff;">
+                    <ProgressBar layoutX="136.0" layoutY="23.0" prefHeight="14.0" prefWidth="783.0" progress="0.5" />
+                    <Circle fill="WHITE" layoutX="134.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #04127b;" />
+                    <Label layoutX="130.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE" />
+                    <Circle fill="WHITE" layoutX="336.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #04127b;" />
+                    <Label layoutX="332.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2" textFill="WHITE" />
+                    <Circle fill="WHITE" layoutX="537.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #04127b;" />
+                    <Label layoutX="533.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3" textFill="WHITE" />
+                    <Circle fill="WHITE" layoutX="735.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="731.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4" />
+                    <Circle fill="WHITE" layoutX="910.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="906.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5" />
+
+                </AnchorPane>
+                <Label alignment="CENTER" layoutX="101.0" layoutY="322.0" prefHeight="21.0" prefWidth="668.0" text="Hold the IRIS scanner correctly, keep eyes wide open and press scan button" textAlignment="CENTER">
+                    <font>
+                        <Font name="System Bold" size="15.0" />
+                    </font>
+                </Label>
+                <AnchorPane fx:id="confirmPane" layoutX="117.0" layoutY="572.0" prefHeight="67.0" prefWidth="798.0" style="-fx-border-color: #04127b;" visible="false">
+
+                    <Button layoutX="206.0" layoutY="32.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" onAction="#goBack" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="Yes" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0" />
+                        </font>
+                    </Button>
+                    <Text fill="#04127b" layoutX="129.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Click 'Yes' to capture fingerprint or 'No' to Scan IRIS" textAlignment="JUSTIFY">
+                        <font>
+                            <Font size="18.0" />
+                        </font>
+                    </Text>
+                    <Button layoutX="395.0" layoutY="31.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" onAction="#stayBack" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="No" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0" />
+                        </font>
+                    </Button>
+
+                    <opaqueInsets>
+                        <Insets top="-9.0" />
+                    </opaqueInsets>
+                </AnchorPane>
+
+            </AnchorPane>
+        </center>
+    </BorderPane>
+
+</VBox>

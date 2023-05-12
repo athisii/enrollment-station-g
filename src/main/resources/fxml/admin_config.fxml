@@ -1,206 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.AdminConfigController">
+
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.AdminConfigController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <left>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png" />
 
                     </ImageView>
-                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0"
-                           prefWidth="108.0"
-                           style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;"
-                           text="INS INDIA" textAlignment="CENTER" textFill="#111010" visible="false"/>
+                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0" style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;" text="INS INDIA" textAlignment="CENTER" textFill="#111010" visible="false" />
 
                 </AnchorPane>
 
-                <AnchorPane layoutX="192.0" layoutY="180.0" prefHeight="231.0" prefWidth="205.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="192.0" layoutY="180.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="29.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/settingsnew.png"/>
+                        <Image url="@../img/settingsnew.png" />
 
                     </ImageView>
-                    <Button fx:id="enrollment" layoutX="30.0" layoutY="162.0" maxHeight="35.0"
-                            maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="SERVER CONFIG" textFill="WHITE">
+                    <Button fx:id="enrollment" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SERVER CONFIG" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutX="407.0" layoutY="180.0" prefHeight="231.0" prefWidth="205.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="407.0" layoutY="180.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="86.0" fitWidth="98.0" layoutX="50.0" layoutY="52.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="86.0" fitWidth="98.0" layoutX="50.0" layoutY="52.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navybluecheck.png"/>
+                        <Image url="@../img/navybluecheck.png" />
 
                     </ImageView>
-                    <Button fx:id="token" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0"
-                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#devicecheck" prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="DEVICE CHECK" textFill="WHITE">
+                    <Button fx:id="token" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#devicecheck" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="DEVICE CHECK" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutX="621.0" layoutY="179.0" prefHeight="231.0" prefWidth="205.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="621.0" layoutY="179.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="39.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/licence-info.png"/>
+                        <Image url="@../img/licence-info.png" />
 
                     </ImageView>
-                    <Button fx:id="licenseinfo" layoutX="30.0" layoutY="162.0" maxHeight="35.0"
-                            maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#licenseInfo" prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="LICENSE INFO" textFill="WHITE">
+                    <Button fx:id="licenseinfo" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#licenseInfo" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="LICENSE INFO" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <Label fx:id="statusMsg" alignment="CENTER" layoutX="260.0" layoutY="630.0" prefHeight="33.0"
-                       prefWidth="487.0">
+                <Label fx:id="statusMsg" alignment="CENTER" layoutX="260.0" layoutY="630.0" prefHeight="33.0" prefWidth="487.0">
                     <font>
-                        <Font name="System Bold" size="15.0"/>
+                        <Font name="System Bold" size="15.0" />
                     </font>
                 </Label>
-                <AnchorPane layoutX="190.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="190.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="39.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/reset.png"/>
+                        <Image url="@../img/reset.png" />
 
                     </ImageView>
-                    <Button fx:id="restart" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0"
-                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#restartsystem" prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="RESTART" textFill="WHITE">
+                    <Button fx:id="restart" layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#restartsystem" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="RESTART" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutX="416.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0"
-                            style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="416.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <ImageView fitHeight="86.0" fitWidth="98.0" layoutX="50.0" layoutY="52.0"
-                               pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="86.0" fitWidth="98.0" layoutX="50.0" layoutY="52.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/logout.png"/>
+                        <Image url="@../img/logout.png" />
 
                     </ImageView>
-                    <Button fx:id="logoutbtn" layoutX="17.0" layoutY="162.0" maxHeight="35.0"
-                            maxWidth="181.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#logOut" prefHeight="35.0" prefWidth="158.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="LOGOUT" textFill="WHITE">
+                    <Button fx:id="logoutbtn" layoutX="17.0" layoutY="162.0" maxHeight="35.0" maxWidth="181.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#logOut" prefHeight="35.0" prefWidth="158.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="LOGOUT" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane  layoutX="621.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0"
-                             style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="621.0" layoutY="400.0" prefHeight="231.0" prefWidth="205.0" style="-fx-background-color: #fff;">
 
-                    <Label text="FP LIVENESS" layoutX="40.0" layoutY="80.0" maxHeight="35.0" maxWidth="150.0">
+                    <Label layoutX="40.0" layoutY="80.0" maxHeight="35.0" maxWidth="150.0" text="FP LIVENESS">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="liveFpTextField" layoutX="69.0" layoutY="110.0" maxHeight="35.0" maxWidth="60.0"
-                               editable="false" alignment="center">
+                    <TextField fx:id="liveFpTextField" alignment="center" editable="false" layoutX="69.0" layoutY="110.0" maxHeight="35.0" maxWidth="60.0">
                         <font>
-                            <Font name="System Bold" size="16.0"/>
+                            <Font name="System Bold" size="16.0" />
                         </font>
                     </TextField>
 
-                    <Button fx:id="liveFpBtn" layoutX="17.0" layoutY="162.0" maxHeight="35.0" maxWidth="181.0"
-                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0"
-                            prefWidth="154.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="EDIT"
-                            textFill="WHITE">
+                    <Button fx:id="liveFpBtn" layoutX="17.0" layoutY="162.0" maxHeight="35.0" maxWidth="181.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="154.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="EDIT" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
                 </AnchorPane>
 
-                <AnchorPane fx:id="confirmPane" layoutX="80.0" layoutY="640.0" prefHeight="67.0"
-                            prefWidth="863.0" style="-fx-border-color: #04127b;" visible="false">
+                <AnchorPane fx:id="confirmPane" layoutX="80.0" layoutY="640.0" prefHeight="67.0" prefWidth="863.0" style="-fx-border-color: #04127b;" visible="false">
 
-                    <Button fx:id="confirmYesBtn" layoutX="271.0" layoutY="32.0" maxHeight="35.0"
-                            maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#restart" prefHeight="28.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="Yes" textFill="WHITE">
+                    <Button fx:id="confirmYesBtn" layoutX="271.0" layoutY="32.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" onAction="#restart" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="Yes" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Text fill="#04127b" layoutX="209.0" layoutY="24.0" strokeType="OUTSIDE"
-                          strokeWidth="0.0" text="Click 'Yes' to Restart " textAlignment="JUSTIFY"
-                          visible="false">
+                    <Text fill="#04127b" layoutX="209.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Click 'Yes' to Restart " textAlignment="JUSTIFY" visible="false">
                         <font>
-                            <Font size="18.0"/>
+                            <Font size="18.0" />
                         </font>
                     </Text>
-                    <Button fx:id="confirmNoBtn" layoutX="460.0" layoutY="31.0" maxHeight="35.0"
-                            maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false"
-                            onAction="#stayBack" prefHeight="28.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="No" textFill="WHITE">
+                    <Button fx:id="confirmNoBtn" layoutX="460.0" layoutY="31.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" onAction="#stayBack" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="No" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Label fx:id="confirmpanelabel" alignment="CENTER" layoutX="140.0" prefHeight="16.0"
-                           prefWidth="588.0" text="Click &quot;Yes&quot; to Restart" textFill="#04127b">
+                    <Label fx:id="confirmpanelabel" alignment="CENTER" layoutX="140.0" prefHeight="16.0" prefWidth="588.0" text="Click &quot;Yes&quot; to Restart" textFill="#04127b">
                         <font>
-                            <Font size="18.0"/>
+                            <Font size="18.0" />
                         </font>
                     </Label>
 
                     <opaqueInsets>
-                        <Insets top="-10.0"/>
+                        <Insets top="-10.0" />
                     </opaqueInsets>
                 </AnchorPane>
 
-                <AnchorPane layoutY="711.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
+                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
 
             </AnchorPane>
         </left>

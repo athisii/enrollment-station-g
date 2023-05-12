@@ -1,170 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cdac.enrollmentstation.controller.ARCNoController">
+
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ARCNoController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
-                               preserveRatio="true">
-                        <Image url="@../img/navylogo.png"/>
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@../img/navylogo.png" />
                     </ImageView>
                 </AnchorPane>
-                <Label layoutX="8.0" layoutY="118.0" prefHeight="26.0" prefWidth="334.0" text="BIOMETRIC ENROLMENT"
-                       textFill="#04127b">
+                <Label layoutX="8.0" layoutY="118.0" prefHeight="26.0" prefWidth="334.0" text="BIOMETRIC ENROLMENT" textFill="#04127b">
                     <font>
-                        <Font size="22.0"/>
+                        <Font size="22.0" />
                     </font>
                 </Label>
                 <AnchorPane layoutY="151.0" prefHeight="74.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-                    <Label layoutX="13.0" layoutY="26.0" prefHeight="20.0" prefWidth="200.0" text="INPUT e-ARC Number"
-                           textFill="WHITE">
+                    <Label layoutX="13.0" layoutY="26.0" prefHeight="20.0" prefWidth="200.0" text="INPUT e-ARC Number" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="arcNumberTextField" layoutX="190.0" layoutY="23.0" prefHeight="26.0"
-                               prefWidth="267.0"/>
-                    <Button fx:id="showArcBtn" layoutX="462.0" layoutY="14.0" mnemonicParsing="false" prefHeight="46.0"
-                            prefWidth="50.0">
+                    <TextField fx:id="arcNumberTextField" layoutX="190.0" layoutY="23.0" prefHeight="26.0" prefWidth="267.0" />
+                    <Button fx:id="showArcBtn" layoutX="462.0" layoutY="14.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="50.0">
                         <graphic>
                             <ImageView fitHeight="43.0" fitWidth="50.0">
-                                <Image url="@../img/muted_manual_down.png"/>
+                                <Image url="@../img/muted_manual_down.png" />
                             </ImageView>
                         </graphic>
                     </Button>
-                    <Label layoutX="588.0" layoutY="28.0" prefHeight="20.0" prefWidth="135.0" text="BARCODE SCAN"
-                           textFill="WHITE">
+                    <Label layoutX="588.0" layoutY="28.0" prefHeight="20.0" prefWidth="135.0" text="BARCODE SCAN" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
-                    <TextField fx:id="txtARCBarcode" focusTraversable="false" layoutX="731.0" layoutY="25.0"
-                               onAction="#barcodeAction"/>
+                    <TextField fx:id="txtARCBarcode" focusTraversable="false" layoutX="731.0" layoutY="25.0" onAction="#barcodeAction" />
                 </AnchorPane>
                 <AnchorPane layoutY="228.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #fff;">
 
-                    <ProgressBar layoutX="129.0" layoutY="23.0" prefHeight="14.0" prefWidth="783.0" progress="0.0"/>
-                    <Circle fill="WHITE" layoutX="123.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="119.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="325.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="321.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2"/>
-                    <Circle fill="WHITE" layoutX="526.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="522.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3"/>
-                    <Circle fill="WHITE" layoutX="722.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="718.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4"/>
-                    <Circle fill="WHITE" layoutX="899.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="895.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5"/>
+                    <ProgressBar layoutX="129.0" layoutY="23.0" prefHeight="14.0" prefWidth="783.0" progress="0.0" />
+                    <Circle fill="WHITE" layoutX="123.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #04127b;" />
+                    <Label layoutX="119.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE" />
+                    <Circle fill="WHITE" layoutX="325.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="321.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2" />
+                    <Circle fill="WHITE" layoutX="526.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="522.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3" />
+                    <Circle fill="WHITE" layoutX="722.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="718.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4" />
+                    <Circle fill="WHITE" layoutX="899.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" style="-fx-fill: #bbb5b5;" />
+                    <Label layoutX="895.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5" />
 
                 </AnchorPane>
 
-                <AnchorPane layoutX="136.0" layoutY="322.0" minHeight="0.0" minWidth="0.0" prefHeight="322.0"
-                            prefWidth="754.0" style="-fx-background-color: #fff;">
+                <AnchorPane layoutX="136.0" layoutY="322.0" minHeight="0.0" minWidth="0.0" prefHeight="322.0" prefWidth="754.0" style="-fx-background-color: #fff;">
 
                     <Label layoutX="17.0" layoutY="49.0" text="Name" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
                     <Label layoutX="243.0" layoutY="49.0" text="Rank" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
                     <Label layoutX="475.0" layoutY="49.0" text="Applicant ID" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
                     <Label layoutX="17.0" layoutY="114.0" text="Unit" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
-                    <Label layoutX="243.0" layoutY="114.0" text="Exceptions in Finger"
-                           textFill="#04127b">
+                    <Label layoutX="243.0" layoutY="114.0" text="Exceptions in Finger" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
-                    <Label layoutX="475.0" layoutY="114.0" text="Exceptions in Iris"
-                           textFill="#04127b">
+                    <Label layoutX="475.0" layoutY="114.0" text="Exceptions in Iris" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
-                    <Label layoutX="20.0" layoutY="180.0" text="Biometric Options"
-                           textFill="#04127b">
+                    <Label layoutX="20.0" layoutY="180.0" text="Biometric Options" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
                     <Label layoutX="245.0" layoutY="180.0" text="e-ARC Status" textFill="#04127b">
                         <font>
-                            <Font size="14.0"/>
+                            <Font size="14.0" />
                         </font>
                     </Label>
 
-                    <TextField fx:id="txtName" editable="false" focusTraversable="false" layoutX="17.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtRank" editable="false" focusTraversable="false" layoutX="243.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtApp" editable="false" focusTraversable="false" layoutX="475.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtUnit" editable="false" focusTraversable="false" layoutX="17.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtFinger" editable="false" focusTraversable="false" layoutX="243.0"
-                               layoutY="134.0" prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtIris" editable="false" focusTraversable="false" layoutX="475.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtBiometricOptions" editable="false" focusTraversable="false" layoutX="20.0"
-                               layoutY="200.0" prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtArcStatus" editable="false" focusTraversable="false" layoutX="245.0"
-                               layoutY="199.0" prefHeight="26.0" prefWidth="204.0"/>
+                    <TextField fx:id="txtName" editable="false" focusTraversable="false" layoutX="17.0" layoutY="72.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtRank" editable="false" focusTraversable="false" layoutX="243.0" layoutY="72.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtApp" editable="false" focusTraversable="false" layoutX="475.0" layoutY="72.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtUnit" editable="false" focusTraversable="false" layoutX="17.0" layoutY="134.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtFinger" editable="false" focusTraversable="false" layoutX="243.0" layoutY="134.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtIris" editable="false" focusTraversable="false" layoutX="475.0" layoutY="134.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtBiometricOptions" editable="false" focusTraversable="false" layoutX="20.0" layoutY="200.0" prefHeight="26.0" prefWidth="204.0" />
+                    <TextField fx:id="txtArcStatus" editable="false" focusTraversable="false" layoutX="245.0" layoutY="199.0" prefHeight="26.0" prefWidth="204.0" />
 
-                    <Button fx:id="backBtn" layoutX="241.0" layoutY="272.0" maxHeight="36.0"
-                            maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"
-                            prefWidth="150.0"
-                            style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
-                            textFill="WHITE">
+                    <Button fx:id="backBtn" layoutX="241.0" layoutY="272.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Button fx:id="continueBtn" disable="true" layoutX="412.0" layoutY="272.0"
-                            maxHeight="36.0" maxWidth="212.0" minHeight="36.0" minWidth="147.0" mnemonicParsing="false"
-                            prefHeight="36.0" prefWidth="147.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CONTINUE"
-                            textFill="WHITE">
+                    <Button fx:id="continueBtn" disable="true" layoutX="412.0" layoutY="272.0" maxHeight="36.0" maxWidth="212.0" minHeight="36.0" minWidth="147.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="147.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CONTINUE" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="198.0" layoutY="663.0" prefHeight="23.0"
-                       prefWidth="674.0"
-                       text="Enter e-ARC Number / Scan Barcode and Click Down Arrow Icon">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="198.0" layoutY="663.0" prefHeight="23.0" prefWidth="674.0" text="Enter e-ARC Number / Scan Barcode and Click Down Arrow Icon">
                     <font>
-                        <Font name="System Bold" size="15.0"/>
+                        <Font name="System Bold" size="15.0" />
                     </font>
                 </Label>
-                <AnchorPane layoutY="711.0" prefHeight="30.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
+                <AnchorPane layoutY="745.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
 
             </AnchorPane>
         </center>

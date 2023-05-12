@@ -2,8 +2,6 @@ package RealScan;
 
 public class RealScan_JNI {
 
-    public boolean WINDOW = true;
-
     public static class RSDeviceInfo {
         //  int deviceType;
         public int deviceType;
@@ -457,7 +455,7 @@ public class RealScan_JNI {
     public static final int RS_LED_YELLOW = 0x03;
 
     //
-    // LED Status for G1 
+    // LED Status for G1
     //
     public static final int RS_LED_STATUS_OFF = 0x00;
     public static final int RS_LED_STATUS_ON = 0x01;
@@ -505,7 +503,7 @@ public class RealScan_JNI {
     public static final int RS_LCD_DATA_SIZE_MAX = 153600;
 
     //
-    // LFD Level for G1 
+    // LFD Level for G1
     //
     public static final int RS_LFD_OFF = 0;
     public static final int RS_LFD_LEVEL_1 = 1;
@@ -733,5 +731,4 @@ public class RealScan_JNI {
             System.loadLibrary("RealScanJni");
         }
     }
-
 }

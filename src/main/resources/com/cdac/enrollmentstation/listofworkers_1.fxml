@@ -19,7 +19,7 @@
                     <ImageView fx:id="mFingerPrintImage" fitHeight="125.0" fitWidth="100.0" layoutX="46.0"
                                layoutY="29.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/singlefinger.jpeg"/>
+                        <Image url="@../img/singlefinger.jpeg"/>
 
                     </ImageView>
                     <Button fx:id="captureSingleFinger" layoutX="21.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0"
@@ -55,7 +55,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"
@@ -68,7 +68,7 @@
                 <ImageView fitHeight="29.0" fitWidth="38.0" layoutX="531.0" layoutY="237.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/Search-icon.png"/>
+                    <Image url="@../img/Search-icon.png"/>
 
                 </ImageView>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
@@ -124,7 +124,7 @@
                 <ImageView fitHeight="128.0" fitWidth="239.0" layoutX="772.0" layoutY="298.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/table.png"/>
+                    <Image url="@../img/table.png"/>
 
                 </ImageView>
                 <Label layoutX="781.0" layoutY="404.0" prefHeight="41.0" prefWidth="228.0"

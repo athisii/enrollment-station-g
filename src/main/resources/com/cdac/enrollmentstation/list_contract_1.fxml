@@ -22,7 +22,7 @@
                     <ImageView fitHeight="86.0" fitWidth="53.0" layoutX="16.0" layoutY="6.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/logo.png"/>
+                        <Image url="@../img/logo.png"/>
 
                     </ImageView>
 

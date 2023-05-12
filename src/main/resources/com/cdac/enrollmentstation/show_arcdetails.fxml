@@ -16,30 +16,30 @@
                 <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="276.0" layoutY="57.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/blue_enrollment.png"/>
+                    <Image url="@../img/blue_enrollment.png"/>
 
                 </ImageView>
                 <ImageView layoutX="452.0" layoutY="45.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/muted_fingerprint.png"/>
+                    <Image url="@../img/muted_fingerprint.png"/>
 
                 </ImageView>
                 <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="652.0" layoutY="57.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/muted_eye.png"/>
+                    <Image url="@../img/muted_eye.png"/>
 
                 </ImageView>
                 <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="807.0" layoutY="54.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/muted_camera.png"/>
+                    <Image url="@../img/muted_camera.png"/>
 
                 </ImageView>
                 <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="976.0" layoutY="53.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/muted_complete.png"/>
+                    <Image url="@../img//muted_complete.png"/>
 
                 </ImageView>
                 <Text fill="#22223b" layoutX="259.0" layoutY="117.0" strokeType="OUTSIDE" strokeWidth="0.0"

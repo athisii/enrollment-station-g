@@ -1,7 +1,7 @@
 package com.cdac.enrollmentstation;
 
 
-import com.cdac.enrollmentstation.logging.ApplicationLogOld;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -16,7 +16,6 @@ import org.opencv.core.Core;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,17 +25,7 @@ import java.util.logging.Logger;
  */
 public class App extends Application implements EventHandler<WindowEvent> {
     private static Scene scene;
-
-    //For Application Log
-    ApplicationLogOld appLog = new ApplicationLogOld();
-    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    Handler handler;
-
-    public App() {
-        this.handler = appLog.getLogger();
-        LOGGER.addHandler(handler);
-    }
-
+    private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -66,7 +55,7 @@ public class App extends Application implements EventHandler<WindowEvent> {
         return FXMLLoader.load(Objects.requireNonNull(App.class.getResource("/fxml/" + fxml + ".fxml")));
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         launch();
     }

@@ -35,7 +35,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"
@@ -48,7 +48,7 @@
                 <ImageView fitHeight="26.0" fitWidth="29.0" layoutX="574.0" layoutY="238.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/Search-icon.png"/>
+                    <Image url="@../img/Search-icon.png"/>
 
                 </ImageView>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
@@ -100,7 +100,7 @@
                 <ImageView fitHeight="116.0" fitWidth="215.0" layoutX="801.0" layoutY="345.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/labourlist-click.jpg"/>
+                    <Image url="@../img/labourlist-click.jpg"/>
 
                 </ImageView>
                 <Label alignment="CENTER" layoutX="799.0" layoutY="457.0" prefHeight="44.0" prefWidth="225.0"

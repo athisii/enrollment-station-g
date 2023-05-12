@@ -38,7 +38,7 @@
                     <ImageView fx:id="righticon" fitHeight="179.0" fitWidth="184.0" layoutX="2.0" layoutY="2.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/iris.jpg"/>
+                        <Image url="@../img/iris.jpg"/>
                     </ImageView>
 
                 </Pane>
@@ -48,7 +48,7 @@
                     <ImageView fx:id="lefticon" fitHeight="178.0" fitWidth="185.0" layoutX="2.0" layoutY="2.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/iris.jpg"/>
+                        <Image url="@../img/iris.jpg"/>
                     </ImageView>
 
                 </Pane>
@@ -70,7 +70,7 @@
                 <ImageView fx:id="statusImage" fitHeight="116.0" fitWidth="118.0" layoutX="790.0" layoutY="293.0"
                            pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/iris_image.png"/>
+                    <Image url="@../img/iris_image.png"/>
                 </ImageView>
                 <AnchorPane layoutY="711.0" prefHeight="30.0" prefWidth="1024.0"
                             style="-fx-background-color: #1990ea;"/>
@@ -94,7 +94,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"

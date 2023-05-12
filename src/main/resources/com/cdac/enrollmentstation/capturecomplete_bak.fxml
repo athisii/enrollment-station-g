@@ -27,19 +27,19 @@
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="155.0" layoutY="341.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/thumbnew.png"/>
+                    <Image url="@../img/thumbnew.png"/>
 
                 </ImageView>
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="420.0" layoutY="341.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/iris.jpg"/>
+                    <Image url="@../img/iris.jpg"/>
 
                 </ImageView>
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="657.0" layoutY="341.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/photo.jpg"/>
+                    <Image url="@../img/photo.jpg"/>
 
                 </ImageView>
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
@@ -47,7 +47,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"

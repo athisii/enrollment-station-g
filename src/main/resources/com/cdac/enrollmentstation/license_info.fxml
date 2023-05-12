@@ -34,7 +34,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
 
@@ -48,7 +48,7 @@
                 <ImageView fitHeight="40.0" fitWidth="42.0" layoutX="14.0" layoutY="106.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/settings.jpg"/>
+                    <Image url="@../img/settings.jpg"/>
 
                 </ImageView>
                 <Label fx:id="labelstatus" alignment="CENTER" layoutX="355.0" layoutY="567.0" prefHeight="25.0"

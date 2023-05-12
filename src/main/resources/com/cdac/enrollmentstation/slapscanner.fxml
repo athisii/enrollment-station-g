@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerControllerOld">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>
@@ -19,7 +19,7 @@
                     <ImageView fx:id="imageLeft" fitHeight="131.0" fitWidth="151.0" layoutX="7.0" layoutY="41.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/leftscan.png"/>
+                        <Image url="@../img/leftscan.png"/>
 
                     </ImageView>
                     <ImageView fx:id="LICanvas" fitHeight="56.0" fitWidth="56.0" layoutX="180.0" layoutY="9.0"
@@ -75,7 +75,7 @@
                     <ImageView fx:id="imageRight" fitHeight="131.0" fitWidth="151.0" layoutX="5.0" layoutY="39.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/rightscan.png"/>
+                        <Image url="@../img/rightscan.png"/>
 
                     </ImageView>
                     <ImageView fx:id="RICanvas" fitHeight="56.0" fitWidth="56.0" layoutX="179.0" layoutY="10.0"
@@ -105,7 +105,7 @@
                     <ImageView fx:id="imageThumb" fitHeight="124.0" fitWidth="131.0" layoutX="8.0" layoutY="47.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/thumbboth.png"/>
+                        <Image url="@../img/thumbboth.png"/>
 
                     </ImageView>
                     <ImageView fx:id="LTCanvas" fitHeight="56.0" fitWidth="56.0" layoutX="177.0" layoutY="45.0"
@@ -189,7 +189,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"

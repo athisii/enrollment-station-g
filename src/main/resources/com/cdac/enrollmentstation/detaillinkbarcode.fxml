@@ -22,27 +22,27 @@
 
                         <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="27.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
 
-                              <Image url="@img/blue_enrollment.png" />
+                              <Image url="@../img/blue_enrollment.png" />
 
                         </ImageView>
                         <ImageView layoutX="189.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
 
-                              <Image url="@img/blue_fingerprint.png" />
+                              <Image url="@../img/blue_fingerprint.png" />
 
                         </ImageView>
                         <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="377.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
 
-                              <Image url="@img/blue_eye.png" />
+                              <Image url="@../img/blue_eye.png" />
 
                         </ImageView>
                         <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="557.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
 
-                              <Image url="@img/blue_camera.png" />
+                              <Image url="@../img/blue_camera.png" />
 
                         </ImageView>
                         <ImageView fitHeight="38.0" fitWidth="44.0" layoutX="714.0" layoutY="7.0" pickOnBounds="true" preserveRatio="true">
 
-                              <Image url="@img/blue_complete.png" />
+                              <Image url="@../img/blue_complete.png" />
 
                         </ImageView>
                         <Text fill="#22223b" layoutX="16.0" layoutY="69.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Enrollment">

@@ -18,7 +18,7 @@
                     <ImageView fitHeight="86.0" fitWidth="53.0" layoutX="16.0" layoutY="6.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/logo.png"/>
+                        <Image url="@../img/logo.png"/>
 
                     </ImageView>
 
@@ -60,7 +60,7 @@
                     <ImageView fitHeight="125.0" fitWidth="100.0" layoutX="51.0" layoutY="29.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/blue_fingerprint.png"/>
+                        <Image url="@../img/blue_fingerprint.png"/>
 
                     </ImageView>
                     <Button layoutX="30.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"

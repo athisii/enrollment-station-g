@@ -46,7 +46,7 @@
                     <ImageView fx:id="imageLeft1" fitHeight="131.0" fitWidth="151.0" layoutX="8.0" layoutY="38.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/leftscan.png"/>
+                        <Image url="@../img/leftscan.png"/>
 
                     </ImageView>
 
@@ -93,7 +93,7 @@
                     <ImageView fx:id="imageRight1" fitHeight="131.0" fitWidth="151.0" layoutX="4.0" layoutY="37.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/rightscan.png"/>
+                        <Image url="@../img/rightscan.png"/>
 
                     </ImageView>
 
@@ -121,7 +121,7 @@
                     <ImageView fx:id="imageThumb" fitHeight="124.0" fitWidth="131.0" layoutX="10.0" layoutY="44.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/thumbboth.png"/>
+                        <Image url="@../img//thumbboth.png"/>
 
                     </ImageView>
 
@@ -186,7 +186,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img//navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"

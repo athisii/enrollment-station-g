@@ -1,12 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.cdac.enrollmentstation.model;
 
-import RealScan.FP;
-import com.cdac.enrollmentstation.model.IRIS;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +18,6 @@ import java.util.Set;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SaveEnrollmentDetails {
-
     @JsonProperty("ARCNo")
     String arcNo;
 
@@ -53,14 +45,14 @@ public class SaveEnrollmentDetails {
     @JsonProperty("IRIS")
     Set<IRIS> iris = new HashSet<>();
 
-    @JsonProperty("IRISScannerSerialNo")
-    String iRISScannerSerialNo;
+    @JsonProperty("IRISScannerSerailNo")
+    String iRISScannerSerailNo;
 
-    @JsonProperty("LeftFPScannerSerialNo")
-    String leftFPScannerSerialNo;
+    @JsonProperty("LeftFPScannerSerailNo")
+    String leftFPScannerSerailNo;
 
-    @JsonProperty("RightFPScannerSerialNo")
-    String rightFPScannerSerialNo;
+    @JsonProperty("RightFPScannerSerailNo")
+    String rightFPScannerSerailNo;
 
     @JsonProperty("UniqueID")
     String uniqueID;
@@ -71,4 +63,5 @@ public class SaveEnrollmentDetails {
     //For Biometric Options
     @JsonProperty("BiometricOptions")
     String biometricOptions;
+
 }

@@ -14,7 +14,7 @@
 
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/navylogo.png" />
+                        <Image url="@../img/navylogo.png" />
 
                     </ImageView>
 
@@ -29,7 +29,7 @@
 
                     <ImageView fitHeight="170.0" fitWidth="200.0" layoutX="164.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/showtoken.jpeg" />
+                        <Image url="@../img/showtoken.jpeg" />
 
                     </ImageView>
                     <Button fx:id="showContractDetails" layoutX="216.0" layoutY="227.0" maxHeight="35.0" maxWidth="233.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#readCardDetails" prefHeight="35.0" prefWidth="233.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SHOW CONTRACTOR CARD" textFill="WHITE">

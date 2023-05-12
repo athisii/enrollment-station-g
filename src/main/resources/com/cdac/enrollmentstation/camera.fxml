@@ -37,7 +37,7 @@
                     <ImageView fx:id="currentFrame" fitHeight="216.0" fitWidth="229.0" layoutX="48.0" layoutY="3.0"
                                pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@img/webcam.jpg"/>
+                        <Image url="@../img/webcam.jpg"/>
                     </ImageView>
                     <Button fx:id="button" layoutX="21.0" layoutY="228.0" maxHeight="28.0" maxWidth="269.0"
                             minHeight="28.0" minWidth="150.0" mnemonicParsing="false" onAction="#startCamera"
@@ -61,7 +61,7 @@
                 <ImageView fx:id="iconFrame" fitHeight="124.0" fitWidth="145.0" layoutX="688.0" layoutY="435.0"
                            pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/nomask.png"/>
+                    <Image url="@../img/nomask.png"/>
                 </ImageView>
                 <ImageView fx:id="msgicon" fitHeight="120.0" fitWidth="135.0" layoutX="699.0" layoutY="547.0"
                            pickOnBounds="true" preserveRatio="true" visible="false"/>
@@ -70,7 +70,7 @@
                 <ImageView fitHeight="118.0" fitWidth="117.0" layoutX="697.0" layoutY="322.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@img/no-goggles.jpg"/>
+                    <Image url="@../img/no-goggles.jpg"/>
 
                 </ImageView>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
@@ -93,7 +93,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"

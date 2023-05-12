@@ -1,3301 +1,1249 @@
 package RealScan;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.util.TestProp;
-import com.cdac.enrollmentstation.logging.ApplicationLogOld;
-import com.cdac.enrollmentstation.model.ARCDetails;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
+import com.cdac.enrollmentstation.model.FP;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
-import com.cdac.enrollmentstation.service.ObjectReaderWriter;
-import com.fasterxml.jackson.core.Base64Variants;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import com.cdac.enrollmentstation.util.PropertyFile;
+import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
 import com.innovatrics.commons.img.RawGrayscaleImage;
 import com.innovatrics.iengine.ansiiso.AnsiIso;
-import com.innovatrics.iengine.ansiiso.AnsiIsoException;
 import com.innovatrics.iengine.ansiiso.AnsiIsoImageFormatEnum;
 import com.innovatrics.iengine.ansiiso.IEngineTemplateFormat;
 import com.mantra.IMAGE_FORMAT;
 import com.mantra.Utility;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.logging.Handler;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class SlapScannerController implements Initializable {
+import static RealScan.RealScan_JNI.*;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_RS_ERR_MSG;
+import static com.cdac.enrollmentstation.model.ARCDetailsHolder.getArcDetailsHolder;
 
-    StringBuffer deviceName;
+/**
+ * @author athisii, CDAC
+ * Created on 29/03/23
+ */
+
+public class SlapScannerController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerController.class);
+    private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 3; // to be on safe side
+    private static final int TIME_TO_WAIT_FOR_USER_IN_SEC = 3; // wait for users to place their fingers on sensor
+    private static final int TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS = 100;
+    private static final int SECURITY_LEVEL_FOR_SEQUENCE_CHECK = 5; // range: 0~7
+    public static final String UNSUPPORTED_FINGER_SET_TYPE = "Unsupported finger set type.";
+    private boolean isFpScanCompleted;
+    // cannot be static.
+    private final int fingerprintLivenessValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FINGERPRINT_LIVENESS_VALUE).trim());
 
 
-    javafx.scene.image.Image img = null;
+    /* *********** GLOBAL MEMBER VARIABLES ************* */
+    /* ****** ITS VALUE CHANGES AND ARE USED IN DIFFERENT METHODS ******/
+    private volatile FingerSetType fingerSetTypeToScan = FingerSetType.LEFT; // global finger to scan holder to be used in common methods.
+    private volatile boolean isFromPrevScan; // to avoid unnecessary wait.
+    private volatile int jniReturnedCode;
+    private volatile String jniErrorMsg;
+    private volatile boolean isLeftFpDeviceInitialised; // to maintain device status.
+    private volatile boolean isRightFpDeviceInitialised; // to maintain device status.
+    private volatile int leftFpDeviceHandler;
+    private volatile int rightFpDeviceHandler;
+    private volatile int captureMode; // to be used when setting capture mode.
+    private volatile int slapType; // to be used during segmentation.
+    private final RSDeviceInfo leftFpDeviceInfo = new RSDeviceInfo();
+    private final RSDeviceInfo rightFpDeviceInfo = new RSDeviceInfo();
+    private final EnumMap<FingerSetType, RSImageInfo> fingerSetTypeToRsImageInfoMap = new EnumMap<>(FingerSetType.class);
 
-    private final Object syncImg = new Object();
+    private static final AnsiIso ansiIso = new AnsiIso(); // for template conversion
+    // GLOBAL map that stores scanned fingerprints. (fingerType -> RSImageInfo mapping)
+    private final Map<Integer, RSImageInfo> scannedFingerTypeToRsImageInfoMap = new HashMap<>();
+    private Map<String, Integer> leftFingerToFingerTypeLinkedHashMap; // left fingers to scan in finger type sequence (ordered as per SDK)(very important)
+    private Map<String, Integer> rightFingerToFingerTypeLinkedHashMap; // right fingers to scan in finger type sequence (ordered as per SDK)(very important)
+    private Map<String, Integer> thumbToFingerTypeLinkedHashMap;  // thumbs to scan in finger type sequence(ordered as per SDK)(very important)
 
-    Set<FP> fingerPrintSet = new HashSet<>();
+    private static final Map<String, String> fingerAbrvToLFMap = new HashMap<>();
 
-    List<Integer> captureModesCompleted = new ArrayList<Integer>();
+    /* ************************************************************************************ */
 
-    // SaveEnrollmentDetails saveEnrollment;
+    static {
+        fingerAbrvToLFMap.put("RT", "Right Thumb");
+        fingerAbrvToLFMap.put("RI", "Right Index");
+        fingerAbrvToLFMap.put("RM", "Right Middle");
+        fingerAbrvToLFMap.put("RR", "Right Ring");
+        fingerAbrvToLFMap.put("RL", "Right Little");
 
-    @FXML
-    public Label statusField;
-
-    @FXML
-    public Label displayarclabel;
-
-    @FXML
-    public ImageView imageLeft;
-
-    @FXML
-    public ImageView imageRight;
-
-    @FXML
-    public ImageView imageThumb;
-
-    @FXML
-    public ImageView preview;
-
-    @FXML
-    public ImageView LTCanvas;
-
-    @FXML
-    public ImageView LICanvas;
-
-    @FXML
-    public ImageView LMCanvas;
-
-    @FXML
-    public ImageView LRCanvas;
-
-    @FXML
-    public ImageView LLCanvas;
-
-    @FXML
-    public ImageView RTCanvas;
-
-    @FXML
-    public ImageView RICanvas;
-
-    @FXML
-    public ImageView RMCanvas;
-
-    @FXML
-    public ImageView RRCanvas;
-
-    @FXML
-    public ImageView RLCanvas;
-
-    @FXML
-    public Button showIrisBtn;
-
-    @FXML
-    public Button backBtn;
-
-    @FXML
-    public Button scan;
-
-    @FXML
-    public Button leftScan;
-
-    @FXML
-    public Button rightScan;
-
-    @FXML
-    public Button thumbScan;
-
-    @FXML
-    public AnchorPane confirmPane;
-
-    @FXML
-    public Button confirmYesBtn;
-
-    @FXML
-    public Button confirmNoBtn;
-
-    TestProp prop = new TestProp();
-
-    public List seqTargetList = new java.util.Vector<>();
-
-    public ARCDetails arcDetails;
-
-    int leftmissingfingers = 0;
-
-    int rightmissingfingers = 0;
-
-    int thumbmissingfingers = 0;
-
-    String whichdevice;
-
-    String[] clearImagePanel = {"", "", ""};
-
-    segFP[] segFPImages = new segFP[10];
-
-    //EnrollmentDetailsHolder enrollmentDetailsHolder = null;
-
-    public SlapScannerController() {
-        // this.enrollmentDetailsHolder = new EnrollmentDetailsHolder();
-        //this.handler = appLog.getLogger();
+        fingerAbrvToLFMap.put("LT", "Left Thumb");
+        fingerAbrvToLFMap.put("LI", "Left Index");
+        fingerAbrvToLFMap.put("LM", "Left Middle");
+        fingerAbrvToLFMap.put("LR", "Left Ring");
+        fingerAbrvToLFMap.put("LL", "Left Little");
     }
 
-    Thread t = null;
-
-    Thread tRight = null;
-
-    Thread tThumb = null;
-
-    Thread ttemplateconvert = null;
-
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-
-
-        //LOGGER.addHandler(handler);
-        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-        ARCDetails a = holder.getArcDetails();
-        displayarclabel.setText("ARC: " + a.getArcNo());
-
-        for (int i = 0; i < segFPImages.length; i++) {
-            segFPImages[i] = new segFP();
-            segFPImages[i].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-            segFPImages[i].image = null;
-            segFPImages[i].rawdata = null;
-            segFPImages[i].width = 0;
-            segFPImages[i].height = 0;
-        }
-        showIrisBtn.setDisable(true);
-
-        initISOSDK();
-
-    }
-
-
-    public class segFP {
-        //public int slapType;
-        public int fingerPosition;
-        public javafx.scene.image.Image image;
-        public byte[] rawdata;
-        public int width;
-        public int height;
+    enum FingerSetType {
+        LEFT, RIGHT, THUMB
     }
 
     @FXML
-    public AnchorPane AnchorPane;
-
-    //segFP[] segFPImages = new segFP[10];
-
-    String[] pFingerMsg = {"None", "Right Thumb", "Right Index", "Right Middle", "Right Ring", "Right Little", "Left Thumb", "Left Index", "Left Middle", "Left Ring", "Left Little"};
-
-    int numOfDevice;
-    int deviceHandle = 0;
-
-    int deviceHandle1 = 0;
-    Boolean isDeviceInitialized = false;
-    //byte[] imageBuffer = new byte[2250 * 2250 + 1078];
-
-    List selectDevice = new ArrayList();
-    int[] modeLedTypes = new int[]{RealScan_JNI.RS_LED_MODE_ALL, RealScan_JNI.RS_LED_MODE_LEFT_FINGER4, RealScan_JNI.RS_LED_MODE_RIGHT_FINGER4, RealScan_JNI.RS_LED_MODE_TWO_THUMB, RealScan_JNI.RS_LED_MODE_ROLL, RealScan_JNI.RS_LED_POWER};
-    int[] fingerLedTypes = new int[]{RealScan_JNI.RS_FINGER_ALL, RealScan_JNI.RS_FINGER_LEFT_LITTLE, RealScan_JNI.RS_FINGER_LEFT_RING, RealScan_JNI.RS_FINGER_LEFT_MIDDLE, RealScan_JNI.RS_FINGER_LEFT_INDEX, RealScan_JNI.RS_FINGER_LEFT_THUMB, RealScan_JNI.RS_FINGER_RIGHT_THUMB, RealScan_JNI.RS_FINGER_RIGHT_INDEX, RealScan_JNI.RS_FINGER_RIGHT_MIDDLE, RealScan_JNI.RS_FINGER_RIGHT_RING, RealScan_JNI.RS_FINGER_RIGHT_LITTLE, RealScan_JNI.RS_FINGER_TWO_THUMB, RealScan_JNI.RS_FINGER_LEFT_FOUR, RealScan_JNI.RS_FINGER_RIGHT_FOUR};
-    int[] ledColors = new int[]{RealScan_JNI.RS_LED_GREEN, RealScan_JNI.RS_LED_RED, RealScan_JNI.RS_LED_YELLOW};
-    int[] beepTypes = new int[]{RealScan_JNI.RS_BEEP_PATTERN_NONE, RealScan_JNI.RS_BEEP_PATTERN_1, RealScan_JNI.RS_BEEP_PATTERN_2};
-    int[] rollProfileOptions = new int[]{RealScan_JNI.RS_ROLL_PROFILE_LOW, RealScan_JNI.RS_ROLL_PROFILE_NORMAL, RealScan_JNI.RS_ROLL_PROFILE_HIGH};
-    int[] rollDirectionOptions = new int[]{RealScan_JNI.RS_ROLL_DIR_L2R, RealScan_JNI.RS_ROLL_DIR_R2L, RealScan_JNI.RS_ROLL_DIR_AUTO, RealScan_JNI.RS_ROLL_DIR_AUTO_M};
-    int[] sensitivityOptions = new int[]{RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, RealScan_JNI.RS_AUTO_SENSITIVITY_HIGH, RealScan_JNI.RS_AUTO_SENSITIVITY_HIGHER, RealScan_JNI.RS_AUTO_SENSITIVITY_DISABLED};
-    int[] fontSizeOptions = new int[]{8, 10, 12, 14, 16, 18, 20, 24, 28};
-    long[] overlayColorOptions = new long[]{0x00000000, 0x000000ff, 0x0000ff00, 0x00ff0000};
-    int[] keyCodeOptions = new int[]{RealScan_JNI.RS_REALSCANF_NO_KEY, RealScan_JNI.RS_REALSCANF_UP_KEY, RealScan_JNI.RS_REALSCANF_DOWN_KEY, RealScan_JNI.RS_REALSCANF_LEFT_KEY, RealScan_JNI.RS_REALSCANF_RIGHT_KEY, RealScan_JNI.RS_REALSCANF_PLAY_KEY, RealScan_JNI.RS_REALSCANF_STOP_KEY, RealScan_JNI.RS_REALSCANF_FOOTSWITCH, RealScan_JNI.RS_REALSCANF_ALL_KEYS};
-
-    int[] captureModes = new int[]{RealScan_JNI.RS_CAPTURE_DISABLED, RealScan_JNI.RS_CAPTURE_ROLL_FINGER, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER, RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS, RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_PALM, RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_PALM, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER_EX, RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS_EX, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_SIDE_PALM, RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_SIDE_PALM, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_WRITERS_PALM, RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_WRITERS_PALM, RealScan_JNI.RS_CAPTURE_FLAT_MANUAL};
-    int[] captureDirections = new int[]{RealScan_JNI.RS_CAPTURE_DIRECTION_DEFAULT, RealScan_JNI.RS_CAPTURE_DIRECTION_LEFT, RealScan_JNI.RS_CAPTURE_DIRECTION_RIGHT};
-
-    boolean bIsCaptureModeSelected = false;
-    int nCaptureMode = -1;
-
-    int nCustomCaptX;
-    int nCustomCaptY;
-    int nCustomCaptWidth;
-    int nCustomCaptHeight;
-    int keyCode;
-    int nFingerCount = 0;
-    int nSlapType = 0;
-
-    byte[][] bSeqCheckTargetImages = new byte[5][];
-    int[] nSeqCheckTargetWidths = new int[5];
-    int[] nSeqCheckTargetHeights = new int[5];
-    int[] nSeqCheckTargetSlapTypes = new int[5];
-    int nNumOfTargetFingers = 0;
-    int nNumOfTargets;
-    Vector listData = new Vector();
-
-    boolean bIsPrevStarted = false;
-
-    enum PrevMode {
-        directDraw, prevCallbackDraw, advPrevCallbackDraw,
-    }
-
-    PrevMode _selectedPrevMode;
-
-    AnsiIso ansiISO = new AnsiIso();
-
-    ApplicationLogOld appLog = new ApplicationLogOld();
-    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    Handler handler;
-
-    public void statusMsg(String message) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                //System.out.println("Capture Status Called...");
-                //LOGGER.log(Level.INFO,"Capture Status Called...");
-                statusField.setText(message);
-
-            }
-        });
-    }
-
-    Runnable DoTemplateConversion = new Runnable() {
-        @Override
-        public void run() {
-
-            try {
-                statusMsg("Please Wait...");
-                LOGGER.log(Level.INFO, "Inside show Iris function");
-                int result = RealScan_JNI.RS_SUCCESS;
-                RealScan_JNI.RSDeviceInfo deviceInfoT = new RealScan_JNI.RSDeviceInfo();
-
-                result = RealScan_JNI.RS_GetDeviceInfo(deviceHandle, deviceInfoT);
-                if (result != RealScan_JNI.RS_SUCCESS) {
-                    String errStr = RealScan_JNI.RS_GetErrString(result);
-                    statusField.setText(errStr);
-                    LOGGER.log(Level.SEVERE, errStr);
-                    return;
-                }
-
-                RealScan_JNI.RSDeviceInfo deviceInfoT1 = new RealScan_JNI.RSDeviceInfo();
-
-                result = RealScan_JNI.RS_GetDeviceInfo(deviceHandle1, deviceInfoT1);
-                if (result != RealScan_JNI.RS_SUCCESS) {
-                    String errStr = RealScan_JNI.RS_GetErrString(result);
-                    statusField.setText(errStr);
-                    LOGGER.log(Level.SEVERE, errStr);
-                    return;
-                }
-
-                RealScan_JNI.RS_ExitDevice(deviceHandle);
-                RealScan_JNI.RS_ExitDevice(deviceHandle1);
-
-
-                LOGGER.log(Level.INFO, "Segment Images Length:::" + segFPImages.length);
-                if (segFPImages.length < 10) {
-                    statusMsg("Error while segmenting, Please try again");
-                    //statusField.setText("Error while segmenting, Please try again");
-                    LOGGER.log(Level.SEVERE, "Error while segmenting fingers, Please try again");
-                    scan.setDisable(false);
-                    backBtn.setDisable(false);
-                    return;
-                }
-
-
-                ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-                ARCDetails a = holder.getArcDetails();
-                SaveEnrollmentDetails saveEnrollment = holder.getSaveEnrollmentDetails();
-                saveEnrollment.setLeftFPScannerSerialNo(deviceInfoT.deviceID);
-                saveEnrollment.setRightFPScannerSerialNo(deviceInfoT1.deviceID);
-                System.out.println("details : " + saveEnrollment.getArcNo());
-
-
-                fingerPrintSet.clear();//for clearing fingerprintset
-                for (int i = 0; i < segFPImages.length; i++) {
-                    //System.out.println("I: "+ i + "raw data: "+segFPImages[i].rawdata +" finger position: " + segFPImages[i].fingerPosition );
-                    if (segFPImages[i].rawdata != null) {
-                        RawGrayscaleImage rawGreyScaleImg = new RawGrayscaleImage(segFPImages[i].width, segFPImages[i].height, segFPImages[i].rawdata);
-                        LOGGER.log(Level.INFO, "RAW Scale Image::: " + rawGreyScaleImg);
-                        try {
-                            //Create Template(FMR)
-                            //byte[] imgTemplate = ansiISO.isoCreateTemplate(rawGreyScaleImg);
-                            //byte[] isoTemplate = ansiISO.ansiConvertToISO(imgTemplate);
-                            byte[] isoTemplate = ansiISO.isoCreateTemplate(rawGreyScaleImg);
-                            byte[] isoTemplate2011 = ansiISO.iengineConvertTemplate(IEngineTemplateFormat.ISO_TEMPLATE, isoTemplate, IEngineTemplateFormat.ISO_TEMPLATE_V30);
-
-                            //Create Image(FIR)
-                            byte[] image = ansiISO.convertRawToImage(rawGreyScaleImg, AnsiIsoImageFormatEnum.JPEG2K);
-                            byte[] data = image;
-
-                            byte[] outImage = new byte[data.length + 2000];
-                            int[] outImageLen = new int[1];
-                            outImageLen[0] = data.length + 2000;
-
-                            int ret = Utility.ImageConvert(data, data.length, outImage, outImageLen, IMAGE_FORMAT.IENGINE_FORMAT_JPEG2K_TO_FIR_JPEG2000_V2005.getValue(), 354, 296);
-                            if (ret == Utility.UNKNOWN_ERROR) {
-                                //statusField.setText("UNKNOWN_ERROR DURING IMAGE CONVERSION");
-                                statusMsg("UNKNOWN_ERROR DURING IMAGE CONVERSION");
-                                LOGGER.log(Level.INFO, "UNKNOWN_ERROR DURING IMAGE CONVERSION");
-                                return;
-                            } else if (ret == Utility.UNSUPPORTED_IMAGE_FORMAT) {
-                                //statusField.setText("UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
-                                statusMsg("UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
-                                LOGGER.log(Level.INFO, "UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
-                                return;
-                            } else if (ret == Utility.OBJECT_CANNOT_BE_NULL_OR_EMPTY) {
-                                statusField.setText("OBJECT_CANNOT_BE_NULL_OR_EMPTY DURING IMAGE CONVERSION");
-                                LOGGER.log(Level.INFO, "OBJECT_CANNOT_BE_NULL_OR_EMPTY DURING IMAGE CONVERSION");
-                                return;
-                            }
-                            LOGGER.log(Level.INFO, "ImageConvert Ret: " + ret);
-                            if (ret == 0) {
-                                byte[] finalOutData = new byte[outImageLen[0]];
-                                System.arraycopy(outImage, 0, finalOutData, 0, outImageLen[0]);
-                           /* 
-                            System.out.println("rawGreyScaleImg:"+i+":"+rawGreyScaleImg);
-                            System.out.println("isoTemplate2011:"+i+":"+isoTemplate2011);
-                            System.out.println("imgTemplate:"+i+":"+imgTemplate);
-
-                            //Printing isoTemplate and imgTemplate 
-                            OutputStream os = new FileOutputStream("/home/boss/isoTemplate2011-"+i);
-                           // Starts writing the bytes in it
-                            os.write(isoTemplate2011);                  
-                            OutputStream os1 = new FileOutputStream("/home/boss/outImage-"+i);  
-                            // Starts writing the bytes in it
-                            os1.write(outImage);
-
-                            OutputStream os2 = new FileOutputStream("/home/boss/image-"+i);  
-                            // Starts writing the bytes in it
-                            os2.write(image);
-
-                            System.out.println("Successfully"+ " byte inserted");
-                            InputStream in = new ByteArrayInputStream(isoTemplate2011);
-                            System.out.println("isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-                            System.out.println("imgTemplate::"+Base64.getEncoder().encodeToString(imgTemplate));
-                            */
-
-                                // System.out.println("BUFFFF"+bufferedImage.getData());
-                                //saveEnrollmentDetails(saveEnrollment,segFPImages[i].fingerPosition, isoTemplate2011, imgTemplate);
-                                // FingerPosition , Image Format ( jpeg 2000 ), IsoTemplate2011
-                                //System.err.println("Finger Position::::"+segFPImages[i].fingerPosition);
-                                //System.out.println("isoTemplate::"+Base64.getEncoder().encodeToString(isoTemplate));
-                                //System.out.println("isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-                                //LOGGER.log(Level.SEVERE, "isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-                                //System.out.println("outImage::"+Base64.getEncoder().encodeToString(imgTemplate));
-                                //LOGGER.log(Level.SEVERE, "outimage::"+Base64.getEncoder().encodeToString(imgTemplate));
-
-                                //System.out.println("Finger Print Position:::"+segFPImages[i].fingerPosition);
-                                //System.out.println("Out Image:::"+outImage.toString());
-                                //System.out.println("outImage::"+Base64.getEncoder().encodeToString(outImage));
-                                //System.out.println("iso Template 2011:::"+isoTemplate2011.toString());
-                                //System.out.println("outImage::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-
-                                //saveEnrollmentDetails(saveEnrollment, segFPImages[i].fingerPosition, outImage, isoTemplate2011);
-                                String saveFingerPrint = saveEnrollmentDetails(saveEnrollment, segFPImages[i].fingerPosition, Base64.getEncoder().encodeToString(outImage), Base64.getEncoder().encodeToString(isoTemplate2011));
-
-                                // WriteImageFile("jpeg_2005_fir.bin", finalOutData);
-                            }
-                        } catch (AnsiIsoException e) {
-                            //statusField.setText("Fingerprint quality check failed. Please retry again");
-                            statusMsg("Fingerprint quality check failed. Please retry again");
-                            LOGGER.log(Level.INFO, "Fingerprint quality check failed. Please retry again");
-                            scan.setDisable(false);
-                            backBtn.setDisable(false);
-                            return;
-                        }
-                    }
-
-                    //To be uncommented
-                    //saveEnrollmentDetails(saveEnrollment,segFPImages[i].fingerPosition, segFPImages[i].rawdata, isoTemplate);
-
-                }
-                LOGGER.log(Level.INFO, "arc no in slap :" + saveEnrollment.getArcNo());
-                LOGGER.log(Level.INFO, "Missing fingers count:" + arcDetails.getFingers().size() + " -> " + arcDetails.getFingers().toString());
-                LOGGER.log(Level.INFO, "No., of FINGER PRINTS Available after Scan::" + fingerPrintSet.size());
-                int totalfingers = 10 - arcDetails.getFingers().size();
-                LOGGER.log(Level.INFO, "Fingers to be captured (total - missing) " + totalfingers);
-
-                if (totalfingers == 0 && fingerPrintSet.size() == 0) {
-                    LOGGER.log(Level.INFO, "No Fingerprint to scan, proceed to IRIS");
-                    //statusField.setText("No Fingerprint to scan, proceed to IRIS ");
-                    statusMsg("No Fingerprint to scan, proceed to IRIS ");
-                } else if (fingerPrintSet.size() < totalfingers) {
-                    //statusField.setText("Fingers Quality Issue, Please Capture Again");
-                    statusMsg("Fingers Quality Issue, Please Capture Again");
-                    LOGGER.log(Level.SEVERE, "fingers captured are less than fingers needed to be captured");
-                    scan.setDisable(false);
-                    backBtn.setDisable(false);
-                    return;
-                } else if (fingerPrintSet.size() > totalfingers) {
-                    //statusField.setText("Fingers Quality Issue, Please Capture Again");
-                    statusMsg("Fingers Quality Issue, Please Capture Again");
-                    LOGGER.log(Level.SEVERE, "fingers captured are more than fingers needed to be captured");
-                    scan.setDisable(false);
-                    backBtn.setDisable(false);
-                    return;
-                }
-
-                //Fingerprint printed iteratively
-                int k = 1;
-                for (FP s : fingerPrintSet) {
-                    LOGGER.log(Level.INFO, k + ". FingerPrintSET :" + s.toString());
-                    k += 1;
-                }
-
-                //Save the Fingerprint Details in POJO
-                saveEnrollment.setFp(fingerPrintSet);
-                saveEnrollment.setEnrollmentStatus("FingerPrintCompleted");
-                LOGGER.log(Level.INFO, "Finger print capture completed");
-
-                holder.setSaveEnrollmentDetails(saveEnrollment);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.enable(SerializationFeature.INDENT_OUTPUT);
-                mapper.setBase64Variant(Base64Variants.MIME_NO_LINEFEEDS);
-
-                //Enable Capture Iris
-                statusMsg("Proceed Next to Capture IRIS");
-
-                showIrisBtn.setDisable(false);
-                scan.setDisable(false);
-
-                String postJson;
-                try {
-                    postJson = mapper.writeValueAsString(saveEnrollment);
-
-                    //Code Added by K. Karthikeyan - 18-4-22 - Start
-                    ObjectReaderWriter objReadWrite = new ObjectReaderWriter();
-                    objReadWrite.writer(saveEnrollment);
-                    LOGGER.log(Level.INFO, "Save Enrollment Object write");
-                    SaveEnrollmentDetails s = objReadWrite.reader();
-                    LOGGER.log(Level.INFO, "Enrollment Status " + s.getEnrollmentStatus());
-                    //Code Added by K. Karthikeyan - 18-4-22 - Finish
-
-                    //System.out.println("post json slap :"+ postJson);
-                } catch (JsonProcessingException ex) {
-                    //Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-                    LOGGER.log(Level.SEVERE, "Error: " + ex.getMessage());
-                    //statusField.setText("Fetched Details From Server has Error");
-                    statusMsg("Fetched Details From Server has Error");
-                    scan.setDisable(false);
-                }
-
-            } catch (Exception ex) {
-                //statusField.setText("Fingerprint quality check failed. Please retry again");
-                statusMsg("Fingerprint quality check failed. Please retry again");
-                LOGGER.log(Level.SEVERE, "Fingerprint quality check and ISO create failed with exception:" + ex);
-                //ex.printStackTrace();
-                thumbScan.setDisable(false);
-                backBtn.setDisable(false);
-                showIrisBtn.setDisable(true);
-                scan.setDisable(false);
-                return;
-            }
-        }
-    };
+    private Label displayArcLabel;
 
     @FXML
-    private void showIris() throws IOException {
-        App.setRoot("iris");
-    }
-
-
-//    @FXML
-//    private void showIris() {
-//          
-//        try {            
-//            LOGGER.log(Level.INFO, "Inside show Iris function");
-//            int result = RealScan_JNI.RS_SUCCESS;
-//            RealScan_JNI.RSDeviceInfo deviceInfoT = new RealScan_JNI.RSDeviceInfo();
-//
-//            result = RealScan_JNI.RS_GetDeviceInfo(deviceHandle, deviceInfoT);
-//            if (result != RealScan_JNI.RS_SUCCESS) {
-//                String errStr = RealScan_JNI.RS_GetErrString(result);
-//                statusField.setText(errStr);  
-//                LOGGER.log(Level.SEVERE, errStr);
-//                return;
-//            }
-//        
-//            RealScan_JNI.RSDeviceInfo deviceInfoT1 = new RealScan_JNI.RSDeviceInfo();
-//        
-//            result = RealScan_JNI.RS_GetDeviceInfo(deviceHandle1, deviceInfoT1);
-//            if (result != RealScan_JNI.RS_SUCCESS) {
-//                String errStr = RealScan_JNI.RS_GetErrString(result);
-//                statusField.setText(errStr);   
-//                LOGGER.log(Level.SEVERE, errStr);
-//                return;
-//            }
-//
-//            RealScan_JNI.RS_ExitDevice(deviceHandle);
-//            RealScan_JNI.RS_ExitDevice(deviceHandle1);
-//        
-//            
-//           
-//            LOGGER.log(Level.INFO, "Segment Images Length:::"+segFPImages.length);
-//            if(segFPImages.length < 10) { 
-//                statusField.setText("Error while segmenting, Please try again");
-//                LOGGER.log(Level.SEVERE, "Error while segmenting fingers, Please try again");
-//                scan.setDisable(false);
-//                backBtn.setDisable(false);
-//                return;
-//            }
-//            
-//            
-//            ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-//            ARCDetails a= holder.getARC();
-//            SaveEnrollmentDetails saveEnrollment = holder.getenrollmentDetails();
-//            saveEnrollment.setLeftFPScannerSerailNo(deviceInfoT.deviceID);
-//            saveEnrollment.setRightFPScannerSerailNo(deviceInfoT1.deviceID);
-//            System.out.println("details : " + saveEnrollment.getArcNo());
-//            
-//           
-//            fingerPrintSet.clear();//for clearing fingerprintset
-//            for (int i = 0; i < segFPImages.length; i++) {               
-//                //System.out.println("I: "+ i + "raw data: "+segFPImages[i].rawdata +" finger position: " + segFPImages[i].fingerPosition );
-//                if(segFPImages[i].rawdata !=null) {
-//                    RawGrayscaleImage rawGreyScaleImg = new RawGrayscaleImage(segFPImages[i].width,segFPImages[i].height, segFPImages[i].rawdata);                    
-//                    LOGGER.log(Level.INFO, "RAW Scale Image::: "+rawGreyScaleImg);
-//                    try {
-//                        //Create Template(FMR)
-//                        byte[] imgTemplate = ansiISO.isoCreateTemplate(rawGreyScaleImg);                                      
-//                        byte[] isoTemplate = ansiISO.ansiConvertToISO(imgTemplate);
-//                        byte[] isoTemplate2011 = ansiISO.iengineConvertTemplate(IEngineTemplateFormat.ISO_TEMPLATE, isoTemplate, IEngineTemplateFormat.ISO_TEMPLATE_V30);
-//
-//                        //Create Image(FIR)
-//                        byte[] image = ansiISO.convertRawToImage(rawGreyScaleImg, AnsiIsoImageFormatEnum.JPEG2K);
-//                        byte[] data = image;
-//
-//                        byte[] outImage = new byte[data.length + 2000];
-//                        int[] outImageLen = new int[1];
-//                        outImageLen[0] = data.length + 2000;
-//
-//                        int ret = Utility.ImageConvert(data, data.length, outImage, outImageLen, IMAGE_FORMAT.IENGINE_FORMAT_JPEG2K_TO_FIR_JPEG2000_V2005.getValue(), 354, 296);
-//                        if(ret==Utility.UNKNOWN_ERROR) { 
-//                            statusField.setText("UNKNOWN_ERROR DURING IMAGE CONVERSION");
-//                            LOGGER.log(Level.INFO, "UNKNOWN_ERROR DURING IMAGE CONVERSION");
-//                            return;
-//                        }
-//                        else if(ret==Utility.UNSUPPORTED_IMAGE_FORMAT) {
-//                            statusField.setText("UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
-//                            LOGGER.log(Level.INFO, "UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
-//                            return;
-//                        }
-//                        else if(ret==Utility.OBJECT_CANNOT_BE_NULL_OR_EMPTY) {
-//                            statusField.setText("OBJECT_CANNOT_BE_NULL_OR_EMPTY DURING IMAGE CONVERSION");
-//                            LOGGER.log(Level.INFO, "OBJECT_CANNOT_BE_NULL_OR_EMPTY DURING IMAGE CONVERSION");
-//                            return;
-//                        }                        
-//                        LOGGER.log(Level.INFO, "ImageConvert Ret: " + ret);
-//                        if (ret == 0) {
-//                            byte[] finalOutData = new byte[outImageLen[0]];
-//                            System.arraycopy(outImage, 0, finalOutData, 0, outImageLen[0]);
-//                           /* 
-//                            System.out.println("rawGreyScaleImg:"+i+":"+rawGreyScaleImg);
-//                            System.out.println("isoTemplate2011:"+i+":"+isoTemplate2011);
-//                            System.out.println("imgTemplate:"+i+":"+imgTemplate);
-//
-//                            //Printing isoTemplate and imgTemplate 
-//                            OutputStream os = new FileOutputStream("/home/boss/isoTemplate2011-"+i);
-//                           // Starts writing the bytes in it
-//                            os.write(isoTemplate2011);                  
-//                            OutputStream os1 = new FileOutputStream("/home/boss/outImage-"+i);  
-//                            // Starts writing the bytes in it
-//                            os1.write(outImage);
-//
-//                            OutputStream os2 = new FileOutputStream("/home/boss/image-"+i);  
-//                            // Starts writing the bytes in it
-//                            os2.write(image);
-//
-//                            System.out.println("Successfully"+ " byte inserted");
-//                            InputStream in = new ByteArrayInputStream(isoTemplate2011);
-//                            System.out.println("isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-//                            System.out.println("imgTemplate::"+Base64.getEncoder().encodeToString(imgTemplate));
-//                            */
-//
-//                       // System.out.println("BUFFFF"+bufferedImage.getData());
-//                            //saveEnrollmentDetails(saveEnrollment,segFPImages[i].fingerPosition, isoTemplate2011, imgTemplate);
-//                            // FingerPosition , Image Format ( jpeg 2000 ), IsoTemplate2011
-//                            //System.err.println("Finger Position::::"+segFPImages[i].fingerPosition);
-//                             //System.out.println("isoTemplate::"+Base64.getEncoder().encodeToString(isoTemplate));
-//                            //System.out.println("isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-//                             //LOGGER.log(Level.SEVERE, "isoTemplate2011::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-//                            //System.out.println("outImage::"+Base64.getEncoder().encodeToString(imgTemplate));
-//                            //LOGGER.log(Level.SEVERE, "outimage::"+Base64.getEncoder().encodeToString(imgTemplate));
-//                            
-//                            //System.out.println("Finger Print Position:::"+segFPImages[i].fingerPosition);
-//                            //System.out.println("Out Image:::"+outImage.toString());
-//                            //System.out.println("outImage::"+Base64.getEncoder().encodeToString(outImage));
-//                            //System.out.println("iso Template 2011:::"+isoTemplate2011.toString());
-//                            //System.out.println("outImage::"+Base64.getEncoder().encodeToString(isoTemplate2011));
-//
-//                             //saveEnrollmentDetails(saveEnrollment, segFPImages[i].fingerPosition, outImage, isoTemplate2011);
-//                             String saveFingerPrint = saveEnrollmentDetails(saveEnrollment, segFPImages[i].fingerPosition, Base64.getEncoder().encodeToString(outImage), Base64.getEncoder().encodeToString(isoTemplate2011));
-//                             
-//                           // WriteImageFile("jpeg_2005_fir.bin", finalOutData);
-//                        }
-//                    } catch (AnsiIsoException e) {
-//                       statusField.setText("Fingerprint quality check failed. Please retry again");
-//                       LOGGER.log(Level.INFO, "Fingerprint quality check failed. Please retry again");
-//                       scan.setDisable(false);
-//                       backBtn.setDisable(false);
-//                       return;
-//                    } 
-//                }
-//            
-//            //To be uncommented
-//            //saveEnrollmentDetails(saveEnrollment,segFPImages[i].fingerPosition, segFPImages[i].rawdata, isoTemplate);
-//            
-//            }           
-//            LOGGER.log(Level.INFO, "arc no in slap :" + saveEnrollment.getArcNo());
-//            LOGGER.log(Level.INFO, "Missing fingers count:"+arcDetails.getFingers().size()+" -> "+arcDetails.getFingers().toString());            
-//            LOGGER.log(Level.INFO, "No., of FINGER PRINTS Available after Scan::"+fingerPrintSet.size());         
-//            int totalfingers = 10 - arcDetails.getFingers().size();
-//            LOGGER.log(Level.INFO, "Fingers to be captured (total - missing) "+totalfingers);              
-//            
-//            if (totalfingers == 0 && fingerPrintSet.size() == 0){
-//                LOGGER.log(Level.INFO,"No Fingerprint to scan, proceed to IRIS");
-//                statusField.setText("No Fingerprint to scan, proceed to IRIS ");
-//            }
-//            else if(fingerPrintSet.size() < totalfingers) {          
-//            statusField.setText("Fingers Quality Issue, Please Capture Again");
-//            LOGGER.log(Level.SEVERE,"fingers captured are less than fingers needed to be captured");
-//            scan.setDisable(false);
-//            backBtn.setDisable(false);
-//            return;            
-//            } else if (fingerPrintSet.size() > totalfingers){
-//            statusField.setText("Fingers Quality Issue, Please Capture Again");
-//            LOGGER.log(Level.SEVERE, "fingers captured are more than fingers needed to be captured");
-//            scan.setDisable(false);
-//            backBtn.setDisable(false);
-//            return;
-//            }
-//        
-//            //Fingerprint printed iteratively
-//            int k=1;
-//            for (FP s : fingerPrintSet) {                
-//                LOGGER.log(Level.INFO, k+". FingerPrintSET :"+s.toString());   
-//                k+=1;
-//            }
-//            
-//            //Save the Fingerprint Details in POJO
-//            saveEnrollment.setFp(fingerPrintSet);            
-//            saveEnrollment.setEnrollmentStatus("FingerPrintCompleted");            
-//            LOGGER.log(Level.INFO, "Finger print capture completed");
-//
-//            holder.setEnrollmentDetails(saveEnrollment);
-//            ObjectMapper mapper = new ObjectMapper();
-//            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//            mapper.setBase64Variant(Base64Variants.MIME_NO_LINEFEEDS);
-//
-//            String postJson;
-//            try {
-//                postJson = mapper.writeValueAsString(saveEnrollment);
-//
-//                //Code Added by K. Karthikeyan - 18-4-22 - Start
-//                ObjectReaderWriter objReadWrite = new ObjectReaderWriter();
-//                objReadWrite.writer(saveEnrollment);
-//                LOGGER.log(Level.INFO, "Save Enrollment Object write");               
-//                SaveEnrollmentDetails s = objReadWrite.reader();
-//                LOGGER.log(Level.INFO, "Enrollment Status "+s.getEnrollmentStatus());                  
-//                //Code Added by K. Karthikeyan - 18-4-22 - Finish
-//
-//                //System.out.println("post json slap :"+ postJson);
-//            } catch (JsonProcessingException ex) {
-//                //Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-//                LOGGER.log(Level.SEVERE, "Error: "+ ex.getMessage());
-//                statusField.setText("Fetched Details From Server has Error");
-//            }
-//
-//        } catch (Exception ex) {
-//           statusField.setText("Fingerprint quality check failed. Please retry again");
-//           LOGGER.log(Level.SEVERE, "Fingerprint quality check and ISO create failed with exception:"+ex);
-//           //ex.printStackTrace();
-//           thumbScan.setDisable(false);
-//           backBtn.setDisable(false);
-//           showIrisBtn.setDisable(true);          
-//           return;
-//        }
-//        try {
-//            com.cdac.enrollmentStation.App.setRoot("iris");
-//        } catch (IOException ex) {
-//            //Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-//            LOGGER.log(Level.SEVERE, "Error: "+ ex.getMessage());
-//            return;
-//        }
-//    } 
+    private Button captureIrisBtn;
+    @FXML
+    private Button leftScanBtn;
+    @FXML
+    private Button rightScanBtn;
+    @FXML
+    private Button thumbScanBtn;
+    @FXML
+    private Label messageLabel;
+    @FXML
+    private Button scanBtn;
+    @FXML
+    private Button backBtn;
 
     @FXML
-    private void showARCInput() {
-        confirmPane.setVisible(true);
-        backBtn.setDisable(true);
-        scan.setDisable(true);
-
-    }
-
+    private AnchorPane confirmPane;
+    @FXML
+    private Button confirmYesBtn;
+    @FXML
+    private Button confirmNoBtn;
 
     @FXML
-    private void goBack() {
-        LOGGER.log(Level.INFO, "inside go back");
-        backBtn.setDisable(false);
-        scan.setDisable(false);
-        statusField.setText("");
+    private ImageView rawFingerprintImageView;
+    @FXML
+    private ImageView leftLittleFingerImageView;
+    @FXML
+    private ImageView leftRingFingerImageView;
+    @FXML
+    private ImageView leftMiddleFingerImageView;
+    @FXML
+    private ImageView leftIndexFingerImageView;
+    @FXML
+    private ImageView rightThumbImageView;
+    @FXML
+    private ImageView leftThumbImageView;
+    @FXML
+    private ImageView rightLittleFingerImageView;
+    @FXML
+    private ImageView rightRingFingerImageView;
+    @FXML
+    private ImageView rightMiddleFingerImageView;
+    @FXML
+    private ImageView rightIndexFingerImageView;
+
+
+    // calls automatically by JavaFX runtime
+
+    public void initialize() {
+        scanBtn.setOnAction(event -> scanBtnAction());
+        leftScanBtn.setOnAction(event -> leftScanBtnAction());
+        rightScanBtn.setOnAction(event -> rightScanBtnAction());
+        thumbScanBtn.setOnAction(event -> thumbScanBtnAction());
+        backBtn.setOnAction(event -> back());
+        captureIrisBtn.setOnAction(event -> showIris());
+        confirmNoBtn.setOnAction(event -> confirmStay());
+        confirmYesBtn.setOnAction(event -> confirmBack());
 
         try {
-            Thread.sleep(1);
-        } catch (InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, "Error: " + ex.getMessage());
-        }
-        System.out.println("All devices -" + RealScan_JNI.RS_ExitAllDevices());
-        try {
-            App.setRoot("enrollment_arc");
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, "Error: " + ex.getMessage());
-        }
-    }
-
-    @FXML
-    private void stayBack() {
-        LOGGER.log(Level.INFO, "inside stay back");
-        backBtn.setDisable(false);
-        scan.setDisable(false);
-        confirmPane.setVisible(false);
-    }
-
-
-    private void setText(String message) {
-        statusField.setText(message);
-    }
-
-    @FXML
-    private void captureSlap() {
-        //disable right and thumb button
-        scan.setDisable(true);
-        rightScan.setDisable(true);
-        thumbScan.setDisable(true);
-        backBtn.setDisable(true);
-        captureModesCompleted.clear();
-        //Empty the preview Image View
-        preview.imageProperty().set(null);
-        scan.setText("RESCAN");
-
-        try {
-            if (isDeviceInitialized) {
-                RealScan_JNI.RS_ExitDevice(deviceHandle);
-                //segFPImages[segFPImages.length] = new segFP();
-                for (int i = 0; i < segFPImages.length; i++) {
-                    //Commented on 2770522
-                    segFPImages[i] = new segFP();
-                    segFPImages[i].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-                    segFPImages[i].image = null;
-                    segFPImages[i].rawdata = null;
-                    segFPImages[i].width = 0;
-                    segFPImages[i].height = 0;
-                }
-            }
-            LOGGER.log(Level.INFO, "Fingerprints array initialized");
-            //test = new RealScanTest1();
-            //RealScan_JNI jni = new RealScan_JNI(test, true);
-            //RealScan_JNI.RS_JNI_Init(jni);
-            System.out.println("init ::");
-            LOGGER.log(Level.INFO, "Real Scan JNI initialized");
-
-            int sdkresult = RealScan_JNI.RS_SUCCESS;
-
-            int numOfDevice = RealScan_JNI.RS_InitSDK("", 0);
-
-            if (RealScan_JNI.RS_GetLastError() == RealScan_JNI.RS_SUCCESS || RealScan_JNI.RS_GetLastError() == RealScan.RealScan_JNI.RS_ERR_SDK_ALREADY_INITIALIZED) {
-                //statusField.setText("Kindly connect the Device, if not connected");
-                statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                LOGGER.log(Level.INFO, "SDK initialized successfully");
-                backBtn.setDisable(false);
-                scan.setDisable(false);
-            }
-            System.out.println("No of Device:::" + numOfDevice);
-            deviceName = new StringBuffer("Device ");
-            int i = 0;
-            for (; i < numOfDevice; i++) {
-                LOGGER.log(Level.INFO, "device :", i);
-            }
-
-
-            //if(!deviceName.contentEquals("Device 0") && !deviceName.contentEquals("Device 1")) {
-            //if(!deviceName.equals("Device 0") && !deviceName.equals("Device 1")) {
-            if (i <= 0) {
-                //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                LOGGER.log(Level.INFO, "Device is not detected. Check device connection");
-                backBtn.setDisable(false);
-                scan.setDisable(false);
-                return;
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Exception ::::", e);
-            statusField.setText("Exception ::::" + e);
-        }
-
-
-        try {
-            LOGGER.log(Level.INFO, "Before Device Handle Init :::::", deviceHandle);
-            LOGGER.log(Level.INFO, "Before Device Handle Init1 :::::", deviceHandle1);
-            int deviceResult = RealScan_JNI.RS_SUCCESS;
-            int deviceResult1 = RealScan_JNI.RS_SUCCESS;
-            deviceHandle = RealScan_JNI.RS_InitDevice(0);
-            deviceHandle1 = RealScan_JNI.RS_InitDevice(1);
-            LOGGER.log(Level.INFO, "Device Handle Init ::::", deviceHandle);
-            LOGGER.log(Level.INFO, "Device Handle Init1 ::::", deviceHandle1);
-
-
-            if (RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_SUCCESS && RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_ERR_DEVICE_ALREADY_INITIALIZED) {
-                String errStr = RealScan_JNI.RS_GetErrString(RealScan_JNI.RS_GetLastError());
-                //System.out.println("init device : "+errStr);
-                //statusField.setText("init device :"+errStr);
-                statusField.setText("Kindly Check the device connection");
-                LOGGER.log(Level.INFO, "Init device :", errStr);
-                backBtn.setDisable(false);
-                scan.setDisable(false);
-                isDeviceInitialized = false;
-                return;
-            }
-            LOGGER.log(Level.INFO, "Device is initialized successfully");
-            //try{
-            RealScan_JNI.RSDeviceInfo deviceInfoT = new RealScan_JNI.RSDeviceInfo();
-            deviceResult = RealScan_JNI.RS_GetDeviceInfo(deviceHandle, deviceInfoT);
-            deviceResult1 = RealScan_JNI.RS_GetDeviceInfo(deviceHandle1, deviceInfoT);
-
-            if (deviceResult != RealScan_JNI.RS_SUCCESS) {
-                String errStr = RealScan_JNI.RS_GetErrString(deviceResult);
-                //System.out.println("device result :" +errStr);
-                LOGGER.log(Level.INFO, "device result :", errStr);
-                statusField.setText("device result :" + errStr);
-                backBtn.setDisable(false);
-                scan.setDisable(false);
-                isDeviceInitialized = false;
-                return;
-            }
-            if (deviceResult1 != RealScan_JNI.RS_SUCCESS) {
-                String errStr = RealScan_JNI.RS_GetErrString(deviceResult1);
-                //System.out.println("device result 1:" +errStr);
-                LOGGER.log(Level.INFO, "device1 result :", errStr);
-                statusField.setText("device1 result :" + errStr);
-                backBtn.setDisable(false);
-                scan.setDisable(false);
-                isDeviceInitialized = false;
-                return;
-            }
-            isDeviceInitialized = true;
-
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Device Info Error:::::");
-            statusField.setText("Getting Device InFo Error, Kindly Reconnect the Device Again");
-        }
-
-
-        //Enabled For Testing 161221
-//        int minFingerResult = RealScan_JNI.RS_SetMinimumFinger(deviceHandle, 3);
-//        System.out.println("minimum finger result:"+ minFingerResult);
-//        if(RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_SUCCESS){
-//            String errStr = RealScan_JNI.RS_GetErrString(RealScan_JNI.RS_GetLastError());
-//            statusField.setText(errStr);
-//            System.out.println("error while setting minimum fingers :" + errStr);
-//        }
-//        else {
-//            System.out.println("Setting minimum finger count is done successfully done!!");
-//            statusField.setText("Setting minimum finger count is done successfully done!!");
-//        }
-        try {
-            ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-            arcDetails = holder.getArcDetails();
-
-            List<String> missingfingers = arcDetails.getFingers();
-            //List<String> missingfingers = new ArrayList<>();
-            //missingfingers.add("LR");
-            //missingfingers.add("LL");
-            //missingfingers.add("LT");
-            //missingfingers.add("LM");
-            //missingfingers.add("LI");
-            //missingfingers.add("RR");
-            //missingfingers.add("RL");
-            //missingfingers.add("RT");
-            //missingfingers.add("RM");
-            //missingfingers.add("RI");
-            arcDetails.setFingers(missingfingers);
-            System.out.println("MISSING FINGERS:::" + arcDetails.getFingers());
-            // Thread t = new Thread(DoSequenceCapture);
-            t = new Thread(DoSequenceCapture);
-            t.start();
-            //Platform.runLater(DoSequenceCapture);
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, "Exception:", e);
-        }
-    }
-
-    @FXML
-    private void captureRightSlap() {
-        tRight = new Thread(DoSequenceCaptureRight);
-        tRight.start();
-    }
-
-    @FXML
-    private void captureThumb() {
-        tThumb = new Thread(DoSequenceCaptureThumb);
-        tThumb.start();
-    }
-
-    Runnable PlaceLeft = new Runnable() {
-
-        @Override
-        public void run() {
-            setText("Place Left 4 fingers on the sensor");
-        }
-    };
-
-    Runnable PlaceRight = new Runnable() {
-
-        @Override
-        public void run() {
-            setText("Place Right 4 fingers on the sensor");
-        }
-    };
-
-
-    Runnable DoSequenceCapture = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                //System.out.println("Inside do sequ capture");
-                scan.setDisable(true);
-                showIrisBtn.setDisable(true); //Disable the Iris button
-                backBtn.setDisable(true);
-                //System.out.println("Inside do sequ capture");
-
-                // 1) variables initialize
-                int res = RealScan_JNI.RS_SUCCESS;
-                String resString;
-                RealScan_JNI.RSImageInfo imageInfo = new RealScan_JNI.RSImageInfo();
-                int numOfFingers = 0;
-                //Initialization of slapInfoArray and imageInfoArray
-                RealScan_JNI.RSSlapInfo[] slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-                }
-                RealScan_JNI.RSImageInfo[] imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-                }
-                captureModesCompleted.clear(); //Clearing all the captured modes
-
-                clearSegmentedImagePanels(clearImagePanel); //clearing the segmented image panels
-                clearSeqCheckTargetImages(); //clearing the seqcheck target images
-
-                // 2) scanning left four fingers
-                try {
-                    if (leftfingerstoscan() == 1) {  //Enable For Single Fingerprint Capture
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        int res1 = RealScan_JNI.RS_SetCaptureMode(deviceHandle1, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    //rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                    return;
-                                }
-                            });
-                        }
-                        if (res1 != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture1 mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res1) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    backBtn.setDisable(false);
-                                    return;
-                                }
-                            });
-                        }
-                    } else { //More than one fingers to scan
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    backBtn.setDisable(false);
-                                    return;
-                                }
-                            });
-
-                        }
-                    }
-                } catch (Exception e) {
-                    statusField.setText("Exception caught :" + e);
-                    LOGGER.log(Level.INFO, "exception caught :", e);
-                }
-
-                if (leftfingerstoscan() >= 1) {    //Enable For Single Fingerprint Capture
-                    int minFingerResult = RealScan_JNI.RS_SetMinimumFinger(deviceHandle, leftfingerstoscan());
-                    System.out.println("minimum finger result:" + minFingerResult);
-                    if (RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_SUCCESS) {
-                        String errStr = RealScan_JNI.RS_GetErrString(RealScan_JNI.RS_GetLastError());
-                        statusField.setText(errStr);
-                        scan.setDisable(false);
-                        backBtn.setDisable(false);
-                        LOGGER.log(Level.SEVERE, "Error while setting minimum fingers LEFT HAND :" + errStr);
-                    }
-
-                    LOGGER.log(Level.INFO, "Place left " + leftFingersToScan(arcDetails.getFingers()) + " fingers in sensor loc-1");
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Place your " + leftFingersToScan(arcDetails.getFingers()) + " left fingers on the sensor ");
-                            scan.setDisable(true);
-                            backBtn.setDisable(true);
-                        }
-                    });
-
-                    //A finger is on the sensor, Please remove the finger after the beep sound
-                    res = RealScan_JNI.RS_TakeImageData(deviceHandle, 20000, imageInfo);//A finger is on the sensor, Please remove the finger after the beep sound
-                    if (res != RealScan_JNI.RS_SUCCESS) {
-                        final String strMsg = "A finger is on the sensor, Please remove the finger after the beep sound";
-                        String errStr = RealScan_JNI.RS_GetErrString(res);
-                        if (errStr.toLowerCase().contains("sensor is too dirty ")) {
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    statusField.setText(strMsg);
-                                    scan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                }
-                            });
-                        } else {
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    statusField.setText(errStr + ", Kindly Rescan again.");
-                                    scan.setDisable(false);
-                                    //rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                }
-                            });
-                        }
-                        scan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    if (imageInfo.pbyImgBuf == null || imageInfo.imageWidth == 0 || imageInfo.imageHeight == 0) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Image is empty! Try Left hand again");
-                                LOGGER.log(Level.SEVERE, "Image is empty! Try Left hand again");
-                            }
-                        });
-                        scan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    //To set the Image Panel
-                    setImagePanel(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
-                    int slapType;//left slap
-                    int fingerType = 0;
-                    int[] missingFingerArr = new int[]{0, 0, 0, 0};
-                    int n = 0;
-                    int[] captureMode_result = RealScan_JNI.RS_GetCaptureMode(deviceHandle);
-                    System.out.println("CAPTURE MODE::::" + captureMode_result[0]);
-                    slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-
-                    switch (captureMode_result[0]) {
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER:
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            //System.out.println("Single Finger Left");
-                            fingerType = fingertypeleft();  //It will return Single finger type
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER_EX:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER_EX:
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            //System.out.println("Roll Finger");
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS:
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS_EX:
-                            slapType = RealScan_JNI.RS_SLAP_TWO_THUMB;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_LEFT_FOUR;
-                            if (arcDetails.getFingers().contains("LL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            if (arcDetails.getFingers().contains("LR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_RING;
-                            if (arcDetails.getFingers().contains("LM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_MIDDLE;
-                            if (arcDetails.getFingers().contains("LI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_INDEX;
-                            fingerType = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_RIGHT_FOUR;
-                            if (arcDetails.getFingers().contains("RI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            if (arcDetails.getFingers().contains("RM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_MIDDLE;
-                            if (arcDetails.getFingers().contains("RR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_RING;
-                            if (arcDetails.getFingers().contains("RL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_LITTLE;
-                            fingerType = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            break;
-                        default:
-                            statusField.setText("Cannot segment in this mode");
-                            return;
-                    }
-
-
-                    // 3) save target image(left) of sequence check
-                    //numOfFingers = RealScan_JNI.RS_Segment(imageInfo, RealScan_JNI.RS_SLAP_LEFT_FOUR, numOfFingers, slapInfoArray, imageInfoArray);
-                    numOfFingers = RealScan_JNI.RS_Segment(imageInfo, slapType, numOfFingers, slapInfoArray, imageInfoArray);
-
-                    //Finger Counts Mismatch
-                    LOGGER.log(Level.INFO, "numOf--Fingers:::" + numOfFingers);
-                    LOGGER.log(Level.INFO, "leftfingerstoscan:::" + leftfingerstoscan());
-
-                    if (numOfFingers != leftfingerstoscan()) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Fingers counts not Matched. Try Left hand again");
-                                LOGGER.log(Level.SEVERE, "Fingers counts not Matched. Try Left hand again");
-                                scan.setDisable(false);
-                                backBtn.setDisable(false);
-                            }
-                        });
-
-                        return;
-                    }
-
-                    resString = sequenceCheckProcess2(imageInfoArray, numOfFingers, "left");
-
-                    LOGGER.log(Level.INFO, "NUM OF FING:::" + numOfFingers);
-                    if (numOfFingers < 0) {
-                        statusField.setText("Segmentation failed");
-                        LOGGER.log(Level.SEVERE, "Left Hand Segmentation failed");
-                        scan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    StringBuilder segResult = new StringBuilder();
-                    int j = 0;
-                    for (int i = 0; i < numOfFingers; i++) {
-                        if (slapInfoArray[i].fingerType == RealScan_JNI.RS_FGP_UNKNOWN) {
-                            LOGGER.log(Level.INFO, "fgp unknown:::" + slapInfoArray[i].fingerType);
-                            if (slapType == RealScan_JNI.RS_SLAP_LEFT_FOUR) {
-                                LOGGER.log(Level.INFO, "fgp unknown:::" + slapInfoArray[i].fingerType);
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType--;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType--;
-                                LOGGER.log(Level.INFO, "Finger Type Left : image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                            } else if (slapType == RealScan_JNI.RS_SLAP_RIGHT_FOUR) {
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType++;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType++;
-                                LOGGER.log(Level.INFO, "Finger Type Right: image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                            }//Added on 080722
-                            else if (slapType == RealScan_JNI.RS_SLAP_ONE_FINGER) {
-                                slapInfoArray[i].fingerType = fingertypeleft();
-                                LOGGER.log(Level.INFO, "Finger Type Left Single: image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                            } else {
-                                statusField.setText("SlapType is Not set to Left Four or Left Single");
-                                LOGGER.log(Level.INFO, "Finger Type Left Single: image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                                //System.out.println("Finger Type Left Single: image quality"+ slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality );
-                            }
-                        }
-                        segResult.append("[" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality + "]");
-                        LOGGER.log(Level.INFO, "Finger Type : image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                    }
-
-                    saveSeqCheckTargetImages(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight, RealScan_JNI.RS_SLAP_LEFT_FOUR, numOfFingers);
-                    try {
-                        if (leftfingerstoscan() == 1) {// finger to scan is one
-                            setSegmentedImagePanel(RealScan_JNI.RS_SLAP_ONE_FINGER, slapInfoArray, imageInfoArray, numOfFingers, "left");
-                        } else {//more than one fingers to scan
-                            setSegmentedImagePanel(RealScan_JNI.RS_SLAP_LEFT_FOUR, slapInfoArray, imageInfoArray, numOfFingers, "left");
-                        }
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Image Quality too poor. Try Left hand again");
-                                LOGGER.log(Level.SEVERE, "Image Quality too poor. Try Left hand again");
-                                scan.setDisable(false);
-                                backBtn.setDisable(false);
-                            }
-                        });
-                        scan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Left fingers captured successfully");
-                            scan.setDisable(true);
-                            leftScan.setDisable(true);
-                            rightScan.setDisable(true);
-                            thumbScan.setDisable(true);
-                            backBtn.setDisable(true);
-
-                            if (captureModesCompleted.contains(1)) {
-                                captureModesCompleted.remove(1);
-                            }
-
-                            captureModesCompleted.add(1);
-                            System.out.println("capture modes completed is :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(false);
-                                System.out.println("first block");
-                            }
-                        }
-                    });
-                    //System.out.println("Left fingers captured successfully1 ");
-                    LOGGER.log(Level.INFO, "Left fingers captured successfully1 ");
-
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                    LOGGER.log(Level.INFO, "before calling sequence capture right");
-                    tRight = new Thread(DoSequenceCaptureRight);
-                    tRight.start();
-                    LOGGER.log(Level.INFO, "After calling sequence capture right");
-
-                } else { //Left Hand is not available
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Left fingers not available to capture");
-                            LOGGER.log(Level.INFO, "Proceed to capture right fingers");
-                            scan.setDisable(true);
-                            leftScan.setDisable(true);
-                            rightScan.setDisable(false);
-                            thumbScan.setDisable(true);
-                            if (captureModesCompleted.contains(1)) {
-                                captureModesCompleted.remove(1);
-                            }
-                            captureModesCompleted.add(1);
-                            LOGGER.log(Level.INFO, "capture size left :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(false);
-                            }
-                        }
-                    });
-                    LOGGER.log(Level.INFO, "before calling sequence capture right at Else");
-                    tRight = new Thread(DoSequenceCaptureRight);
-                    tRight.start();
-                    LOGGER.log(Level.INFO, "After calling sequence capture right at Else");
-                }
-            } catch (Exception e) {
-                statusField.setText("Exception:" + e);
-                LOGGER.log(Level.SEVERE, "Exception:" + e);
-            }
-
-            //Commented by p not in portable enrollment
-//            slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-//            
-//            for (int i = 0; i < 4; i++) {
-//                slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-//            }
-//            imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-//            for(int i=0;i<4;i++)
-//            {
-//                imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-//            }    
-
-            // 4) scanning right four fingers           
-        }
-    };
-
-    Runnable DoSequenceCaptureRight = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                LOGGER.log(Level.INFO, "Inside sequence capture right");
-                showIrisBtn.setDisable(true);
-                thumbScan.setDisable(true);
-                backBtn.setDisable(true);
-                rightScan.setDisable(true);
-
-                // 1) variables initialize
-                int res = RealScan_JNI.RS_SUCCESS;
-                String resString;
-                RealScan_JNI.RSImageInfo imageInfo = new RealScan_JNI.RSImageInfo();
-                int numOfFingers = 0;
-                rightmissingfingers = 0;
-                thumbmissingfingers = 0;
-                RealScan_JNI.RSSlapInfo[] slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-                }
-
-                RealScan_JNI.RSImageInfo[] imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-                }
-
-                //Commented for clearing left panel 231221
-                // clearSegmentedImagePanels();
-                // clearSeqCheckTargetImages();
-                //clearSegmentedImagePanelsCheck("Right");
-                //clearSeqCheckTargetImages();
-                slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-                }
-
-                imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-                }
-                // 4) scanning right four
-                try {
-                    if (rightfingerstoscan() == 1) {
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle1, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    LOGGER.log(Level.INFO, "Device Connection Error, Kindly GoBack and Capture Again");
-                                    rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                    return;
-                                }
-                            });
-                        }
-                    } else {
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle1, RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    LOGGER.log(Level.INFO, "Device Connection Error, Kindly GoBack and Capture Again");
-                                    rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                    return;
-                                }
-                            });
-
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("Exception : " + e);
-                    LOGGER.log(Level.INFO, "Exception : " + e);
-                }
-
-                if (rightfingerstoscan() >= 1) {    //Enable For Single Fingerprint Capture
-                    int minFingerResult = RealScan_JNI.RS_SetMinimumFinger(deviceHandle1, rightfingerstoscan());
-                    if (RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_SUCCESS) {
-                        String errStr = RealScan_JNI.RS_GetErrString(RealScan_JNI.RS_GetLastError());
-                        statusField.setText(errStr);
-                        LOGGER.log(Level.SEVERE, "Error while setting minimum fingers LEFT HAND :" + errStr);
-                        rightScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Place your " + rightFingersToScan(arcDetails.getFingers()) + " right fingers on the sensor");
-                            LOGGER.log(Level.INFO, "Place your " + rightFingersToScan(arcDetails.getFingers()) + " right fingers on the sensor");
-                        }
-                    });
-
-                    res = RealScan_JNI.RS_TakeImageData(deviceHandle1, 20000, imageInfo);
-                    if (res != RealScan_JNI.RS_SUCCESS) {
-                        final String strMsg = "A finger is on the sensor, Please remove the finger after the beep sound";
-                        String errStr = RealScan_JNI.RS_GetErrString(res);
-                        if (errStr.toLowerCase().contains("sensor is too dirty")) {
-                            //strMsg = "A finger is on the sensor, Please remove the finger after the beep sound";
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    statusField.setText(strMsg);
-                                    LOGGER.log(Level.SEVERE, strMsg);
-                                    rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                }
-                            });
-                        } else {
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    statusField.setText(errStr + ", Kindly Rescan again.");
-                                    LOGGER.log(Level.SEVERE, strMsg);
-                                    rightScan.setDisable(false);
-                                    backBtn.setDisable(false);
-                                }
-                            });
-                        }
-                        rightScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    if (imageInfo.pbyImgBuf == null || imageInfo.imageWidth == 0 || imageInfo.imageHeight == 0) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Image is empty! Try right hand again");
-                                LOGGER.log(Level.SEVERE, "Image is empty! Try right hand again");
-                            }
-                        });
-                        rightScan.setDisable(false);
-                        return;
-                    }
-
-                    setImagePanel(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
-                    int slapType;
-                    int fingerType = 0;
-                    int[] missingFingerArr = new int[]{0, 0, 0, 0};
-
-                    int n = 0;
-                    int[] captureMode_result = RealScan_JNI.RS_GetCaptureMode(deviceHandle1);
-                    switch (captureMode_result[0]) {
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER:
-                            //System.out.println("Single Finger Right");
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            fingerType = fingertyperight();
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER_EX:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER_EX:
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS:
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS_EX:
-                            slapType = RealScan_JNI.RS_SLAP_TWO_THUMB;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_LEFT_FOUR;
-                            if (arcDetails.getFingers().contains("LL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            if (arcDetails.getFingers().contains("LR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_RING;
-                            if (arcDetails.getFingers().contains("LM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_MIDDLE;
-                            if (arcDetails.getFingers().contains("LI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_INDEX;
-                            fingerType = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_RIGHT_FOUR;
-                            if (arcDetails.getFingers().contains("RI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            if (arcDetails.getFingers().contains("RM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_MIDDLE;
-                            if (arcDetails.getFingers().contains("RR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_RING;
-                            if (arcDetails.getFingers().contains("RL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_LITTLE;
-                            fingerType = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            break;
-
-                        default:
-                            statusField.setText("Cannot segment in this mode");
-                            rightScan.setDisable(false);
-                            return;
-                    }
-
-                    // 5) do sequence check & save target image(right) of sequence check
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Sequence Checking is running now...");
-                        }
-                    });
-
-                    //numOfFingers = RealScan_JNI.RS_Segment(imageInfo, RealScan_JNI.RS_SLAP_RIGHT_FOUR, numOfFingers, slapInfoArray, imageInfoArray);
-                    numOfFingers = RealScan_JNI.RS_Segment(imageInfo, slapType, numOfFingers, slapInfoArray, imageInfoArray);
-
-                    //Finger counts Mismatch
-                    System.out.println("numOf--Fingers:::" + numOfFingers);
-                    System.out.println("rightfingerstoscan:::" + rightfingerstoscan());
-                    if (numOfFingers != rightfingerstoscan()) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Fingers counts not Matched. Try Right hand again");
-                                LOGGER.log(Level.SEVERE, "Fingers counts not Matched. Try Right hand again");
-                                rightScan.setDisable(false);
-                                backBtn.setDisable(false);
-                            }
-                        });
-
-                        return;
-                    }
-
-                    resString = sequenceCheckProcess2(imageInfoArray, numOfFingers, "right");
-                    if (!resString.contains("There isn't matched finger")) {
-                        LOGGER.log(Level.SEVERE, "ResTring:::" + resString);
-                        rightScan.setDisable(false);
-                        return;
-                    } else if (resString.contains("There is no target image")) {
-                        LOGGER.log(Level.SEVERE, "ResTring:::" + resString);
-
-                    }
-
-                    for (int i = 0; i < pFingerMsg.length; i++) {
-                        if (resString.equals(pFingerMsg[i])) {
-                            statusField.setText(pFingerMsg[i] + " finger is already scanned!");
-                            rightScan.setDisable(false);
-                            return;
-                        }
-                    }
-                    if (numOfFingers < 0) {
-                        statusField.setText("Segmentation failed");
-                        LOGGER.log(Level.SEVERE, "Right Hand Segmentation failed");
-                        rightScan.setDisable(false);
-                        return;
-                    }
-
-                    StringBuilder segResult = new StringBuilder();
-                    int j = 0;
-                    for (int i = 0; i < numOfFingers; i++) {
-                        if (slapInfoArray[i].fingerType == RealScan_JNI.RS_FGP_UNKNOWN) {
-                            if (slapType == RealScan_JNI.RS_SLAP_LEFT_FOUR) {
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType--;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType--;
-                            } else if (slapType == RealScan_JNI.RS_SLAP_RIGHT_FOUR) {
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType++;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType++;
-                            }//Added on 080722
-                            else if (slapType == RealScan_JNI.RS_SLAP_ONE_FINGER) {
-                                slapInfoArray[i].fingerType = fingertyperight();
-                                LOGGER.log(Level.INFO, "Finger Type Right Single: image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                            } else {
-                                statusField.setText("SlapType is Not set to Right Four or Right Single");
-                                LOGGER.log(Level.SEVERE, "Finger Type Left Single: image quality" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality);
-                            }
-                        }
-                        segResult.append("[" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality + "]");
-                    }
-                    saveSeqCheckTargetImages(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight, RealScan_JNI.RS_SLAP_RIGHT_FOUR, numOfFingers);
-
-
-                    try {
-                        if (rightfingerstoscan() == 1) {
-                            setSegmentedImagePanel(RealScan_JNI.RS_SLAP_ONE_FINGER, slapInfoArray, imageInfoArray, numOfFingers, "right");
-                        } else {
-                    /*
-                   if (numOfFingers == 0 || rightfingerstoscan() > numOfFingers){ //Important to avoid jump to next section even if error in current section
-                       System.out.println("numOfFinters either 0 or less than fingestoscan. Num of Finger actual"+numOfFingers+" Fingesto scan"+rightfingerstoscan());
-                       rightScan.setDisable(false);
-                       return;
-                   }*/
-                            setSegmentedImagePanel(RealScan_JNI.RS_SLAP_RIGHT_FOUR, slapInfoArray, imageInfoArray, numOfFingers, "right");
-                        }
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Image Quality too poor. Try right hand again");
-                                LOGGER.log(Level.SEVERE, "Image Quality too poor. Try right hand again");
-                            }
-                        });
-                        rightScan.setDisable(false);
-                        return;
-                    }
-
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Right fingers captured successfully");
-                            LOGGER.log(Level.INFO, "Right fingers captured successfully");
-                            rightScan.setDisable(true); // Added on 080922
-                            if (captureModesCompleted.contains(2)) {
-                                captureModesCompleted.remove(2);
-                            }
-                            captureModesCompleted.add(2);
-                            System.out.println("capture size right :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(false);
-                            }
-                        }
-                    });
-
-                    //captureModesCompleted.add(2);
-                    LOGGER.log(Level.INFO, "Right fingers captured successfully2 ");
-                    rightScan.setDisable(true);
-
-                    LOGGER.log(Level.INFO, "before calling sequence thumb");
-                    tThumb = new Thread(DoSequenceCaptureThumb);
-                    tThumb.start();
-                    LOGGER.log(Level.INFO, "After calling sequence thumb");
-
-
-                } else { //Right hand is not available
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            rightScan.setDisable(true);
-                            statusField.setText("Right fingers not available to capture");
-                            LOGGER.log(Level.INFO, "Proceed to capture thumb");
-                            thumbScan.setDisable(false);
-                            if (captureModesCompleted.contains(2)) {
-                                captureModesCompleted.remove(2);
-                            }
-                            captureModesCompleted.add(2);
-                            System.out.println("capture size right :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(false);
-                            }
-                        }
-                    });
-
-                    LOGGER.log(Level.INFO, "before calling sequence thumb");
-                    tThumb = new Thread(DoSequenceCaptureThumb);
-                    tThumb.start();
-                    LOGGER.log(Level.INFO, "After calling sequence thumb");
-                }
-
-                if (!captureModesCompleted.contains(2)) {
-                    rightScan.setDisable(false);
-                }
-            } catch (Exception e) {
-                statusField.setText("Exception:" + e);
-                LOGGER.log(Level.SEVERE, "Exception:" + e);
-            }
-        }
-    };
-
-    Runnable DoSequenceCaptureLeft = new Runnable() {
-        @Override
-        public void run() {
-            // 1) variables initialize
-            int res = RealScan_JNI.RS_SUCCESS;
-            String resString;
-            RealScan_JNI.RSImageInfo imageInfo = new RealScan_JNI.RSImageInfo();
-            int numOfFingers = 0;
-            RealScan_JNI.RSSlapInfo[] slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-
-            for (int i = 0; i < 4; i++) {
-                slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-            }
-            RealScan_JNI.RSImageInfo[] imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-            for (int i = 0; i < 4; i++) {
-                imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-            }
-
-            // clearSegmentedImagePanels();
-            // clearSeqCheckTargetImages();
-
-            try {
-                res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                if (res != RealScan_JNI.RS_SUCCESS) {
-                    LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                            statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                            thumbScan.setDisable(false);
-                            return;
-                        }
-                    });
-
-
-                }
-            } catch (Exception e) {
-                System.out.println("Exception : " + e);
-            }
-
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-
-                    statusField.setText("Place your " + leftFingersToScan(arcDetails.getFingers()) + " left fingers on the sensor ");
-                    //statusField.setText("Place left "+leftFingersToScan(arcDetails.getFingers()).toString()+"fingers in sensor");
-                    //System.out.println("Place left "+leftFingersToScan(arcDetails.getFingers()).toString()+"fingers in sensor loc-2");
-                }
-            });
-
-
-            res = RealScan_JNI.RS_TakeImageData(deviceHandle, 20000, imageInfo);
-            if (res != RealScan_JNI.RS_SUCCESS) {
-                String errStr = RealScan_JNI.RS_GetErrString(res);
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        statusField.setText(errStr + ", Kindly Rescan again.");
-                    }
-                });
-                return;
-            }
-
-            if (imageInfo.pbyImgBuf == null || imageInfo.imageWidth == 0 || imageInfo.imageHeight == 0) {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        statusField.setText("Image is empty!");
-                    }
-                });
-                return;
-            }
-
-            setImagePanel(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
-
-            // 3) save target image(left) of sequence check
-            numOfFingers = RealScan_JNI.RS_Segment(imageInfo, RealScan_JNI.RS_SLAP_LEFT_FOUR, numOfFingers, slapInfoArray, imageInfoArray);
-            saveSeqCheckTargetImages(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight, RealScan_JNI.RS_SLAP_LEFT_FOUR, 4);
-            setSegmentedImagePanel(RealScan_JNI.RS_SLAP_LEFT_FOUR, slapInfoArray, imageInfoArray, numOfFingers, "left");
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run() {
-                    statusField.setText("Left fingers captured successfully");
-                    if (captureModesCompleted.contains(1)) {
-                        captureModesCompleted.remove(1);
-
-                    }
-                    captureModesCompleted.add(1);
-                    if (captureModesCompleted.size() == 3) {
-                        System.out.println("first block");
-                        showIrisBtn.setDisable(false);
-
-                    }
-                }
-            });
-
-
-            System.out.println("Left fingers captured successfully2 ");
-
-        }
-    };
-
-    Runnable DoSequenceCaptureThumb = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                // 1) variables initialize
-                thumbScan.setDisable(true);
-                backBtn.setDisable(true);
-                int res = RealScan_JNI.RS_SUCCESS;
-                RealScan_JNI.RSImageInfo imageInfo = new RealScan_JNI.RSImageInfo();
-                int numOfFingers = 0;
-                RealScan_JNI.RSSlapInfo[] slapInfoArray = new RealScan_JNI.RSSlapInfo[4];
-                String resString;
-                for (int i = 0; i < 4; i++) {
-                    slapInfoArray[i] = new RealScan_JNI.RSSlapInfo();
-                }
-                RealScan_JNI.RSImageInfo[] imageInfoArray = new RealScan_JNI.RSImageInfo[4];
-                for (int i = 0; i < 4; i++) {
-                    imageInfoArray[i] = new RealScan_JNI.RSImageInfo();
-                }
-                LTCanvas.setImage(null);
-                RTCanvas.setImage(null);
-
-                // added on 21/04/22
-                try {
-                    if (thumbfingerstoscan() == 1) {
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    backBtn.setDisable(false);
-                                    thumbScan.setDisable(false);
-                                    return;
-                                }
-                            });
-                        }
-                    } else {
-                        res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                        if (res != RealScan_JNI.RS_SUCCESS) {
-                            LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                            Platform.runLater(new Runnable() {
-                                @Override
-                                public void run() {
-                                    //statusField.setText("Device Connection Error, Kindly GoBack and Capture Again");
-                                    statusField.setText("Biometric Data capturing Device is not Connected, Kindly connect and try again.");
-                                    backBtn.setDisable(false);
-                                    thumbScan.setDisable(false);
-                                    return;
-                                }
-                            });
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Exception : " + e);
-                }
-                //Commented on 21/04/22
-            /*
-            try{ 
-                res = RealScan_JNI.RS_SetCaptureMode(deviceHandle, RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS, RealScan_JNI.RS_AUTO_SENSITIVITY_NORMAL, true);
-                if(res != RealScan_JNI.RS_SUCCESS) {
-                    statusField.setText("capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")");
-                    LOGGER.log(Level.SEVERE, "capture mode setting failed(error : " + RealScan_JNI.RS_GetErrString(res) + ")"); 
-                    thumbScan.setDisable(false);
-                    return;
-                }
-            }catch(Exception e){
-                System.out.println("Exception : "+e);
-            }*/
-                int thumbmissingfingers = 0;
-                if (arcDetails.getFingers().contains("LT")) thumbmissingfingers++;
-                if (arcDetails.getFingers().contains("RT")) thumbmissingfingers++;
-
-                int fingerstoscanthumb = 2 - thumbmissingfingers;
-                LOGGER.log(Level.INFO, "thumb fingers3 :" + fingerstoscanthumb);
-                if (fingerstoscanthumb >= 1 && fingerstoscanthumb <= 2) {
-                    int minFingerResult = RealScan_JNI.RS_SetMinimumFinger(deviceHandle, fingerstoscanthumb);
-                    if (RealScan_JNI.RS_GetLastError() != RealScan_JNI.RS_SUCCESS) {
-                        String errStr = RealScan_JNI.RS_GetErrString(RealScan_JNI.RS_GetLastError());
-                        statusField.setText(errStr);
-                        backBtn.setDisable(false);
-                        thumbScan.setDisable(false);
-                        LOGGER.log(Level.SEVERE, "Error while setting minimum fingers LEFT HAND :" + errStr);
-                    }
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            //statusField.setText("Place your two thumbs on the sensor");
-                            statusField.setText("Place your " + thumbFingersToScan(arcDetails.getFingers()) + " thumb fingers in the middle of scanner ");
-                            LOGGER.log(Level.INFO, "Place your " + thumbFingersToScan(arcDetails.getFingers()) + " thumb fingers in the middle of scanner ");
-                        }
-                    });
-
-                    res = RealScan_JNI.RS_TakeImageData(deviceHandle, 20000, imageInfo);
-                    System.out.println("RES::" + res);
-                    if (res != RealScan_JNI.RS_SUCCESS) {
-                        String errStr = RealScan_JNI.RS_GetErrString(res);
-                        System.out.println("ERR::" + errStr);
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText(errStr + ", Kindly Rescan again.");
-                                backBtn.setDisable(false);
-                                thumbScan.setDisable(false);
-                            }
-                        });
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    if (imageInfo.pbyImgBuf == null || imageInfo.imageWidth == 0 || imageInfo.imageHeight == 0) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Image is empty! Try thumb again");
-                            }
-                        });
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    // To Set the image panel
-                    setImagePanel(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
-                    int slapType;//left slap
-                    int fingerType = 0;
-                    int[] missingFingerArr = new int[]{0, 0};
-                    int n = 0;
-                    int[] captureMode_result = RealScan_JNI.RS_GetCaptureMode(deviceHandle);
-                    switch (captureMode_result[0]) {
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER:
-                            //System.out.println("Single Finger Thumb");
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            fingerType = fingertypethumb();
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_SINGLE_FINGER_EX:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER:
-                        case RealScan_JNI.RS_CAPTURE_ROLL_FINGER_EX:
-                            slapType = RealScan_JNI.RS_SLAP_ONE_FINGER;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_TWO_THUMB;
-                            if (arcDetails.getFingers().contains("LT"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_THUMB;
-                            if (arcDetails.getFingers().contains("RT"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS_EX:
-                            slapType = RealScan_JNI.RS_SLAP_TWO_THUMB;
-                            if (arcDetails.getFingers().contains("LT")) {
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_THUMB;
-                                //fingerType = RealScan_JNI.RS_FGP_LEFT_THUMB;
-
-                            }
-                            if (arcDetails.getFingers().contains("RT")) {
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-                                //fingerType = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-
-                            }
-                            //Changed on 21/04/22
-                            //fingerType = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_LEFT_FOUR;
-                            if (arcDetails.getFingers().contains("LL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            if (arcDetails.getFingers().contains("LR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_RING;
-                            if (arcDetails.getFingers().contains("LM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_MIDDLE;
-                            if (arcDetails.getFingers().contains("LI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_LEFT_INDEX;
-                            fingerType = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-                            break;
-                        case RealScan_JNI.RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS:
-                            slapType = RealScan_JNI.RS_SLAP_RIGHT_FOUR;
-                            if (arcDetails.getFingers().contains("RI"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            if (arcDetails.getFingers().contains("RM"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_MIDDLE;
-                            if (arcDetails.getFingers().contains("RR"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_RING;
-                            if (arcDetails.getFingers().contains("RL"))
-                                missingFingerArr[n++] = RealScan_JNI.RS_FGP_RIGHT_LITTLE;
-                            fingerType = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-                            break;
-
-                        default:
-                            statusField.setText("Cannot segment in this mode");
-                            thumbScan.setDisable(false);
-                            return;
-                    }
-
-                    // 7) do sequence check & save target image(right) of sequence check
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Sequence Checking is running now...");
-                        }
-                    });
-
-                    numOfFingers = RealScan_JNI.RS_Segment(imageInfo, RealScan_JNI.RS_SLAP_TWO_THUMB, numOfFingers, slapInfoArray, imageInfoArray);
-                    //Finger Counts Mismatch
-
-
-                    LOGGER.log(Level.INFO, "numOf--Fingers:::" + numOfFingers);
-                    LOGGER.log(Level.INFO, "numOf--Fingers:::" + numOfFingers);
-                    if (numOfFingers != thumbfingerstoscan()) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Fingers counts not Matched. Try Thumb Fingers again");
-                                LOGGER.log(Level.SEVERE, "Fingers counts not Matched. Try Thumb Fingers again");
-                                thumbScan.setDisable(false);
-                                backBtn.setDisable(false);
-                            }
-                        });
-
-                        return;
-                    }
-
-                    resString = sequenceCheckProcess2(imageInfoArray, numOfFingers, "thumb");
-
-                    if (resString.contains("There is no target image")) {
-                        LOGGER.log(Level.SEVERE, "ResTring:::" + resString);
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    } else if (!resString.contains("There isn't matched finger")) {
-                        LOGGER.log(Level.SEVERE, "ResTring:::" + resString);
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-
-                    for (int i = 0; i < pFingerMsg.length; i++) {
-                        if (resString.equals(pFingerMsg[i])) {
-                            statusField.setText(pFingerMsg[i] + " finger is already scanned!");
-                            thumbScan.setDisable(false);
-                            backBtn.setDisable(false);
-                            return;
-                        }
-                    }
-                    if (numOfFingers < 0) {
-                        statusField.setText("Segmentation failed");
-                        LOGGER.log(Level.SEVERE, "Thumbs Segmentation failed");
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-                    //System.out.println("NO OF FINGERS:::::"+numOfFingers);
-
-                    StringBuilder segResult = new StringBuilder();
-                    int j = 0;
-                    //Commented on 21/04/22
-                    //fingerType = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-
-                    LOGGER.log(Level.INFO, "FINGER TYPE:::::" + fingerType);
-                    for (int i = 0; i < numOfFingers; i++) {
-                        if (slapInfoArray[i].fingerType == RealScan_JNI.RS_FGP_UNKNOWN) {
-                            //System.out.println("inside if");
-                            if (slapType == RealScan_JNI.RS_SLAP_LEFT_FOUR) {
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType--;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType--;
-                            } else if (slapType == RealScan_JNI.RS_SLAP_RIGHT_FOUR) {
-                                while (fingerType == missingFingerArr[j]) {
-                                    fingerType++;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType++;
-                            } else if (slapType == RealScan_JNI.RS_SLAP_TWO_THUMB) {
-                                //System.out.println("finger thumb " + fingerType + " " +missingFingerArr[j]);
-                                while (fingerType == missingFingerArr[j]) {
-                                    //System.out.println("inside missing finger thumb");
-                                    fingerType++;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType++;
-                            } else if (slapType == RealScan_JNI.RS_SLAP_ONE_FINGER) {
-                                //System.out.println("finger Type and missing finger-- thumb " + fingerType + " " +missingFingerArr[j]);
-                                while (fingerType == missingFingerArr[j]) {
-                                    //System.out.println("inside missing finger thumb");
-                                    fingerType++;
-                                    j++;
-                                }
-                                slapInfoArray[i].fingerType = fingerType++;
-                            }
-                        } else {
-                            //System.out.println("seg result else:" + segResult + " " + numOfFingers);
-                        }
-                        segResult.append("[" + slapInfoArray[i].fingerType + ":" + slapInfoArray[i].imageQuality + "]");
-                    }
-
-                    LOGGER.log(Level.INFO, "seg result :" + segResult + " " + numOfFingers);
-                    saveSeqCheckTargetImages(imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight, RealScan_JNI.RS_SLAP_TWO_THUMB, numOfFingers);
-
-                    try {
-                        setSegmentedImagePanel(RealScan_JNI.RS_CAPTURE_FLAT_TWO_FINGERS, slapInfoArray, imageInfoArray, numOfFingers, "thumb");
-                    } catch (ArrayIndexOutOfBoundsException ex) {
-                        Platform.runLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                statusField.setText("Could not segment images. Try thumb again");
-                                LOGGER.log(Level.SEVERE, "Thumb Segmentation failed");
-                            }
-                        });
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                        return;
-                    }
-
-
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Thumbs captured successfully");
-                            LOGGER.log(Level.INFO, "thumbs captured successfully");
-                            if (captureModesCompleted.contains(3)) {
-                                captureModesCompleted.remove(3);
-                            }
-                            captureModesCompleted.add(3);
-                            LOGGER.log(Level.INFO, "capture size thumb if :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(true);
-                                scan.setDisable(true);
-                                scan.setDisable(true);
-                                leftScan.setDisable(true);
-                                rightScan.setDisable(true);
-                                thumbScan.setDisable(true);
-                                backBtn.setDisable(true);
-                            }
-                        }
-                    });
-
-                    LOGGER.log(Level.INFO, "thumbs captured successfully3");
-                    statusMsg("Thumb Capture Success");
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    LOGGER.log(Level.INFO, "before calling Template Conversion if");
-                    //Template Conversion
-                    ttemplateconvert = new Thread(DoTemplateConversion);
-                    ttemplateconvert.start();
-                    //Template Conversion
-                    LOGGER.log(Level.INFO, "After calling Template Conversion if");
-                } else {
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            //statusMsg("Thumb Capture Not Required");
-                            // statusField.setText("Thumbs capture Not required, Proceed For Iris");
-                            statusField.setText("Thumb capture not required, proceed next to Capture IRIS");
-                            scan.setDisable(true);
-                            showIrisBtn.setDisable(true);
-                            if (captureModesCompleted.contains(3)) {
-                                captureModesCompleted.remove(3);
-                            }
-                            captureModesCompleted.add(3);
-                            System.out.println("capture size thumb else :" + captureModesCompleted.size());
-                            if (captureModesCompleted.size() == 3) {
-                                showIrisBtn.setDisable(true);
-                                scan.setDisable(true);
-                                leftScan.setDisable(true);
-                                rightScan.setDisable(true);
-                                thumbScan.setDisable(true);
-                                backBtn.setDisable(true);
-                            }
-                        }
-                    });
-
-                    LOGGER.log(Level.INFO, "Thumbs capture Not required, enabling iris capture");
-                    statusMsg("Thumb Capture Not Required");
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(SlapScannerController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    LOGGER.log(Level.INFO, "before calling Template Conversion else");
-                    //Template Conversion
-                    ttemplateconvert = new Thread(DoTemplateConversion);
-                    ttemplateconvert.start();
-                    //Template Conversion
-                    LOGGER.log(Level.INFO, "After calling Template Conversion else");
-                    //showIrisBtn.setDisable(false);
-                }
-            } catch (Exception e) {
-                statusField.setText("Exception:" + e);
-                LOGGER.log(Level.INFO, "Exception:" + e);
-            }
-        }
-    };
-
-
-    //New Implementation
-    public void clearSegmentedImagePanels(String[] clearImagePanel) {
-        //String[] clearImagePanel = {"l","r","t"};
-
-
-        if (clearImagePanel.toString().contains("l")) {
-            for (int i = 7; i <= 10; i++) {
-                segFPImages[i - 1].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-                segFPImages[i - 1].image = null;
-                segFPImages[i - 1].rawdata = null;
-                segFPImages[i - 1].width = 0;
-                segFPImages[i - 1].height = 0;
-            }
-            LICanvas.setImage(null);
-            LMCanvas.setImage(null);
-            LRCanvas.setImage(null);
-            LLCanvas.setImage(null);
-        }
-
-        if (clearImagePanel.toString().contains("r")) {
-            for (int i = 2; i <= 5; i++) {
-                segFPImages[i - 1].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-                segFPImages[i - 1].image = null;
-                segFPImages[i - 1].rawdata = null;
-                segFPImages[i - 1].width = 0;
-                segFPImages[i - 1].height = 0;
-            }
-            RICanvas.setImage(null);
-            RMCanvas.setImage(null);
-            RRCanvas.setImage(null);
-            RLCanvas.setImage(null);
-        }
-
-        if (clearImagePanel.toString().contains("t")) {
-            //RT
-            segFPImages[0].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-            segFPImages[0].image = null;
-            segFPImages[0].rawdata = null;
-            segFPImages[0].width = 0;
-            segFPImages[0].height = 0;
-            RTCanvas.setImage(null);
-
-            //LT
-            segFPImages[5].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-            segFPImages[5].image = null;
-            segFPImages[5].rawdata = null;
-            segFPImages[5].width = 0;
-            segFPImages[5].height = 0;
-            LTCanvas.setImage(null);
-
-        }
-
-    }
-
-    //This method is not in use currently, instead public void clearSegmentedImagePanels(String[] clearImagePanel) used
-    public void clearSegmentedImagePanels() {
-        for (int i = 0; i < segFPImages.length; i++) {
-            segFPImages[i].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-            segFPImages[i].image = null;
-            segFPImages[i].rawdata = null;
-            segFPImages[i].width = 0;
-            segFPImages[i].height = 0;
-        }
-
-        //LTCanvas.main_img = null;
-        LTCanvas.setImage(null);
-        //LICanvas.main_img = null;
-        LICanvas.setImage(null);
-        //LMCanvas.main_img = null;
-        LMCanvas.setImage(null);
-        //LRCanvas.main_img = null;
-        LRCanvas.setImage(null);
-        //LLCanvas.main_img = null;
-        LLCanvas.setImage(null);
-
-        //RTCanvas.main_img = null;
-        RTCanvas.setImage(null);
-        //RICanvas.main_img = null;
-        RICanvas.setImage(null);
-        //RMCanvas.main_img = null;
-        RMCanvas.setImage(null);
-        //RRCanvas.main_img = null;
-        RRCanvas.setImage(null);
-        //RLCanvas.main_img = null;
-        RLCanvas.setImage(null);
-    }
-
-    public void clearSegmentedImagePanelsCheck(String Hand) {
-        for (int i = 0; i < segFPImages.length; i++) {
-            segFPImages[i].fingerPosition = RealScan_JNI.RS_FGP_UNKNOWN;
-            segFPImages[i].image = null;
-            segFPImages[i].rawdata = null;
-            segFPImages[i].width = 0;
-            segFPImages[i].height = 0;
-        }
-        if (Hand.contains("Left")) {
-            //LTCanvas.main_img = null;
-            LTCanvas.setImage(null);
-            //LICanvas.main_img = null;
-            LICanvas.setImage(null);
-            //LMCanvas.main_img = null;
-            LMCanvas.setImage(null);
-            //LRCanvas.main_img = null;
-            LRCanvas.setImage(null);
-            //LLCanvas.main_img = null;
-            LLCanvas.setImage(null);
-        } else {
-            //RTCanvas.main_img = null;
-            RTCanvas.setImage(null);
-            //RICanvas.main_img = null;
-            RICanvas.setImage(null);
-            //RMCanvas.main_img = null;
-            RMCanvas.setImage(null);
-            //RRCanvas.main_img = null;
-            RRCanvas.setImage(null);
-            //RLCanvas.main_img = null;
-            RLCanvas.setImage(null);
-        }
-    }
-
-    public void clearSeqCheckTargetImages() {
-        nNumOfTargets = 0;
-        nNumOfTargetFingers = 0;
-
-        for (int i = 0; i < 5; i++) {
-            if (bSeqCheckTargetImages[i] != null) {
-                bSeqCheckTargetImages[i] = null;
-            }
-            nSeqCheckTargetWidths[i] = 0;
-            nSeqCheckTargetHeights[i] = 0;
-            nSeqCheckTargetSlapTypes[i] = 0;
-        }
-    }
-
-
-    public void setImagePanel(byte[] imgByte, int imageWidth, int imageHeight) {
-        int nWidth = imageWidth;
-        int nHeight = imageHeight;
-        if (nWidth % 4 != 0) nWidth -= nWidth % 4;
-        byte[] bData = new byte[nWidth * nHeight];
-        for (int i = 0; i < nHeight; i++) {
-            for (int j = 0; j < nWidth; j++)
-                bData[i * nWidth + j] = imgByte[i * imageWidth + j];
-        }
-
-        byte[] imageBuffer = new byte[nWidth * nHeight + 1078];
-
-        int result = RealScan_JNI.RS_SaveBitmapMem(bData, nWidth, nHeight, imageBuffer);
-        if (result == RealScan_JNI.RS_SUCCESS) {
-            try {
-                synchronized (syncImg) {
-                    InputStream in = new ByteArrayInputStream(imageBuffer);
-                    BufferedImage bufferedImage = ImageIO.read(in);
-                    //System.out.println("BUFFFF"+bufferedImage.getData());
-//                    icon.setImage(bufferedImage, qty, x, y, r);
-
-                    WritableImage wr = null;
-                    if (bufferedImage != null) {
-                        // System.out.println("BUFDREA not null");
-                        wr = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-                        PixelWriter pw = wr.getPixelWriter();
-                        int bfimagewidth = bufferedImage.getWidth();
-                        int bfimageheight = bufferedImage.getHeight();
-
-                        for (int x = 0; x < bfimagewidth; x++) {
-                            for (int y = 0; y < bfimageheight; y++) {
-                                pw.setArgb(x, y, bufferedImage.getRGB(x, y));
-                            }
-                        }
-                    }
-                    img = wr;
-                }
-            } catch (java.io.IOException e) {
-                LOGGER.log(Level.SEVERE, "Failed to set image in image panel" + e);
-            }
-
-            Platform.runLater(showPrevData);
-        }
-    }
-
-    Runnable showPrevData = new Runnable() {
-        public void run() {
-            synchronized (syncImg) {
-                preview.setImage(img);
-            }
-            preview.setImage(img);
-
-        }
-    };
-
-    public void setSegmentedImagePanel(int slapType, RealScan_JNI.RSSlapInfo[] slapInfo, RealScan_JNI.RSImageInfo[] imageInfo, int numOfFingers, String device) throws ArrayIndexOutOfBoundsException {
-
-        whichdevice = device;
-        LOGGER.log(Level.SEVERE, "slapType 123: SlapInfo : ImageInfo : numFingers" + slapType + " : " + slapInfo.toString() + " : " + imageInfo.toString() + " : " + numOfFingers);
-
-
-        if (slapType == RealScan_JNI.RS_SLAP_ONE_FINGER) {   //For Single Finger
-            int idx;
-            int nWidth;
-            int nHeight;
-            int bfimagewidth;
-            int bfimageheight;
-            WritableImage wr = null;
-            byte[] bData;
-            byte[] bmpBuf;
-
-            //Added on 270522 for code review            
-            //byte[] bmpBuf = null;
-            //InputStream in = new ByteArrayInputStream(bmpBuf);
-            //BufferedImage bufferedImage;
-
-
-            for (int i = 0; i < numOfFingers; i++) {
-                //System.out.println("width : height : " + i + " finger :  " +imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight+ "Finger type:"+slapInfo[i].fingerType);
-                //System.out.println("setSegmentedImagePanel for Single Finger");
-                //System.out.println("width : height : " + i + " finger :  " +imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight );
-                idx = slapInfo[i].fingerType - 1;
-              
-                /*
-                idx = whichdevice.contains("left")?fingertypeleft():fingertyperight();//slapInfo[i].fingerType;//Added For Single Finger
-                
-                if(idx==10){ //IDX value for left little is 10 
-                   idx = 9; // Added for Left Little
-                }
-                if(idx==5){ //IDX value for right little is 5 
-                   idx = 4; // Added for Right Little
-                }*/
-                System.err.println("IDX Value in set Segment for single finger:" + idx);
-                if (idx < 0) {
-                    LOGGER.log(Level.SEVERE, "width : height : " + idx + " finger :  " + imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight);
-                    continue;
-                }
-                // System.err.println("before width");
-                //System.out.println("Image Info Length:"+imageInfo.length);
-                nWidth = imageInfo[i].imageWidth;
-                //System.err.println("after width"+imageInfo.toString());
-                nHeight = imageInfo[i].imageHeight;
-                //System.err.println("before");
-                //System.out.println("segFP : length : "+ segFPImages[idx] + " "+ segFPImages.length);
-                segFPImages[idx].width = nWidth;
-                segFPImages[idx].height = nHeight;
-                segFPImages[idx].rawdata = new byte[nWidth * nHeight];
-                System.arraycopy(imageInfo[i].pbyImgBuf, 0, segFPImages[idx].rawdata, 0, nWidth * nHeight);
-
-                if (nWidth % 4 != 0) nWidth -= nWidth % 4;
-                bData = new byte[nWidth * nHeight];
-                bmpBuf = new byte[nWidth * nHeight + 1078];
-
-                for (int n = 0; n < nHeight; n++) {
-                    for (int m = 0; m < nWidth; m++) {
-                        bData[n * nWidth + m] = imageInfo[i].pbyImgBuf[n * imageInfo[i].imageWidth + m];
-                    }
-                }
-
-                //String strIrisLeft = Base64.getEncoder().encodeToString(finalLeftBuffer);
-                int result = RealScan_JNI.RS_SaveBitmapMem(bData, nWidth, nHeight, bmpBuf);
-                if (result == RealScan_JNI.RS_SUCCESS) {
-                    try {
-                        segFPImages[idx].fingerPosition = slapInfo[i].fingerType;
-                        //Commented on 270522 for code review
-                        InputStream in = new ByteArrayInputStream(bmpBuf);
-                        BufferedImage bufferedImage = ImageIO.read(in);
-                        //in = new ByteArrayInputStream(bmpBuf);
-                        //bufferedImage = ImageIO.read(in);
-                        // System.out.println("BUFFFF"+bufferedImage.getData());
-                        //icon.setImage(bufferedImage, qty, x, y, r);
-
-
-                        if (bufferedImage != null) {
-                            //  System.out.println("BUFDREA not null");
-                            wr = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-                            PixelWriter pw = wr.getPixelWriter();
-                            bfimagewidth = bufferedImage.getWidth();
-                            bfimageheight = bufferedImage.getHeight();
-                            for (int x = 0; x < bufferedImage.getWidth(); x++) {
-                                for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                                    pw.setArgb(x, y, bufferedImage.getRGB(x, y));
-                                }
-                            }
-                        }
-                        segFPImages[idx].image = wr;
-                        if (wr == null) {
-                            System.err.println("Null value for i = " + i);
-                        }
-
-
-                        LOGGER.log(Level.INFO, "SLAP Single Finger::" + "raw data " + i + " raw data image " + segFPImages[i].rawdata + " slap type " + segFPImages[i].fingerPosition);
-                        //segFPImages[idx].image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(bmpBuf));
-
-                    } catch (java.io.IOException e) {
-                        LOGGER.log(Level.SEVERE, "Failed to set segmented image in image panel");
-                        //e.printStackTrace();
-                    } catch (Exception e) {
-                        LOGGER.log(Level.SEVERE, e.getMessage());
-                    }
-                }
-
-                if (!whichdevice.equals("left")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "";
-                    clearImagePanel[2] = "";
-                }
-                if (!whichdevice.equals("right")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "r";
-                    clearImagePanel[2] = "";
-                }
-
-                if (!whichdevice.equals("thumb")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "r";
-                    clearImagePanel[2] = "t";
-                }
-
-                //enabled in portable enrollment
-                Platform.runLater(showSegmentFP);
-            }
-
-        } else {
-            //For Four Fingers
-            int idx;
-            int nWidth;
-            int nHeight;
-            int bfimagewidth;
-            int bfimageheight;
-            WritableImage wr = null;
-            byte[] bData;
-            byte[] bmpBuf;
-            //Added on 270522 for code review            
-            //byte[] bmpBuf= new byte[40];
-            //InputStream in = new ByteArrayInputStream(bmpBuf);
-            //BufferedImage bufferedImage;            
-            LOGGER.log(Level.INFO, "numofFingers in setsegmentedpanel - four finger" + numOfFingers);
-            for (int i = 0; i < numOfFingers; i++) {
-                //System.out.println("setSegmentedImagePanel");                
-                LOGGER.log(Level.INFO, "width : height : " + i + " finger :  " + imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight + "Finger type:" + slapInfo[i].fingerType);
-                //int idx = slapInfo[i].fingerType - 1;            
-                idx = slapInfo[i].fingerType - 1;
-                if (idx < 0) {
-                    //System.out.println("width : height : " + idx + " finger :  " +imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight );
-                    LOGGER.log(Level.INFO, "width : height : " + idx + " finger :  " + imageInfo[i].imageWidth + " : " + imageInfo[i].imageHeight);
-                    continue;
-                }
-                //System.err.println("before width");
-                //System.out.println("Image Info Length:"+imageInfo.length);
-                //int nWidth = imageInfo[i].imageWidth;
-                nWidth = imageInfo[i].imageWidth;
-                //System.out.println("after width"+imageInfo.toString());
-                //int nHeight = imageInfo[i].imageHeight;
-                nHeight = imageInfo[i].imageHeight;
-                //System.out.println("before");
-                //System.out.println("segFP : length : "+ segFPImages[idx] + " "+ segFPImages.length);
-                segFPImages[idx].width = nWidth;
-                segFPImages[idx].height = nHeight;
-                segFPImages[idx].rawdata = new byte[nWidth * nHeight];
-                System.arraycopy(imageInfo[i].pbyImgBuf, 0, segFPImages[idx].rawdata, 0, nWidth * nHeight);
-
-                if (nWidth % 4 != 0) nWidth -= nWidth % 4;
-                //byte[] bData = new byte[nWidth*nHeight];
-                //byte[] bmpBuf = new byte[nWidth * nHeight + 1078];
-                bData = new byte[nWidth * nHeight];
-                bmpBuf = new byte[nWidth * nHeight + 1078];
-
-                for (int n = 0; n < nHeight; n++) {
-                    for (int m = 0; m < nWidth; m++) {
-                        bData[n * nWidth + m] = imageInfo[i].pbyImgBuf[n * imageInfo[i].imageWidth + m];
-                    }
-                }
-
-                //String strIrisLeft = Base64.getEncoder().encodeToString(finalLeftBuffer);
-                int result = RealScan_JNI.RS_SaveBitmapMem(bData, nWidth, nHeight, bmpBuf);
-                if (result == RealScan_JNI.RS_SUCCESS) {
-                    try {
-                        segFPImages[idx].fingerPosition = slapInfo[i].fingerType;
-                        InputStream in = new ByteArrayInputStream(bmpBuf);
-                        BufferedImage bufferedImage = ImageIO.read(in);
-                        //in = new ByteArrayInputStream(bmpBuf);
-                        //bufferedImage = ImageIO.read(in);
-                        // System.out.println("BUFFFF"+bufferedImage.getData());
-                        //                    icon.setImage(bufferedImage, qty, x, y, r);
-
-                        //WritableImage wr = null;
-                        if (bufferedImage != null) {
-                            //  System.out.println("BUFDREA not null");
-                            wr = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-                            PixelWriter pw = wr.getPixelWriter();
-                            for (int x = 0; x < bufferedImage.getWidth(); x++) {
-                                for (int y = 0; y < bufferedImage.getHeight(); y++) {
-                                    pw.setArgb(x, y, bufferedImage.getRGB(x, y));
-                                }
-                            }
-                        }
-                        segFPImages[idx].image = wr;
-                        if (wr == null) {
-                            System.err.println("Null value for i = " + i);
-                        }
-
-                        //  System.out.println("raw data "+ i + " raw data image "+segFPImages[i].rawdata +" slap type " + segFPImages[i].fingerPosition );
-                        //segFPImages[idx].image = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(bmpBuf));
-
-                    } catch (java.io.IOException e) {
-                        LOGGER.log(Level.SEVERE, "Failed to set segmented image in image panel");
-                        //e.printStackTrace();
-                    } catch (Exception e) {
-                        //System.out.println(e.getMessage());
-                        LOGGER.log(Level.SEVERE, e.getMessage());
-                    }
-                } else {
-                    //System.out.println("There is  an error in showing fingerprint ");
-                    LOGGER.log(Level.SEVERE, "There is  an error in showing fingerprint ");
-                }
-
-                if (!whichdevice.equals("left")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "";
-                    clearImagePanel[2] = "";
-                }
-                if (!whichdevice.equals("right")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "r";
-                    clearImagePanel[2] = "";
-                }
-
-                if (!whichdevice.equals("thumb")) {
-                    clearImagePanel[0] = "l";
-                    clearImagePanel[1] = "r";
-                    clearImagePanel[2] = "t";
-                }
-
-
-                //enabled in portable enrollment
-                Platform.runLater(showSegmentFP);
-            }
-        }
-    }
-
-    Runnable showSegmentFP = new Runnable() {
-        public void run() {
-            int fingerstoscan = 0;
-            if (whichdevice.contains("left")) { //To check the device in left
-                fingerstoscan = leftfingerstoscan();
-                LOGGER.log(Level.INFO, "Fingers To scan Left:" + fingerstoscan);
-                //System.out.println("Fingers To scan Left:"+fingerstoscan);
-            } else if (whichdevice.contains("right")) {
-                fingerstoscan = rightfingerstoscan();
-                LOGGER.log(Level.INFO, "Fingers To scan Right:" + fingerstoscan);
-                //System.out.println("Fingers To scan Right:"+fingerstoscan);
-            }
-            //System.out.println("Fingers to scan in Showsegment:"+fingerstoscan);
-            LOGGER.log(Level.INFO, "Fingers to scan in Showsegment:" + fingerstoscan);
-            if (fingerstoscan == 1) {
-                //System.out.println("show fingerprint fp For Single Finger:" + segFPImages.length);
-                LOGGER.log(Level.INFO, "show fingerprint fp For Single Finger:" + segFPImages.length);
-                int fingerType = 0;
-                //System.out.println("Show segment For Single Finger");
-
-                for (int i = 0; i < segFPImages.length; i++) {
-                    String value = segFPImages[i].image != null ? "has value" : "null";
-
-                    // System.out.println("i="+i +"slaptype"+segFPImages[i].fingerPosition + "value"+value);
-                    if (segFPImages[i].image != null) {
-
-                        if (whichdevice.contains("left")) {
-                            fingerType = fingertypeleft(); // For Single Finger
-                            LOGGER.log(Level.INFO, "FingerType FOr Left:" + fingerType);
-                            //System.out.println("FingerType FOr Left:"+fingerType);
-
-                        } else if (whichdevice.contains("right")) {
-                            fingerType = fingertyperight(); // For Single Finger
-                            LOGGER.log(Level.INFO, "FingerType FOr Right:" + fingerType);
-                            //System.out.println("FingerType FOr Right:"+fingerType);
-                        }
-
-                        //segFPImages[i].fingerPosition=fingerType;                    
-                        //segFPImages[i].fingerPosition=i;
-                        //System.out.println("I="+i +"slaptype"+segFPImages[i].fingerPosition + "value"+value); 
-                        LOGGER.log(Level.INFO, "I=" + i + "slaptype" + segFPImages[i].fingerPosition + "value" + value);
-                        switch (segFPImages[i].fingerPosition) {
-
-                            case RealScan_JNI.RS_FGP_LEFT_THUMB:
-                                System.out.println("Setting Left thumb Image" + whichdevice);
-                                //LTCanvas.main_img = segFPImages[i].image;
-                                if (whichdevice.equals("thumb")) {
-                                    LTCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            case RealScan_JNI.RS_FGP_LEFT_INDEX:
-                                //LICanvas.main_img = segFPImages[i].image;
-                                LICanvas.setImage(segFPImages[i].image);
-                                break;
-                            case RealScan_JNI.RS_FGP_LEFT_MIDDLE:
-                                //LMCanvas.main_img = segFPImages[i].image;
-                                LMCanvas.setImage(segFPImages[i].image);
-                                break;
-                            case RealScan_JNI.RS_FGP_LEFT_RING:
-                                // LRCanvas.main_img = segFPImages[i].image;
-                                LRCanvas.setImage(segFPImages[i].image);
-                                break;
-                            case RealScan_JNI.RS_FGP_LEFT_LITTLE:
-                                System.out.println("Setting left little Image:" + i);
-                                //LLCanvas.main_img = segFPImages[i].image;
-                                LLCanvas.setImage(segFPImages[i].image);
-                                break;
-                            case RealScan_JNI.RS_FGP_RIGHT_THUMB:
-                                System.out.println("Setting right thumb Image" + whichdevice);
-                                //RTCanvas.main_img = segFPImages[i].image;
-                                if (whichdevice.equals("thumb")) {
-                                    RTCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            case RealScan_JNI.RS_FGP_RIGHT_INDEX:
-                                //RICanvas.main_img = segFPImages[i].image;  
-                                if (RICanvas.getImage() == null) {
-                                    RICanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            case RealScan_JNI.RS_FGP_RIGHT_MIDDLE:
-                                //RMCanvas.main_img = segFPImages[i].image;
-                                if (RMCanvas.getImage() == null) {
-                                    RMCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            case RealScan_JNI.RS_FGP_RIGHT_RING:
-                                //RRCanvas.main_img = segFPImages[i].image;  
-                                if (RICanvas.getImage() == null) {
-                                    RRCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            case RealScan_JNI.RS_FGP_RIGHT_LITTLE:
-                                //RLCanvas.main_img = segFPImages[i].image;   
-                                if (RICanvas.getImage() == null) {
-                                    RLCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                }
-
-            } else {
-
-                //System.out.println("show fingerprint fp :" + segFPImages.length);
-                LOGGER.log(Level.INFO, "show fingerprint fp :" + segFPImages.length);
-                for (int i = 0; i < segFPImages.length; i++) {
-                    String value = segFPImages[i].image != null ? "has value" : "null";
-                    System.out.println("i=" + i + "slaptype" + segFPImages[i].fingerPosition + "value" + value);
-                    if (segFPImages[i].image != null) {
-                        switch (segFPImages[i].fingerPosition) {
-                            case RealScan_JNI.RS_FGP_LEFT_THUMB:
-                                System.out.println("Setting Left thumb Image" + whichdevice);
-                                //LTCanvas.main_img = segFPImages[i].image;
-                                if (whichdevice.equals("thumb")) {
-                                    LTCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-
-                            case RealScan_JNI.RS_FGP_LEFT_INDEX:
-                                //LICanvas.main_img = segFPImages[i].image;
-                                LICanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_LEFT_MIDDLE:
-                                //LMCanvas.main_img = segFPImages[i].image;
-                                LMCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_LEFT_RING:
-                                // LRCanvas.main_img = segFPImages[i].image;
-                                LRCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_LEFT_LITTLE:
-                                //LLCanvas.main_img = segFPImages[i].image;
-                                LLCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_RIGHT_THUMB:
-                                //RTCanvas.main_img = segFPImages[i].image;
-                                System.out.println("Setting right thumb Image" + whichdevice);
-                                if (whichdevice.equals("thumb")) {
-                                    RTCanvas.setImage(segFPImages[i].image);
-                                }
-                                break;
-
-                            case RealScan_JNI.RS_FGP_RIGHT_INDEX:
-                                //RICanvas.main_img = segFPImages[i].image;
-                                RICanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_RIGHT_MIDDLE:
-                                //RMCanvas.main_img = segFPImages[i].image;
-                                RMCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_RIGHT_RING:
-                                //RRCanvas.main_img = segFPImages[i].image;
-                                RRCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            case RealScan_JNI.RS_FGP_RIGHT_LITTLE:
-                                //RLCanvas.main_img = segFPImages[i].image;
-                                RLCanvas.setImage(segFPImages[i].image);
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-    //public void saveEnrollmentDetails(SaveEnrollmentDetails saveEnrollment, int fingerPosition, byte[] bData, byte[] bmpData) {
-    //public void saveEnrollmentDetails(SaveEnrollmentDetails saveEnrollment, int fingerPosition, byte[] image, byte[] template2011) {
-    public String saveEnrollmentDetails(SaveEnrollmentDetails saveEnrollment, int fingerPosition, String image, String template2011) {
-        //System.out.println("slap type in save :"+ fingerPosition);
-        LOGGER.log(Level.INFO, "slap type in save :" + fingerPosition);
-        switch (fingerPosition) {
-            case RealScan_JNI.RS_FGP_LEFT_THUMB:
-                //LTCanvas.main_img = segFPImages[i].image;
-                FP fplt = new FP();
-                fplt.setPosition("LT");
-                //fplt.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fplt.setImage(Base64.getEncoder().encodeToString(image));    
-                fplt.setTemplate(template2011);
-                fplt.setImage(image);
-                fingerPrintSet.add(fplt);
-                System.err.println("FPLT added:::::" + fingerPrintSet.size());
-                //System.out.println("fp add ");
-                break;
-            case RealScan_JNI.RS_FGP_LEFT_INDEX:
-                //LICanvas.main_img = segFPImages[i].image;
-                FP fpli = new FP();
-                fpli.setPosition("LI");
-                //fpli.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fpli.setImage(Base64.getEncoder().encodeToString(image));  
-                fpli.setTemplate(template2011);
-                fpli.setImage(image);
-                fingerPrintSet.add(fpli);
-                break;
-            case RealScan_JNI.RS_FGP_LEFT_MIDDLE:
-                //LMCanvas.main_img = segFPImages[i].image;
-                FP fplm = new FP();
-                fplm.setPosition("LM");
-                //fplm.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fplm.setImage(Base64.getEncoder().encodeToString(image));                            
-                fplm.setTemplate(template2011);
-                fplm.setImage(image);
-                fingerPrintSet.add(fplm);
-                break;
-            case RealScan_JNI.RS_FGP_LEFT_RING:
-                // LRCanvas.main_img = segFPImages[i].image;
-                FP fplr = new FP();
-                fplr.setPosition("LR");
-                //fplr.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fplr.setImage(Base64.getEncoder().encodeToString(image));                            
-                fplr.setTemplate(template2011);
-                fplr.setImage(image);
-                fingerPrintSet.add(fplr);
-                break;
-            case RealScan_JNI.RS_FGP_LEFT_LITTLE:
-                //LLCanvas.main_img = segFPImages[i].image;
-                FP fpll = new FP();
-                fpll.setPosition("LL");
-                //fpll.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fpll.setImage(Base64.getEncoder().encodeToString(image));                            
-                fpll.setTemplate(template2011);
-                fpll.setImage(image);
-                fingerPrintSet.add(fpll);
-                break;
-            case RealScan_JNI.RS_FGP_RIGHT_THUMB:
-                //RTCanvas.main_img = segFPImages[i].image;
-                FP fprt = new FP();
-                fprt.setPosition("RT");
-                //fprt.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fprt.setImage(Base64.getEncoder().encodeToString(image));                            
-                fprt.setTemplate(template2011);
-                fprt.setImage(image);
-                fingerPrintSet.add(fprt);
-                break;
-            case RealScan_JNI.RS_FGP_RIGHT_INDEX:
-                //RICanvas.main_img = segFPImages[i].image;
-                FP fpri = new FP();
-                fpri.setPosition("RI");
-                //fpri.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fpri.setImage(Base64.getEncoder().encodeToString(image));                            
-                fpri.setTemplate(template2011);
-                fpri.setImage(image);
-                fingerPrintSet.add(fpri);
-                break;
-            case RealScan_JNI.RS_FGP_RIGHT_MIDDLE:
-                //RMCanvas.main_img = segFPImages[i].image;
-                FP fprm = new FP();
-                fprm.setPosition("RM");
-                //fprm.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fprm.setImage(Base64.getEncoder().encodeToString(image)); 
-                fprm.setTemplate(template2011);
-                fprm.setImage(image);
-                fingerPrintSet.add(fprm);
-                break;
-            case RealScan_JNI.RS_FGP_RIGHT_RING:
-                //RRCanvas.main_img = segFPImages[i].image;
-                FP fprr = new FP();
-                fprr.setPosition("RR");
-                //fprr.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fprr.setImage(Base64.getEncoder().encodeToString(image));                            
-                fprr.setTemplate(template2011);
-                fprr.setImage(image);
-                fingerPrintSet.add(fprr);
-                break;
-            case RealScan_JNI.RS_FGP_RIGHT_LITTLE:
-                //RLCanvas.main_img = segFPImages[i].image;
-                FP fprl = new FP();
-                fprl.setPosition("RL");
-                //fprl.setTemplate(Base64.getEncoder().encodeToString(template2011));
-                //fprl.setImage(Base64.getEncoder().encodeToString(image));                            
-                fprl.setTemplate(template2011);
-                fprl.setImage(image);
-                fingerPrintSet.add(fprl);
-                System.err.println("FPRL added:::::" + fingerPrintSet.size());
-                break;
-            default:
-                break;
-        }
-        return "saved";
-
-    }
-
-    public void saveSeqCheckTargetImages(byte[] imgByte, int imageWidth, int imageHeight, int slapType, int fingerCount) {
-        if (slapType < RealScan_JNI.RS_SLAP_ONE_FINGER) {
-            boolean bIsOverlapped = false;
-            int nOverlappedIndex = nNumOfTargets;
-            for (int i = 0; i < nNumOfTargets; i++) {
-                if (nSeqCheckTargetSlapTypes[i] == slapType) {
-                    bIsOverlapped = true;
-                    nOverlappedIndex = i;
-                    break;
-                }
-            }
-
-            if (bIsOverlapped == true) {
-                bSeqCheckTargetImages[nOverlappedIndex] = imgByte;
-                nSeqCheckTargetWidths[nOverlappedIndex] = imageWidth;
-                nSeqCheckTargetHeights[nOverlappedIndex] = imageHeight;
-            } else {
-                bSeqCheckTargetImages[nNumOfTargets] = new byte[imageWidth * imageHeight];
-                System.arraycopy(imgByte, 0, bSeqCheckTargetImages[nNumOfTargets], 0, imageWidth * imageHeight);
-                nSeqCheckTargetWidths[nNumOfTargets] = imageWidth;
-                nSeqCheckTargetHeights[nNumOfTargets] = imageHeight;
-                nSeqCheckTargetSlapTypes[nNumOfTargets] = slapType;
-                System.out.println("slaptype : " + slapType);
-                switch (slapType) {
-                    case RealScan_JNI.RS_SLAP_TWO_THUMB:
-                        listData.addElement("TWO THUMBS");
-                        break;
-                    case RealScan_JNI.RS_SLAP_LEFT_FOUR:
-                        listData.addElement("LEFT FOUR FINGERS");
-                        break;
-                    case RealScan_JNI.RS_SLAP_RIGHT_FOUR:
-                        listData.addElement("RIGHT FOUR FINGERS");
-                        break;
-                }
-                seqTargetList.add(listData);
-
-                nNumOfTargets++;
-                System.err.println("nNumofTargets = " + nNumOfTargets);
-                nNumOfTargetFingers += fingerCount;
-            }
-        }
-        System.out.println("nNumOfTargetFingers : " + nNumOfTargetFingers);
-    }
-
-
-    public String sequenceCheckProcess2(RealScan_JNI.RSImageInfo[] imageInfo, int numOfFingers, String finger) {
-        LOGGER.log(Level.INFO, "Sequence check process2 started");
-        String retString = "There is no target image";
-
-        int seqCheckResult = -1;
-        int seqCheckResult1 = -1;
-        int nSecuLev = 5;    // (0~7)
-
-        /*if(nNumOfTargets == 0){
-            System.out.println("nNumOfTargets is 0 :"+nNumOfTargets);
-            return retString;
-        }*/
-
-        System.out.println("numOfFingers is  :" + numOfFingers + " nNumOfTargets is 0 :" + nNumOfTargets);
-        boolean bIsMatched = false;
-        RealScan_JNI.RSImageInfo fingerImageInfo = new RealScan_JNI.RSImageInfo();
-        for (int i = 0; i < nNumOfTargets; i++) {
-            int nWidth;
-            int nHeight;
-            for (int j = 0; j < numOfFingers; j++) {
-                //for(int j=3; j>=0; j--) {
-                //commented on 270522 for code review
-                //RealScan_JNI.RSImageInfo fingerImageInfo = new RealScan_JNI.RSImageInfo();
-                nWidth = imageInfo[j].imageWidth;
-                nHeight = imageInfo[j].imageHeight;
-                fingerImageInfo.pbyImgBuf = new byte[nWidth * nHeight];
-                fingerImageInfo.pbyImgBuf = imageInfo[j].pbyImgBuf;
-                fingerImageInfo.imageWidth = nWidth;
-                fingerImageInfo.imageHeight = nHeight;
-
-                seqCheckResult = RealScan_JNI.RS_SequenceCheck(1, fingerImageInfo, bSeqCheckTargetImages[i], nSeqCheckTargetWidths[i], nSeqCheckTargetHeights[i], nSeqCheckTargetSlapTypes[i], nSecuLev);
-                //seqCheckResult1 = RealScan_JNI.RS_SequenceCheck(1, fingerImageInfo, bSeqCheckTargetImages[i], nSeqCheckTargetWidths[i], nSeqCheckTargetHeights[i], nSeqCheckTargetSlapTypes[1], nSecuLev);
-                //System.out.println("i: "+i+" j: "+j+" seqCheckResult "+seqCheckResult+" seqCheckResult1 "+seqCheckResult1+" Slap: "+nSeqCheckTargetSlapTypes[i]+" Slap1: "+nSeqCheckTargetSlapTypes[1]+" noofTarget: "+nNumOfTargets);
-                System.out.println("i: " + i + " j: " + j + " seqCheckResult " + seqCheckResult + " Slap: " + nSeqCheckTargetSlapTypes[i] + " noofTarget: " + nNumOfTargets);
-                if (seqCheckResult > 0) {
-                    retString = pFingerMsg[seqCheckResult];
-                    bIsMatched = true;
-                    Platform.runLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            statusField.setText("Kindly Place the Fingers and Try Again");
-                        }
-                    });
-                    if (finger.contains("right")) {
-                        rightScan.setDisable(false);
-                        backBtn.setDisable(false);
-                    } else {
-                        thumbScan.setDisable(false);
-                        backBtn.setDisable(false);
-                    }
-                    break;
-                }
-            }
-
-        }
-
-        if (!bIsMatched) retString = "There isn't matched finger"; //If they are placing fingers are not unique
-
-        LOGGER.log(Level.INFO, "Sequence check process2 completed");
-        //  System.out.println("Return String::"+retString);
-        return retString;
-    }
-
-    public void initISOSDK() {
-        //String fileName = "/etc/licence/iengine.lic";
-        String slaplicense = "";
-        String content = "";
-        String hardwareID = "";
-
-        slaplicense = prop.getProp().getProperty("slaplicense");
-        ClassLoader classLoader = getClass().getClassLoader();
-
-        File file = new File(slaplicense);
-        if (!file.exists()) {
-            statusField.setText("Licence file is not found");
-            LOGGER.log(Level.SEVERE, "Licence file is not found");
+            initIEngineLicense();
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+            scanBtn.setDisable(true);
             return;
         }
 
-        //File is found        
-        LOGGER.log(Level.INFO, "Licence File Found : " + file.exists());
-        //Read File Content        
+
+        if (getArcDetailsHolder().getArcDetails() == null) {
+            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+            scanBtn.setDisable(true);
+            return;
+        }
+
+        leftFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.LEFT);
+        rightFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.RIGHT);
+        thumbToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.THUMB);
+
+        if (getArcDetailsHolder().getArcDetails() != null && getArcDetailsHolder().getArcDetails().getArcNo() != null) {
+            displayArcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetails().getArcNo());
+        }
+    }
+
+    private void initSdkAndScanners() {
+        if (isLeftFpDeviceInitialised) {
+            releaseDevice(leftFpDeviceHandler);
+        }
+        if (isRightFpDeviceInitialised) {
+            releaseDevice(rightFpDeviceHandler);
+        }
+        /*
+        RS_InitSDK Error Code:
+            RS_SUCCESS  - The SDK is successfully initialized and the connected devices are found.
+            RS_ERR_CANNOT_GET_USB_DEVICE - Cannot get device information from USB.
+            RS_ERR_SDK_ALREADY_INITIALIZED - There remain unreleased devices.
+        */
+        int numOfScanners = RS_InitSDK("", 0);
+        jniReturnedCode = RS_GetLastError();
+        if (jniReturnedCode != RS_SUCCESS && jniReturnedCode != RS_ERR_SDK_ALREADY_INITIALIZED) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+
+        if (numOfScanners < 2) {
+            LOGGER.log(Level.SEVERE, "Required number of biometric data capturing device(s) not connected.");
+            throw new GenericException("Required number of biometric data capturing device(s) not connected. Kindly connect and try again.");
+        }
+        leftFpDeviceHandler = initDevice(0, leftFpDeviceInfo);
+        isLeftFpDeviceInitialised = true;
+        rightFpDeviceHandler = initDevice(1, rightFpDeviceInfo);
+        isRightFpDeviceInitialised = true;
+    }
+
+    private int initDevice(int index, RSDeviceInfo rsDeviceInfo) {
+        int deviceHandler;
+         /*
+        RS_InitDevice Error Code:
+            RS_SUCCESS - The device is initialized successfully.
+            RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+            RS_ERR_INVALID_DEVICE_INDEX - The device index is invalid.
+            RS_ERR_DEVICE_ALREADY_INITIALIZED - The device is already initialized.
+            RS_ERR_CANNOT_OPEN_DEVICE - Cannot connect to the device.
+            RS_ERR_SENSOR_DIRTY - A finger is on the sensor or Sensor is too dirty. Clean the sensor and try again
+            RS_ERR_FINGER_EXIST - A finger is on the sensor or Sensor is too dirty. Clean the sensor and try again
+         */
+        deviceHandler = RS_InitDevice(index);
+        // only stop if these errors occur
+        jniReturnedCode = RS_GetLastError();
+        if (jniReturnedCode == RS_ERR_SENSOR_DIRTY || jniReturnedCode == RS_ERR_FINGER_EXIST) {
+            String errorMessage = RS_GetErrString(jniReturnedCode);
+            LOGGER.log(Level.SEVERE, errorMessage);
+            throw new GenericException(errorMessage);
+        }
+
+        if (jniReturnedCode != RS_SUCCESS && jniReturnedCode != RS_ERR_DEVICE_ALREADY_INITIALIZED) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+        /*
+        RS_GetDeviceInfo Error Codes:
+            RS_SUCCESS - The device information is read successfully.
+            RS_ERR_INVALID_HANDLE - The device handle is invalid.
+        */
+        jniReturnedCode = RS_GetDeviceInfo(deviceHandler, rsDeviceInfo);
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, "Could not get device info.");
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+        return deviceHandler;
+    }
+
+
+    private void initIEngineLicense() throws IOException {
+        String licFilePath = PropertyFile.getProperty(PropertyName.LIC_IENGINE);
+        if (licFilePath == null || licFilePath.isBlank()) {
+            throw new GenericException("License property value is null or empty");
+        }
+        Path licensePath = Paths.get(licFilePath);
+        if (Files.notExists(licensePath)) {
+            LOGGER.log(Level.SEVERE, "License file not found");
+            throw new GenericException("License file not found");
+        }
+        byte[] licBytes = Files.readAllBytes(licensePath);
+        ansiIso.setLicenseContent(licBytes, licBytes.length);
+        // throws AnsiIsoException
+        ansiIso.init();
+    }
+
+    private void scanBtnAction() {
+        isFpScanCompleted = false;
+        disableControls(scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, backBtn, captureIrisBtn);
         try {
-            content = new String(Files.readAllBytes(file.toPath()));
-            LOGGER.log(Level.INFO, "content : " + content);
-            hardwareID = ansiISO.getHardwareId().toString();
-            LOGGER.log(Level.INFO, "hardware ID : " + hardwareID);
-            ansiISO.setLicenseContent(Files.readAllBytes(file.toPath()), Files.readAllBytes(file.toPath()).length);
-            ansiISO.init();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
-            String[] tokens = e.toString().split(":");
-            LOGGER.log(Level.SEVERE, "Runtime exception" + tokens[1] + " " + tokens[2]);
-            statusField.setText("Error : " + tokens[2]);
+            initSdkAndScanners();
+        } catch (GenericException ex) {
+            messageLabel.setText(ex.getMessage());
+            scanBtn.setDisable(false);
+            backBtn.setDisable(false);
+            return;
+        }
+        clearFingerprintOnUI();
+        ForkJoinPool.commonPool().execute(this::startLeftScan);
+    }
+
+    private void leftScanBtnAction() {
+        disableControls(scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, backBtn, captureIrisBtn);
+        ForkJoinPool.commonPool().execute(this::startLeftScan);
+    }
+
+    private void rightScanBtnAction() {
+        disableControls(scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, backBtn, captureIrisBtn);
+        ForkJoinPool.commonPool().execute(this::startRightScan);
+    }
+
+    private void thumbScanBtnAction() {
+        disableControls(scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, backBtn, captureIrisBtn);
+        ForkJoinPool.commonPool().execute(this::startThumbScan);
+    }
+
+    private void startLeftScan() {
+        fingerSetTypeToScan = FingerSetType.LEFT;
+        if (!isLeftFpDeviceInitialised) {
+            LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
+            updateUI(GENERIC_RS_ERR_MSG);
+            enableControls(backBtn, leftScanBtn);
+            return;
+        }
+
+        if (leftFingerToFingerTypeLinkedHashMap.isEmpty()) {
+            // runs in same thread.
+            updateUI("No left fingers to scan. Going to scan right fingers...");
+            startRightScan();
+            return;
+        }
+
+        if (leftFingerToFingerTypeLinkedHashMap.size() > 3) {
+            updateUI("Place your four left fingers on the sensor.");
+        } else {
+            // Place your Left Index, Left Middle finger(s) on the sensor.
+            String fingers = leftFingerToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
+            updateUI("Place your  " + fingers + " finger(s) on the sensor.");
+        }
+
+        // throws GenericException
+        try {
+            // when fingers are already placed on the sensor at the time of initialization, it fails
+            // set capture mode, register a callback, start capture and return immediately
+            setModeAndStartCapture();
+        } catch (GenericException ex) {
+            updateUI(ex.getMessage());
+            enableControls(backBtn, leftScanBtn);
         }
 
     }
 
-    public int leftfingerstoscan() {
-        int leftmissingfingers = 0;
-        if (arcDetails.getFingers().contains("LI")) leftmissingfingers++;
-        if (arcDetails.getFingers().contains("LM")) leftmissingfingers++;
-        if (arcDetails.getFingers().contains("LR")) leftmissingfingers++;
-        if (arcDetails.getFingers().contains("LL")) leftmissingfingers++;
-        int fingerstoscan = 4 - leftmissingfingers;
-        return fingerstoscan;
-    }
-
-    public int rightfingerstoscan() {
-        int rightmissingfingers = 0;
-        if (arcDetails.getFingers().contains("RI")) rightmissingfingers++;
-        if (arcDetails.getFingers().contains("RM")) rightmissingfingers++;
-        if (arcDetails.getFingers().contains("RR")) rightmissingfingers++;
-        if (arcDetails.getFingers().contains("RL")) rightmissingfingers++;
-        int fingerstoscan = 4 - rightmissingfingers;
-        return fingerstoscan;
-    }
-
-    public int thumbfingerstoscan() {
-        int thumbmissingfingers = 0;
-        if (arcDetails.getFingers().contains("LT")) thumbmissingfingers++;
-        if (arcDetails.getFingers().contains("RT")) thumbmissingfingers++;
-        int fingerstoscan = 2 - thumbmissingfingers;
-        return fingerstoscan;
-    }
-
-    public int fingertypeleft() {
-        int fingerType = 0;
-        if (!arcDetails.getFingers().contains("LL")) {
-            fingerType = RealScan_JNI.RS_FGP_LEFT_LITTLE;
-        }
-        if (!arcDetails.getFingers().contains("LR")) {
-            fingerType = RealScan_JNI.RS_FGP_LEFT_RING;
-        }
-        if (!arcDetails.getFingers().contains("LM")) {
-            fingerType = RealScan_JNI.RS_FGP_LEFT_MIDDLE;
-        }
-        if (!arcDetails.getFingers().contains("LI")) {
-            fingerType = RealScan_JNI.RS_FGP_LEFT_INDEX;
-        }
-        System.out.println("left Final fingerType :::" + fingerType);
-        return fingerType;
-    }
-
-    public int fingertyperight() {
-        int fingerType = 0;
-
-        if (!arcDetails.getFingers().contains("RL")) {
-            fingerType = RealScan_JNI.RS_FGP_RIGHT_LITTLE;
-            System.out.println("fingerType in RL:::" + fingerType);
-        }
-        if (!arcDetails.getFingers().contains("RR")) {
-            fingerType = RealScan_JNI.RS_FGP_RIGHT_RING;
-        }
-        if (!arcDetails.getFingers().contains("RM")) {
-            fingerType = RealScan_JNI.RS_FGP_RIGHT_MIDDLE;
-        }
-        if (!arcDetails.getFingers().contains("RI")) {
-            fingerType = RealScan_JNI.RS_FGP_RIGHT_INDEX;
-        }
-        System.out.println("right Final fingerType :::" + fingerType);
-        return fingerType;
-    }
-
-    public int fingertypethumb() {
-        int fingerType = 0;
-
-        if (!arcDetails.getFingers().contains("RT")) {
-            fingerType = RealScan_JNI.RS_FGP_RIGHT_THUMB;
-        }
-        if (!arcDetails.getFingers().contains("LT")) {
-            fingerType = RealScan_JNI.RS_FGP_LEFT_THUMB;
-        }
-        return fingerType;
-    }
-
-
-    public String leftFingersToScan(List<String> missingFingers) {
-        if (missingFingers.size() == 0) return "four";
-        List<String> leftmissingfingers = new ArrayList<>();
-        List<String> leftfingers = new ArrayList<>();
-        StringBuffer fingerstoscan = new StringBuffer("");
-        leftfingers.add("LL");
-        leftfingers.add("LR");
-        leftfingers.add("LM");
-        leftfingers.add("LI");
-        //StringBuilder sb = new StringBuilder();
-
-
-        for (String s : missingFingers) {
-            //sb.append(s);
-
-            if (s.startsWith("L") && !s.endsWith("T")) {
-                leftmissingfingers.add(s);
+    private void startRightScan() {
+        fingerSetTypeToScan = FingerSetType.RIGHT;
+        Platform.runLater(this::clearFingerprintOnUI);
+        if (isFromPrevScan) {
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-        if (leftmissingfingers.size() == 0) {
-            return "four";
+
+        if (!isRightFpDeviceInitialised) {
+            LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'. ");
+            updateUI(GENERIC_RS_ERR_MSG);
+            enableControls(backBtn, rightScanBtn);
+            return;
+        }
+        if (rightFingerToFingerTypeLinkedHashMap.isEmpty()) {
+            // runs in same thread.
+            updateUI("No right fingers to scan. Going to scan thumb...");
+            startThumbScan();
+            return;
+        }
+        if (rightFingerToFingerTypeLinkedHashMap.size() > 3) {
+            updateUI("Place your four right fingers on the sensor.");
+        } else {
+            // Place your Right Index, Right Middle finger(s) on the sensor.
+            String fingers = rightFingerToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
+            updateUI("Place your " + fingers + " finger(s) on the sensor.");
         }
 
-        for (String s : leftfingers) {
-            if (leftmissingfingers.contains(s)) {
-                continue;
-            }
-            fingerstoscan.append(s);
-            fingerstoscan.append(" ");
-            //fingerstoscan+=s+" ";
+        // throws GenericException
+        try {
+            // when fingers are already placed on the sensor at the time of initialization, it fails
+            // set capture mode, register a callback, start capture and return immediately
+            setModeAndStartCapture();
+        } catch (GenericException ex) {
+            updateUI(ex.getMessage());
+            enableControls(backBtn, rightScanBtn);
         }
 
-
-        if (fingerstoscan.equals("")) return "four";
-        else return fingerstoscan.toString();
 
     }
 
-    public String rightFingersToScan(List<String> missingFingers) {
-        if (missingFingers.size() == 0) return "four";
-        List<String> rightmissingfingers = new ArrayList<>();
-        List<String> rightfingers = new ArrayList<>();
-        StringBuffer fingerstoscan = new StringBuffer("");
-        rightfingers.add("RL");
-        rightfingers.add("RR");
-        rightfingers.add("RM");
-        rightfingers.add("RI");
-
-        for (String s : missingFingers) {
-            if (s.startsWith("R") && !s.endsWith("T")) {
-                rightmissingfingers.add(s);
+    private void startThumbScan() {
+        fingerSetTypeToScan = FingerSetType.THUMB;
+        Platform.runLater(this::clearFingerprintOnUI);
+        if (isFromPrevScan) {
+            try {
+                Thread.sleep(TimeUnit.SECONDS.toMillis(TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
-        if (rightmissingfingers.size() == 0) {
-            return "four";
-        }
-        for (String s : rightfingers) {
-            if (rightmissingfingers.contains(s)) {
-                continue;
-            }
 
-            fingerstoscan.append(s);
-            fingerstoscan.append(" ");
+        if (!isLeftFpDeviceInitialised) {
+            LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
+            updateUI(GENERIC_RS_ERR_MSG);
+            enableControls(backBtn, thumbScanBtn);
+            return;
         }
-        if (fingerstoscan.equals("")) return "four";
-        else return fingerstoscan.toString();
+        if (thumbToFingerTypeLinkedHashMap.isEmpty()) {// runs in same thread.
+            updateUI("No thumb to scan. Please wait. ");
+            convertToTemplate();
+            return;
+        }
+        if (thumbToFingerTypeLinkedHashMap.size() > 1) {
+            updateUI("Place your two thumbs on the sensor.");
+        } else {
+            // Place your Left thumb on the sensor.
+            String thumb = thumbToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
+            updateUI("Place your " + thumb + " on the sensor.");
+        }
+
+        // throws GenericException
+        try {
+            // when fingers are already placed on the sensor at the time of initialization, it fails
+            // set capture mode, register a callback, start capture and return immediately
+            setModeAndStartCapture();
+        } catch (GenericException ex) {
+            updateUI(ex.getMessage());
+            enableControls(backBtn, thumbScanBtn);
+        }
     }
 
-    public String thumbFingersToScan(List<String> missingFingers) {
-
-        List<String> thumbmissingfingers = new ArrayList<>();
-        List<String> thumbfingers = new ArrayList<>();
-        StringBuffer fingerstoscan = new StringBuffer("");
-        thumbfingers.add("RT");
-        thumbfingers.add("LT");
-
-        for (String s : missingFingers) {
-            if (s.endsWith("T")) {
-                thumbmissingfingers.add(s);
-            }
+    // called when capture succeeds or error occurs
+    private void captureCallback(int deviceHandle, int errorCode, byte[] imageData, byte[] qualityMap, int imageWidth, int imageHeight, int quality, int liveness) {
+        Button button;  // local reference for pointing to different multiple buttons
+        String successMessage;
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            scannedFingerTypeToRsImageInfoMap.clear(); // for fresh start
+            fingerSetTypeToRsImageInfoMap.clear(); // for fresh start
+            button = leftScanBtn;
+            successMessage = "Left fingerprints captured successfully. Please wait.";
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            button = rightScanBtn;
+            successMessage = "Right fingerprints captured successfully. Please wait.";
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            button = thumbScanBtn;
+            successMessage = "Thumbprints captured successfully. Please wait.";
+        } else {
+            LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
+            throw new GenericException(UNSUPPORTED_FINGER_SET_TYPE);
         }
-        if (thumbmissingfingers.size() == 0) {
-            return "Two";
+        // very important
+        // error message set by RS_TakeCurrentImageData call in setModeAndStartCapture ()
+        // so just return.
+        if (errorCode != RS_SUCCESS) {
+            return;
         }
-        for (String s : thumbfingers) {
-            if (thumbmissingfingers.contains(s)) {
-                continue;
-            }
-            fingerstoscan.append(s);
-            fingerstoscan.append(" ");
 
+        if (imageData == null || imageHeight == 0 || imageWidth == 0) {
+            updateUI("Something went wrong. Please try again.");
+            enableControls(backBtn, button);
+            return;
         }
-        if (fingerstoscan.equals("")) return "Two";
-        else return fingerstoscan.toString();
+        // TODO: unsupported in current sdk version
+//        try {
+//            checkLFD();
+//        } catch (GenericException ex) {
+//            updateUI(ex.getMessage());
+//            enableControls(backBtn, button);
+//            return;
+//        }
+
+        if (liveness < fingerprintLivenessValue) {
+            updateUI("Quality standard not met or captured fake fingerprint. Kindly try again.");
+            enableControls(backBtn, button);
+            return;
+        }
+
+        // saves in RSImageInfo for later modification
+        RSImageInfo resImageInfo = byteArrayToRSImageInfo(imageData, imageWidth, imageHeight);
+
+        // throws GenericException
+        try {
+            Platform.runLater(() -> displayFpImage(imageData, imageWidth, imageHeight, rawFingerprintImageView));
+            // throws GenericException
+            Map<Integer, RSImageInfo> mFingerTypeRsImageInfoMap = segmentSlapImage(resImageInfo);
+            // adds to global finger sequence holder map.
+            scannedFingerTypeToRsImageInfoMap.putAll(mFingerTypeRsImageInfoMap);
+            updateUI(successMessage);
+            Platform.runLater(() -> displaySegmentedFpImage(mFingerTypeRsImageInfoMap));
+            // to get hold of fingerSetTypeToScan used by displaySegmentedFpImage()
+            // if not it will cause issue, since, we change its value in the following line
+            Thread.sleep(TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS);
+        } catch (GenericException ex) {
+            updateUI(ex.getMessage());
+            enableControls(backBtn, button);
+            isFromPrevScan = false;
+            return;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        /* now get ready for next call */
+
+        // first call is the result of left finger scan
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            fingerSetTypeToScan = FingerSetType.RIGHT;
+            isFromPrevScan = true;
+            // SHOULD START FROM ANOTHER THREAD ELSE FINGERPRINT SCANNER ALWAYS STAYS ON UNTIL IT RETURNS
+            ForkJoinPool.commonPool().execute(this::startRightScan);
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            // second call is the result of right finger scan
+            fingerSetTypeToScan = FingerSetType.THUMB;
+            isFromPrevScan = true;
+            // SHOULD START FROM ANOTHER THREAD ELSE FINGERPRINT SCANNER ALWAYS STAYS ON UNTIL IT RETURNS
+            ForkJoinPool.commonPool().execute(this::startThumbScan);
+
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            // third call is the result of thumb scan
+            fingerSetTypeToScan = FingerSetType.LEFT; // if user needs to restart from the beginning.
+            isFromPrevScan = false;
+            releaseDevice(leftFpDeviceHandler);
+            releaseDevice(rightFpDeviceHandler);
+            // SHOULD START FROM ANOTHER THREAD ELSE FINGERPRINT SCANNER ALWAYS STAYS ON UNTIL IT RETURNS
+            ForkJoinPool.commonPool().execute(this::convertToTemplate);
+        } else {
+            LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
+            updateUI(GENERIC_RS_ERR_MSG);
+        }
     }
 
-    /*
-    public int getMissingFingersLeftCount(List<String> missingFingers) {
-        List<String> leftmissingfingers = null; 
-        for(String s : missingFingers){
-           if(s.startsWith("L") && (!s.endsWith("T"))){
-            leftmissingfingers.add(s);
-           }
-        }
-        return leftmissingfingers.size();
-    }     
+    // TODO: unsupported in current sdk version
+//    private void checkLFD() {
+//        RSLFDResult rsLfdResult = new RSLFDResult();
+//        /*
+//        RS_SetLFDLevel Error Codes:
+//            RS_SUCCESS - The option is set successfully.
+//            RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
+//         */
+//        jniReturnedCode = RS_GetLFDResult(leftFpDeviceHandler, rsLfdResult);
+//        if (jniReturnedCode != RS_SUCCESS) {
+//            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+//            throw new GenericException(GENERIC_RS_ERR_MSG);
+//        }
+//        Map<String, Integer> mFingersToScanSeqMap;
+//        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+//            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
+//        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+//            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
+//        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+//            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
+//        } else {
+//            // for developers
+//            throw new GenericException("Unsupported finger set type: ");
+//        }
+//        if (mFingersToScanSeqMap.size() != rsLfdResult.nNumofFinger) {
+//            LOGGER.log(Level.SEVERE, () -> "Finger counts doesn't matched.");
+//            throw new GenericException("Finger counts doesn't matched.");
+//        }
+//        for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
+//            // exit immediately if fake fingerprint captured.
+//            if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
+//                int j = i; // used in lambda
+//                LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
+//                throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
+//            }
+//        }
+//
+//    }
 
-    
-    public int getMissingFingersRightCount(List<String> missingFingers) {
-       List<String> rightmissingfingers = null; 
-       
-        for(String s : missingFingers){
-           if(s.startsWith("R") && (!s.endsWith("T"))){
-            rightmissingfingers.add(s);
-           }
+    // set capture mode, register a callback, start capture and return immediately
+    private void setModeAndStartCapture() {
+        Map<String, Integer> mFingersToScanSeqMap;
+        int deviceHandler;
+
+        // fingerSetTypeToScan - GLOBAL MEMBER FIELD
+        // slapType -> GLOBAL MEMBER FIELD: to be used during segmentation.
+        if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
+            captureMode = RS_CAPTURE_FLAT_TWO_FINGERS;
+            slapType = RS_SLAP_TWO_THUMB;
+            deviceHandler = leftFpDeviceHandler;
+        } else if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
+            captureMode = RS_CAPTURE_FLAT_LEFT_FOUR_FINGERS;
+            slapType = RS_SLAP_LEFT_FOUR;
+            deviceHandler = leftFpDeviceHandler;
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
+            captureMode = RS_CAPTURE_FLAT_RIGHT_FOUR_FINGERS;
+            slapType = RS_SLAP_RIGHT_FOUR;
+            deviceHandler = rightFpDeviceHandler;
+        } else {
+            // meant for developers
+            LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
+            throw new GenericException(UNSUPPORTED_FINGER_SET_TYPE);
         }
-        return rightmissingfingers.size();
+
+         /* RS_SetCaptureMode Error Codes:
+                 RS_SUCCESS - The capture mode is set successfully.
+                 RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                 RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                 RS_ERR_INVALID_CAPTURE_MODE - The capture mode is not supported.
+                 RS_ERR_INVALID_PARAM - The capture option is invalid.
+                 RS_ERR_CAPTURE_IS_RUNNING - A capture process is running. You have to stop it first.
+         */
+        jniReturnedCode = RS_SetCaptureMode(deviceHandler, captureMode, RS_AUTO_SENSITIVITY_NORMAL, true);
+
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+
+        /* RS_RegisterAdvCaptureDataCallback Error Code
+                RS_SUCCESS - The callback is registered successfully.
+                RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                RS_ERR_INVALID_HANDLE - The device handle is invalid.
+        */
+        jniReturnedCode = RS_RegisterAdvCaptureDataCallback(deviceHandler, this, "captureCallback");
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+
+         /*
+            RS_SetMinimumFinger Error Codes:
+                RS_SUCCESS - The capture mode is set successfully.
+                RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                RS_ERR_INVALID_CAPTURE_MODE - The capture mode is not supported.
+                RS_ERR_WRONG_MIN_FINGER_COUNT - The minimum finger is wrong.
+         */
+        RS_SetMinimumFinger(deviceHandler, mFingersToScanSeqMap.size());
+
+        jniReturnedCode = RS_GetLastError();
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+
+        // RS_LFD_OFF = 0
+        // upto
+        // RS_LFD_LEVEL_6 = 6
+        /*
+        RS_SetLFDLevel Error Codes:
+            RS_SUCCESS - The option is set successfully.
+            RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
+         */
+        // TODO: unsupported in current sdk version.
+
+//        jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
+//        if (jniReturnedCode != RS_SUCCESS) {
+//            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+//            throw new GenericException(GENERIC_RS_ERR_MSG);
+//        }
+
+        /*
+         RS_StartCapture Error Codes:
+                RS_SUCCESS - Capture process is started successfully.
+                RS_ERR_SDK_UNINITIALIZED -  The SDK is not yet initialized.
+                RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                RS_ERR_SENSOR_DIRTY - The sensor surface is too dirty.
+                RS_ERR_FINGER_EXIST - Fingers are placed on the sensor before capturing starts.
+                RS_ERR_CAPTURE_DISABLED - The capture mode is disabled.
+                RS_ERR_CAPTURE_IS_RUNNING - A capture process is already running.
+         */
+        // returns immediately, callbacks are executed in background thread.
+        jniReturnedCode = RS_StartCapture(deviceHandler, false, 0);
+        if (jniReturnedCode != RS_SUCCESS) {
+            if (jniReturnedCode != RS_ERR_SENSOR_DIRTY && jniReturnedCode != RS_ERR_FINGER_EXIST) {
+                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                throw new GenericException(GENERIC_RS_ERR_MSG);
+            } else {
+                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                throw new GenericException("Sensor is too dirty or a finger exists on the sensor. Please try again.");
+            }
+        }
+
+        // now good to go.
+
+        // To wait for user to place their fingers on the sensor
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(TIME_TO_WAIT_FOR_USER_IN_SEC));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new GenericException("Interrupted while sleeping.");
+        }
+
+        /*
+        RS_TakeCurrentImageData Error Codes:
+                RS_SUCCESS - An image is captured successfully.
+                RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                RS_ERR_CAPTURE_DISABLED - The capture mode is disabled.
+                RS_ERR_CAPTURE_TIMEOUT - Cannot capture an image within the specified timeout period.
+                RS_ERR_ROLL_PART_LIFT - A part of the rolling finger is lifted.
+                RS_ERR_ROLL_DIRTY - The sensor surface is dirty, or more than one finger is detected.
+                RS_ERR_ROLL_TOO_FAST - Rolling speed is too fast.
+                RS_ERR_ROLL_SHIFTED - The finger is heavily shifted or rotated.
+                RS_ERR_ROLL_DRY - The finger could not be recognized correctly because of bad image contrast or smeared finger patterns
+                RS_ERR_ROLL_WRONG_DIR - The rolling does not confirm to the specified direction.
+                RS_ERR_ROLL_TOO_SHORT - Rolling time is too short.
+         */
+        jniReturnedCode = RS_TakeCurrentImageData(deviceHandler, 10000, new RSImageInfo());
+        if (jniReturnedCode != RS_SUCCESS) {
+            jniErrorMsg = RS_GetErrString(jniReturnedCode);
+            LOGGER.log(Level.INFO, () -> "******RS_TakeCurrentImageData returned message: " + jniErrorMsg);
+            throw new GenericException("Quality too poor. Please try again.");
+        }
     }
-     
-    public int getMissingThumbsCount(List<String> missingFingers) {
-        List<String> missingthumbs = null; 
-        for(String s : missingFingers){
-           if(s.endsWith("T")){
-            missingthumbs.add(s);
-           }
-        }
-        return missingthumbs.size();
-    } 
-    */
 
+    private void displaySegmentedFpImage(Map<Integer, RSImageInfo> fingerTypeRsImageInfo) {
+        fingerTypeRsImageInfo.forEach((fingerType, rsImageInfo) -> {
+            // update only if non-null
+            if (rsImageInfo.pbyImgBuf != null && rsImageInfo.imageWidth != 0 && rsImageInfo.imageHeight != 0) {
+                // only update based on finger set
+                if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+                    if (RS_FGP_RIGHT_INDEX == fingerType) { // 2
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, rightIndexFingerImageView);
+                    } else if (RS_FGP_RIGHT_MIDDLE == fingerType) { // 3
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, rightMiddleFingerImageView);
+                    } else if (RS_FGP_RIGHT_RING == fingerType) {  // 4
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, rightRingFingerImageView);
+                    } else if (RS_FGP_RIGHT_LITTLE == fingerType) { //5
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, rightLittleFingerImageView);
+                    }
+                } else if (FingerSetType.LEFT == fingerSetTypeToScan) {
+                    if (RS_FGP_LEFT_INDEX == fingerType) {  // 7
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, leftIndexFingerImageView);
+                    } else if (RS_FGP_LEFT_MIDDLE == fingerType) { // 8
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, leftMiddleFingerImageView);
+                    } else if (RS_FGP_LEFT_RING == fingerType) { // 9
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, leftRingFingerImageView);
+                    } else if (RS_FGP_LEFT_LITTLE == fingerType) { // 10
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, leftLittleFingerImageView);
+                    }
+                } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+                    if (RS_FGP_RIGHT_THUMB == fingerType) { // 1
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, rightThumbImageView);
+                    } else if (RS_FGP_LEFT_THUMB == fingerType) { // 6
+                        displayFpImage(rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, leftThumbImageView);
+                    }
+                }
+            }
+        });
+
+
+    }
+
+
+    private synchronized void clearFingerprintOnUI() {
+        ImageView[] leftFingers = {leftIndexFingerImageView, leftMiddleFingerImageView, leftRingFingerImageView, leftLittleFingerImageView};
+        ImageView[] rightFingers = {rightIndexFingerImageView, rightMiddleFingerImageView, rightRingFingerImageView, rightLittleFingerImageView};
+        ImageView[] thumbs = {leftThumbImageView, rightThumbImageView};
+
+        clearImageViews(rawFingerprintImageView);
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            clearImageViews(leftFingers);
+            clearImageViews(rightFingers);
+            clearImageViews(thumbs);
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            clearImageViews(rightFingers);
+            clearImageViews(thumbs);
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            clearImageViews(thumbs);
+        }
+    }
+
+    private void clearImageViews(ImageView... imageViews) {
+        for (ImageView imageView : imageViews) {
+            imageView.setImage(null);
+        }
+    }
+
+    private synchronized void displayFpImage(byte[] imageArray, int imageWidth, int imageHeight, ImageView imageView) {
+        int tempImageWidth = imageWidth;
+        // ImageWidth MUST be divisible by 4 for using RS_SaveBitmapMem API
+        if (tempImageWidth % 4 != 0) {
+            tempImageWidth -= tempImageWidth % 4;
+        }
+        // copy only if they are not equal
+        if (tempImageWidth != imageWidth) {
+            byte[] tempData = new byte[tempImageWidth * imageHeight];
+            for (int row = 0; row < imageHeight; row++) {
+                // imageWidth --> original
+                System.arraycopy(imageArray, row * imageWidth, tempData, row * tempImageWidth, tempImageWidth);
+            }
+            // update to new values
+            imageArray = tempData;
+            imageWidth = tempImageWidth;
+        }
+        byte[] imageData = new byte[imageWidth * imageHeight + 1078]; // extra buffer
+        /*
+        RS_SaveBitmapMem Error Codes:
+            RS_SUCCESS The image data is saved successfully.
+            RS_ERR_CANNOT_WRITE_FILE Cannot write the BMP file.
+         */
+        jniReturnedCode = RS_SaveBitmapMem(imageArray, imageWidth, imageHeight, imageData);
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, "Cannot save bitmap in memory");
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+        InputStream inputStream = new ByteArrayInputStream(imageData);
+        imageView.setImage(new Image(inputStream, imageView.getFitWidth(), imageView.getFitHeight(), true, true));
+    }
+
+    // throws GenericException
+    private Map<Integer, RSImageInfo> segmentSlapImage(RSImageInfo rsImageInfo) {
+        Map<String, Integer> mFingersToScanSeqMap;
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
+        } else {
+            LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+
+        int numOfFingers = mFingersToScanSeqMap.size();
+        // SIZE MUST BE ATLEAST 4 ELSE CRASHES THE APP
+        // It can segment as much as individual fingerprint available in a slap image.
+        int size = 4;
+        RSImageInfo[] imageInfoArray = new RSImageInfo[size];
+        RSSlapInfo[] slapInfoArray = new RSSlapInfo[size];
+        for (int i = 0; i < size; i++) {
+            // stores at same index respectively
+            imageInfoArray[i] = new RSImageInfo(); // stores image data
+            slapInfoArray[i] = new RSSlapInfo(); // stores finger position and quality
+        }
+
+        /* RS_Segment Error Codes:
+            RS_SUCCESS - The slap image is segmented successfully.
+            RS_ERR_NO_DEVICE - No device is connected to the PC.
+            RS_ERR_INVALID_PARAM - The slapType is invalid.
+            RS_ERR_MEM_FULL - Cannot allocate memory.
+            RS_ERR_CANNOT_SEGMENT - Cannot segment the slap image.
+            RS_ERR_CANNOT_GET_QUALITY - Cannot get the scores of the segmented images.
+            RS_ERR_SEGMENT_FEWER_FINGER - The captured image has fewer fingers than expected.
+            RS_ERR_SEGMENT_WRONG_HAND - Left hand is captured for right hand, or vice versa.
+         */
+        int returnedNumOfFingers = RS_Segment(rsImageInfo, slapType, 0, slapInfoArray, imageInfoArray); // slap type set during setting capture mode
+        if (numOfFingers != returnedNumOfFingers) {
+            LOGGER.log(Level.SEVERE, "Finger counts does not match.");
+            throw new GenericException("Finger counts different than specified. Please try again.");
+        }
+        jniReturnedCode = RS_GetLastError();
+        if (jniReturnedCode != RS_SUCCESS) {
+            // checks just for proper error message to be displayed on UI
+            jniErrorMsg = RS_GetErrString(jniReturnedCode);
+            if (jniReturnedCode == RS_ERR_SEGMENT_FEWER_FINGER) { // proceed gracefully
+                // SHOULD ALLOW FOR 3 FINGERS
+                // OTHERWISE WILL ALWAYS THROW THIS ERROR
+                // VERY IMPORTANT
+                LOGGER.log(Level.INFO, "Odd number of fingers scanned");
+            } else if (jniReturnedCode == RS_ERR_SEGMENT_WRONG_HAND) {
+                LOGGER.log(Level.SEVERE, jniErrorMsg);
+                // wrong spelling returned from native API
+                throw new GenericException("Finger set type different than specified. Please try again.");
+            } else if (jniReturnedCode == RS_ERR_CANNOT_GET_QUALITY || jniReturnedCode == RS_ERR_CANNOT_SEGMENT) {
+                LOGGER.log(Level.SEVERE, jniErrorMsg);
+                throw new GenericException("Quality not good or something went wrong. Please try again.");
+            } else {
+                LOGGER.log(Level.SEVERE, jniErrorMsg);
+                LOGGER.log(Level.SEVERE, () -> "ERROR CODE:" + jniReturnedCode);
+                throw new GenericException(GENERIC_RS_ERR_MSG);
+            }
+        }
+
+        Map<Integer, RSImageInfo> mFingerTypeRsImageInfoMap = new HashMap<>();
+
+        /*
+         * Setting finger type for unknown fingerprint segment.
+         * Finger type will always be zero for any missing fingers even thought SLAP type is mentioned during segmentation.
+         * So based on fingers to be scanned(mFingersToScanMap), we assigned the finger type accordingly, hoping it to be correct.
+         */
+
+        // based on finger position specified in RealScan G-10 SDK documentation.
+        AtomicInteger counter = new AtomicInteger(0);
+        mFingersToScanSeqMap.forEach((finger, position) -> {
+            if (slapInfoArray[counter.get()].fingerType == RS_FGP_UNKNOWN) {
+                slapInfoArray[counter.get()].fingerType = position;
+            }
+            // checks if null value produced during segmentation
+            RSImageInfo rsImageInfoTemp = imageInfoArray[counter.get()];
+            if (rsImageInfoTemp.pbyImgBuf == null || rsImageInfoTemp.imageWidth == 0 || rsImageInfoTemp.imageHeight == 0) {
+                LOGGER.log(Level.SEVERE, "Received a null value for RsImageInfo buffer.");
+                throw new GenericException(GENERIC_RS_ERR_MSG);
+            }
+            mFingerTypeRsImageInfoMap.put(slapInfoArray[counter.get()].fingerType, rsImageInfoTemp);
+            counter.getAndIncrement();
+        });
+
+        // checks for fingers duplication
+        // not needed to check for left fingers, as initially slapImageStoreMap is empty.
+        if (FingerSetType.LEFT != fingerSetTypeToScan) {
+            // throws Generic Exception
+            checkSequence(mFingerTypeRsImageInfoMap.values().toArray(new RSImageInfo[0]));
+        }
+
+        // current rsImageInfo object should only be saved after sequence check
+        // not needed to store for thumbs
+        if (FingerSetType.THUMB != fingerSetTypeToScan) {
+            fingerSetTypeToRsImageInfoMap.put(fingerSetTypeToScan, rsImageInfo);
+        }
+        return mFingerTypeRsImageInfoMap;
+    }
+
+    private void back() {
+        confirmPane.setVisible(true);
+        backBtn.setDisable(true);
+        scanBtn.setDisable(true);
+    }
+
+    private void showIris() {
+        try {
+            App.setRoot("iris");
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+    }
+
+    private void confirmBack() {
+        try {
+            if (isLeftFpDeviceInitialised) {
+                releaseDevice(leftFpDeviceHandler);
+                releaseDevice(rightFpDeviceHandler);
+            }
+            App.setRoot("enrollment_arc");
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+    }
+
+    private void confirmStay() {
+        backBtn.setDisable(false);
+        scanBtn.setDisable(false);
+        confirmPane.setVisible(false);
+        if (isFpScanCompleted) {
+            scanBtn.setDisable(false);
+            captureIrisBtn.setDisable(false);
+        } else {
+            captureIrisBtn.setDisable(true);
+            scanBtn.setDisable(true);
+        }
+    }
+
+
+    private synchronized void releaseDevice(int deviceHandler) {
+        // must run on the main thread else crashes the app.
+        Platform.runLater(() -> {
+            boolean isDeviceInitialized;
+            if (deviceHandler == leftFpDeviceHandler) {
+                isDeviceInitialized = isLeftFpDeviceInitialised;
+            } else {
+                isDeviceInitialized = isRightFpDeviceInitialised;
+            }
+
+            if (!isDeviceInitialized) {
+                LOGGER.log(Level.SEVERE, "Device not initialised");
+                return;
+            }
+            /*
+            RS_ExitDevice Error Code:
+                 RS_SUCCESS - The handle and resources are released successfully.
+                 RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                 RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                 RS_ERR_CAPTURE_IS_RUNNING - A capture process is running. You have to stop it first.
+            */
+            jniReturnedCode = RS_ExitDevice(deviceHandler);
+
+            if (jniReturnedCode == RS_ERR_CAPTURE_IS_RUNNING) {
+                /*
+                RS_AbortCapture Error Code:
+                    RS_SUCCESS - Capture process is aborted successfully.
+                    RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+                    RS_ERR_INVALID_HANDLE - The device handle is invalid.
+                */
+                jniReturnedCode = RS_AbortCapture(deviceHandler);
+                jniReturnedCode = RS_ExitDevice(deviceHandler);
+            }
+            if (jniReturnedCode != RS_SUCCESS) {
+                LOGGER.log(Level.SEVERE, RS_GetErrString(jniReturnedCode));
+                RS_ExitAllDevices();
+            }
+
+            if (deviceHandler == leftFpDeviceHandler) {
+                isLeftFpDeviceInitialised = false;
+            } else {
+                isRightFpDeviceInitialised = false;
+            }
+        });
+
+    }
+
+    // returns a linked(sequence, order is important) map which has finger-to-position mapping based on RealScan G-10 SDK specification
+    private Map<String, Integer> getFingersToScanSeqMap(List<String> fingersException, FingerSetType fingerSetType) {
+        Map<String, Integer> fingersMap = new LinkedHashMap<>();
+        // Finger Positions are based on RealScan G-10 SDK specification.
+        if (FingerSetType.RIGHT == fingerSetType) {
+            fingersMap.put("RI", RS_FGP_RIGHT_INDEX);  // 2
+            fingersMap.put("RM", RS_FGP_RIGHT_MIDDLE); // 3
+            fingersMap.put("RR", RS_FGP_RIGHT_RING);   // 4
+            fingersMap.put("RL", RS_FGP_RIGHT_LITTLE); // 5
+        } else if (FingerSetType.LEFT == fingerSetType) {
+            fingersMap.put("LL", RS_FGP_LEFT_LITTLE); // 10
+            fingersMap.put("LR", RS_FGP_LEFT_RING);   // 9
+            fingersMap.put("LM", RS_FGP_LEFT_MIDDLE); // 8
+            fingersMap.put("LI", RS_FGP_LEFT_INDEX);  // 7
+        } else if (FingerSetType.THUMB == fingerSetType) {
+            fingersMap.put("LT", RS_FGP_LEFT_THUMB);   // 6
+            fingersMap.put("RT", RS_FGP_RIGHT_THUMB);  // 1
+        } else {
+            // meant for developers
+            LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
+            throw new GenericException(UNSUPPORTED_FINGER_SET_TYPE);
+        }
+
+        fingersException.forEach(fingersMap::remove);
+        return fingersMap;
+    }
+
+    private RSImageInfo byteArrayToRSImageInfo(byte[] imageData, int imageWidth, int imageHeight) {
+        RSImageInfo resImageInfo = new RSImageInfo();
+        resImageInfo.pbyImgBuf = imageData;
+        resImageInfo.imageWidth = imageWidth;
+        resImageInfo.imageHeight = imageHeight;
+        return resImageInfo;
+    }
+
+
+    // throws Generic Exception
+    private synchronized void checkSequence(RSImageInfo[] fingerImageArray) {
+        // not very useful for now.
+//        int seqCheckResult = 0;
+        for (RSImageInfo finger : fingerImageArray)
+            fingerSetTypeToRsImageInfoMap.forEach((fingerSetType, rsImageInfo) -> {
+                int mSlapType; // slap type is different for-each flow
+                if (FingerSetType.LEFT == fingerSetType) {
+                    mSlapType = RS_SLAP_LEFT_FOUR;
+                } else if (FingerSetType.RIGHT == fingerSetType) {
+                    mSlapType = RS_SLAP_RIGHT_FOUR;
+                } else if (FingerSetType.THUMB == fingerSetType) {
+                    mSlapType = RS_SLAP_TWO_THUMB;
+                } else {
+                    LOGGER.log(Level.SEVERE, "Unsupported finger set type");
+                    throw new GenericException("Unsupported finger set type");
+                }
+                /*
+                   RS_SequenceCheck Error Codes:
+                        RS_SUCCESS - The sequence are checked successfully. You can get the detailed information by inspecting the fingerSequenceInSlap parameter.
+                        RS_ERR_NO_DEVICE - No device is connected to the PC.
+                        RS_ERR_INVALID_PARAM - The slapType is invalid.
+                        RS_ERR_MEM_FULL - Cannot allocate memory.
+                        RS_ERR_CANNOT_SEGMENT - Cannot segment the slap image.
+                */
+                jniReturnedCode = RS_SequenceCheck(1, finger, rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, mSlapType, SECURITY_LEVEL_FOR_SEQUENCE_CHECK);
+                if (jniReturnedCode > 0) {
+                    LOGGER.log(Level.SEVERE, "Sequence check failed.");
+                    throw new GenericException("Sequence check failed. Please try again..");
+                }
+                if (jniReturnedCode < 0) {
+                    LOGGER.log(Level.SEVERE, RS_GetErrString(jniReturnedCode));
+                    throw new GenericException(GENERIC_RS_ERR_MSG);
+                }
+            });
+    }
+
+    private synchronized void convertToTemplate() {
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        //if error occurs for clearing the UI images
+        fingerSetTypeToScan = FingerSetType.LEFT;
+        updateUI("Processing the fingerprints. Kindly wait.");
+        if (isLeftFpDeviceInitialised) {
+            releaseDevice(leftFpDeviceHandler);
+            releaseDevice(rightFpDeviceHandler);
+        }
+
+        int requiredFingerCount = leftFingerToFingerTypeLinkedHashMap.size() + rightFingerToFingerTypeLinkedHashMap.size() + thumbToFingerTypeLinkedHashMap.size();
+
+        Set<Integer> fingerSet = new HashSet<>(leftFingerToFingerTypeLinkedHashMap.values());
+        fingerSet.addAll(rightFingerToFingerTypeLinkedHashMap.values());
+        fingerSet.addAll(thumbToFingerTypeLinkedHashMap.values());
+
+        // check if total fingers to scan is same with already scanned fingers
+        if (fingerSet.size() != requiredFingerCount || requiredFingerCount != scannedFingerTypeToRsImageInfoMap.size()) {
+            updateUI("Finger counts different than specified. Kindly rescan all the required fingers.");
+            enableControls(scanBtn);
+            return;
+        }
+
+        Set<FP> fps = new HashSet<>();
+        String fingerPositionString;
+
+        for (Integer finger : fingerSet) {
+            switch (finger) {
+                case RS_FGP_RIGHT_THUMB: // 1
+                    fingerPositionString = "RT";
+                    break;
+                case RS_FGP_RIGHT_INDEX: // 2
+                    fingerPositionString = "RI";
+                    break;
+                case RS_FGP_RIGHT_MIDDLE: // 3
+                    fingerPositionString = "RM";
+                    break;
+                case RS_FGP_RIGHT_RING:  // 4
+                    fingerPositionString = "RR";
+                    break;
+                case RS_FGP_RIGHT_LITTLE:  // 5
+                    fingerPositionString = "RL";
+                    break;
+                case RS_FGP_LEFT_THUMB:  // 6
+                    fingerPositionString = "LT";
+                    break;
+                case RS_FGP_LEFT_INDEX:  // 7
+                    fingerPositionString = "LI";
+                    break;
+                case RS_FGP_LEFT_MIDDLE:  // 8
+                    fingerPositionString = "LM";
+                    break;
+                case RS_FGP_LEFT_RING:  // 9
+                    fingerPositionString = "LR";
+                    break;
+                case RS_FGP_LEFT_LITTLE:  // 10
+                    fingerPositionString = "LL";
+                    break;
+                default:
+                    // meant for developers
+                    LOGGER.log(Level.SEVERE, "Unsupported finger type.");
+                    throw new GenericException("Unsupported finger type.");
+            }
+            // check if GLOBAL FingerType to RSImageInfo Map has this finger key-value mapping.
+            RSImageInfo rsImageInfo = scannedFingerTypeToRsImageInfoMap.get(finger);
+            if (rsImageInfo == null) {
+                LOGGER.log(Level.SEVERE, () -> "Finger-RSImageInfo mapping not found in scannedFingerTypeToRsImageInfoMap for key: " + finger);
+                Platform.runLater(this::clearFingerprintOnUI);
+                updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+                enableControls(scanBtn);
+                return;
+            }
+
+            // also returns null value if exceptions occur
+            Map<String, byte[]> imageAndIsoTemplateMap = convertToIsoTemplate(rsImageInfo.imageWidth, rsImageInfo.imageHeight, rsImageInfo.pbyImgBuf);
+            if (imageAndIsoTemplateMap == null) {
+                Platform.runLater(this::clearFingerprintOnUI);
+                updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+                enableControls(scanBtn);
+                return;
+            }
+
+            byte[] image = imageAndIsoTemplateMap.get("image");
+            byte[] template = imageAndIsoTemplateMap.get("template");
+
+            if (image == null || template == null) {
+                Platform.runLater(this::clearFingerprintOnUI);
+                updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+                enableControls(scanBtn);
+                return;
+            }
+
+            FP fp = new FP();
+            fp.setPosition(fingerPositionString);
+            fp.setImage(Base64.getEncoder().encodeToString(image));
+            fp.setTemplate(Base64.getEncoder().encodeToString(template));
+            fps.add(fp);
+        }
+
+        ARCDetailsHolder arcDetailsHolder = ARCDetailsHolder.getArcDetailsHolder();
+        SaveEnrollmentDetails saveEnrollmentDetails = arcDetailsHolder.getSaveEnrollmentDetails();
+        saveEnrollmentDetails.setLeftFPScannerSerailNo(leftFpDeviceInfo.deviceID);
+        saveEnrollmentDetails.setRightFPScannerSerailNo(rightFpDeviceInfo.deviceID);
+        saveEnrollmentDetails.setFp(fps);
+        saveEnrollmentDetails.setEnrollmentStatus("FingerPrintCompleted");
+
+        // throws GenericException
+        try {
+            SaveEnrollmentDetailsUtil.writeToFile(saveEnrollmentDetails);
+        } catch (GenericException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+            enableControls(scanBtn);
+            return;
+        }
+        // enable the controls
+        Platform.runLater(() -> {
+            scanBtn.setText("RESCAN");
+            scanBtn.setDisable(false);
+            messageLabel.setText("Fingerprints captured successfully. Please click 'CAPTURE IRIS' button to continue. ");
+            backBtn.setDisable(false);
+            captureIrisBtn.setDisable(false);
+            isFpScanCompleted = true;
+        });
+
+    }
+
+    private Map<String, byte[]> convertToIsoTemplate(int width, int height, byte[] imageData) {
+        try {
+            RawGrayscaleImage rawGrayscaleImage = new RawGrayscaleImage(width, height, imageData);
+            byte[] inputImage = ansiIso.convertRawToImage(rawGrayscaleImage, AnsiIsoImageFormatEnum.JPEG2K);
+            int numberOfByteForOutputImage = inputImage.length + 2000; // required extra 2000 bytes
+            byte[] outputImage = new byte[numberOfByteForOutputImage];
+            int[] outputImageLen = new int[]{numberOfByteForOutputImage};
+
+            int returnedCode = Utility.ImageConvert(inputImage, inputImage.length, outputImage, outputImageLen, IMAGE_FORMAT.IENGINE_FORMAT_JPEG2K_TO_FIR_JPEG2000_V2005.getValue(), 354, 296);
+            if (returnedCode != 0) {
+                if (returnedCode == Utility.UNKNOWN_ERROR) {
+                    LOGGER.log(Level.SEVERE, "UNKNOWN_ERROR DURING IMAGE CONVERSION");
+                } else if (returnedCode == Utility.UNSUPPORTED_IMAGE_FORMAT) {
+                    LOGGER.log(Level.SEVERE, "UNSUPPORTED_IMAGE_FORMAT DURING IMAGE CONVERSION");
+
+                } else if (returnedCode == Utility.OBJECT_CANNOT_BE_NULL_OR_EMPTY) {
+                    LOGGER.log(Level.SEVERE, "OBJECT_CANNOT_BE_NULL_OR_EMPTY DURING IMAGE CONVERSION");
+                }
+                return null;
+            }
+
+            byte[] isoTemplate = ansiIso.isoCreateTemplate(rawGrayscaleImage);
+            byte[] iengineTemplate = ansiIso.iengineConvertTemplate(IEngineTemplateFormat.ISO_TEMPLATE, isoTemplate, IEngineTemplateFormat.ISO_TEMPLATE_V30);
+            Map<String, byte[]> imageAndIsoTemplateMap = new HashMap<>();
+            imageAndIsoTemplateMap.put("image", outputImage);
+            imageAndIsoTemplateMap.put("template", iengineTemplate);
+            return imageAndIsoTemplateMap;
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            return null;
+        }
+    }
+
+    private void updateUI(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
+    }
+
+    private void disableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(true);
+        }
+    }
+
+    private void enableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(false);
+        }
+    }
 
 }

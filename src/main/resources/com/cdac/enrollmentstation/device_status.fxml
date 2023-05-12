@@ -101,7 +101,7 @@
                     <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png"/>
 
                     </ImageView>
 
@@ -157,19 +157,19 @@
                 <ImageView fx:id="sdkirisstatus2" fitHeight="52.0" fitWidth="61.0" layoutX="716.0" layoutY="363.0"
                            pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/notavailable.png"/>
+                    <Image url="@../img/notavailable.png"/>
 
                 </ImageView>
                 <ImageView fx:id="sdkirisstatus3" fitHeight="52.0" fitWidth="61.0" layoutX="716.0" layoutY="443.0"
                            pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/notavailable.png"/>
+                    <Image url="@../img/notavailable.png"/>
 
                 </ImageView>
                 <ImageView fx:id="sdkirisstatus4" fitHeight="52.0" fitWidth="61.0" layoutX="716.0" layoutY="523.0"
                            pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@img/notavailable.png"/>
+                    <Image url="@../img/notavailable.png"/>
 
                 </ImageView>
 

@@ -28,8 +28,6 @@ module com.cdac.enrollmentstation {
     opens com.cdac.enrollmentstation.logging to javafx.fxml;
     exports com.cdac.enrollmentstation.service;
     opens com.cdac.enrollmentstation.service to javafx.fxml;
-    exports com.cdac.enrollmentstation.event;
-    opens com.cdac.enrollmentstation.event to javafx.fxml;
     exports com.cdac.enrollmentstation.util;
     opens com.cdac.enrollmentstation.util to javafx.fxml;
     exports com.cdac.enrollmentstation.dto;

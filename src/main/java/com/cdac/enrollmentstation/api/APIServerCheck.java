@@ -8,7 +8,8 @@
 //import com.cdac.enrollmentstation.App;
 //import com.cdac.enrollmentstation.util.TestProp;
 //import com.cdac.enrollmentstation.logging.ApplicationLogOld;
-//import com.cdac.enrollmentstation.model.ContactDetail;
+//import com.cdac.enrollmentstation.model.ContractInfo;
+//import org.apache.commons.codec.digest.HmacUtils;
 //import org.apache.commons.io.FileUtils;
 //
 //import java.io.*;
@@ -258,7 +259,7 @@
 //            con.setDoOutput(true);
 //            //String arcNo = "123abc";
 //
-//            ContactDetail contactdetail = new ContactDetail();
+//            ContractInfo contactdetail = new ContractInfo();
 //
 //
 //            //String jsonInputString = "{\"ContractorID\": \"CONTRACT001\" ,\"CardSerialNo\": \"1234567890\"}";
@@ -302,7 +303,7 @@
 //        //System.out.println("guid : "+getuuid.length());
 //        LOGGER.log(Level.INFO, "guid : " + getuuid.length());
 //        Key strKey = aes256.generateKey32(getuuid);
-//        ContactDetail contactdetail = new ContactDetail();
+//        ContractInfo contactdetail = new ContractInfo();
 //
 //        //String jsonInputString = "{\"ContractorID\": \""+contractorID+"\" ,\"CardSerialNo\": \""+cardSerialNo+"\"}";
 //        String jsonInputString = "{\"ContractorID\": \"" + contractorID + "\" ,\"CardSerialNo\": \"" + cardSerialNo + "\"}";

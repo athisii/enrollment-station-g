@@ -3,9 +3,7 @@ package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.dto.ArcNoReqDto;
-import com.cdac.enrollmentstation.dto.SaveEnrollmentResDto;
-import com.cdac.enrollmentstation.dto.UnitCodeReqDto;
+import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ARCDetails;
@@ -78,21 +76,133 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @param data request payload
-     * @return SaveEnrollmentResponse or null on connection timeout
+     * @return SaveEnrollmentResDto or null on connection timeout
      * @throws GenericException exception on error, json parsing exception etc.
      */
     public static SaveEnrollmentResDto postEnrollment(String data) {
         // to avoid encrypt/decrypt problems
         data = data.replace("\n", "");
+        String receivedData = encryptAndSendToServer(data, getSaveEnrollmentUrl());
+
+        // connection timeout
+        if (receivedData == null) {
+            return null;
+        }
+
+        // response data from server
+        SaveEnrollmentResDto saveEnrollmentResDto;
+        try {
+            saveEnrollmentResDto = Singleton.getObjectMapper().readValue(receivedData, SaveEnrollmentResDto.class);
+        } catch (JsonProcessingException ignored) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        return saveEnrollmentResDto;
+    }
+
+    /**
+     * Fetches all contracts based on contractor id and card serial number.
+     * Caller must handle the exception.
+     *
+     * @return ContractResDto or null on connection timeout
+     * @throws GenericException exception on error, json parsing exception etc.
+     */
+    public static ContractResDto fetchContractList(String contractorId, String cardSerialNumber) {
+        String jsonRequestData;
+        try {
+            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(new ContractReqDto(contractorId, cardSerialNumber));
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        String uuid = Aes256Util.genUuid();
+
+
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(UNIQUE_KEY_HEADER, uuid);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getContractListUrl(), jsonRequestData, headers));
+        // connection timeout
+        if (response == null) {
+            return null;
+        }
+        ContractResDto contractResDto;
+        try {
+            contractResDto = Singleton.getObjectMapper().readValue(response.body(), ContractResDto.class);
+        } catch (JsonProcessingException ignored) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        return contractResDto;
+    }
+
+
+    /**
+     * Fetches all labour based on contractor id and contract id.
+     * Caller must handle the exception.
+     *
+     * @return LabourResDto or null on connection timeout
+     * @throws GenericException exception on error, json parsing exception etc.
+     */
+    public static LabourResDto fetchLabourList(String contractorId, String contractId) {
+        String data;
+        try {
+            data = Singleton.getObjectMapper().writeValueAsString(new LabourReqDto(contractorId, contractId));
+            data = data.replace("\n", "");
+
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        String receivedData = encryptAndSendToServer(data, getLabourListUrl());
+
+        // connection timeout
+        if (receivedData == null) {
+            return null;
+        }
+        // response data from server
+        LabourResDto labourResDto;
+        try {
+            labourResDto = Singleton.getObjectMapper().readValue(receivedData, LabourResDto.class);
+        } catch (JsonProcessingException ignored) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        return labourResDto;
+    }
+
+
+    /**
+     * Update token status
+     * Caller must handle the exception.
+     *
+     * @return UpdateTokenResponse or null on connection timeout
+     * @throws GenericException exception on error, json parsing exception etc.
+     */
+    public static UpdateTokenResponse updateTokenStatus(String data) {
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getTokenUpdateUrl(), data));
+        // connection timeout
+        if (response == null) {
+            return null;
+        }
+        UpdateTokenResponse updateTokenResponse;
+        try {
+            updateTokenResponse = Singleton.getObjectMapper().readValue(response.body(), UpdateTokenResponse.class);
+        } catch (JsonProcessingException ignored) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        return updateTokenResponse;
+    }
+
+    private static String encryptAndSendToServer(String data, String url) {
         // assigns random secret key at each call
         String secret = Aes256Util.genUuid();
-
+        Key key = Aes256Util.genKey(secret);
         // for sending base64 encoded encrypted SECRET KEY to server in HEADER
         byte[] pkiEncryptedUniqueKey = PkiUtil.encrypt(secret);
         String base64EncodedPkiEncryptedUniqueKey = Base64.getEncoder().encodeToString(pkiEncryptedUniqueKey);
 
-        // encrypts the actual data passed from the method's argument
-        Key key = Aes256Util.genKey(secret);
+        // encrypts the actual data passed from the method's argument and encoded to base64
         byte[] encryptedData = Aes256Util.encrypt(data, key);
         String base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
 
@@ -104,7 +214,7 @@ public class MafisServerApi {
         headersMap.put(UNIQUE_KEY_HEADER, base64EncodedPkiEncryptedUniqueKey);
         headersMap.put(HASH_KEY_HEADER, messageDigest);
 
-        HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(getSaveEnrollmentUrl(), base64EncodedEncryptedData, headersMap);
+        HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(url, base64EncodedEncryptedData, headersMap);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
         // connection timeout
         if (httpResponse == null) {
@@ -123,17 +233,7 @@ public class MafisServerApi {
 
         // Received base64 encoded encrypted data
         byte[] encryptedResponseBody = Base64.getDecoder().decode(httpResponse.body());
-        String receivedData = Aes256Util.decrypt(encryptedResponseBody, key);
-
-        // response data from server
-        SaveEnrollmentResDto saveEnrollmentResDto;
-        try {
-            saveEnrollmentResDto = Singleton.getObjectMapper().readValue(receivedData, SaveEnrollmentResDto.class);
-        } catch (JsonProcessingException ignored) {
-            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-        }
-        return saveEnrollmentResDto;
+        return Aes256Util.decrypt(encryptedResponseBody, key);
     }
 
     /**
@@ -214,6 +314,7 @@ public class MafisServerApi {
     public static String getMafisApiUrl() {
         String mafisServerApi = PropertyFile.getProperty(PropertyName.MAFIS_API_URL);
         if (mafisServerApi == null || mafisServerApi.isBlank()) {
+            LOGGER.log(Level.SEVERE, () -> "'mafis.api.url' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
             throw new GenericException("'mafis.api.url' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
         }
 
@@ -245,6 +346,18 @@ public class MafisServerApi {
 
     public static String getSaveEnrollmentUrl() {
         return getMafisApiUrl() + "/SaveEnrollment";
+    }
+
+    public static String getContractListUrl() {
+        return getMafisApiUrl() + "/api/EnrollmentStation/GetContractList";
+    }
+
+    public static String getLabourListUrl() {
+        return getMafisApiUrl() + "/api/EnrollmentStation/GetLabourList";
+    }
+
+    public static String getTokenUpdateUrl() {
+        return getMafisApiUrl() + "/api/EnrollmentStation/UpdateTokenStatus";
     }
 
 }

@@ -261,15 +261,15 @@ public class ShowTokenController {
                        System.out.println("Contractor ID:::::"+contractorId); */
 
                         //Set the Contractor Id and Card Serial Number (CSN)
-                        ContactDetail contactdetail = new ContactDetail();
+                        ContractInfo contactdetail = new ContractInfo();
                         contactdetail.setContractorId(contractorId.trim());
                         contactdetail.setContractorName(contractorName);
                         //contactdetail.setSerial_no(decodedCsnValue.toLowerCase());
                         contactdetail.setSerialNo(decodedCsnValue);
                         contactdetail.setCardReaderHandle(handleValue);
 
-                        Details details = Details.getdetails();
-                        details.setContractDetail(contactdetail);
+                        DetailsHolder detailsHolder = DetailsHolder.getDetails();
+                        detailsHolder.setContractDetail(contactdetail);
                         System.out.println("Details from Show Token:::" + contactdetail.getContractorId());
                         System.out.println("Details from Show Token:::" + contactdetail.getSerialNo());
 

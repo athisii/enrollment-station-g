@@ -1,6 +1,6 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.cdac.enrollmentstation.model.Labour;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,20 +11,24 @@ import lombok.experimental.FieldDefaults;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author athisii, CDAC
+ * Created on 13/05/23
+ */
+
 
 @Getter
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonIgnoreProperties(ignoreUnknown = true)
-//@JsonRootName(value = "Labours")
-public class LabourListDetails {
+public class LabourResDto {
     @JsonProperty("ErrorCode")
     String errorCode;
 
     @JsonProperty("Desc")
     String desc;
+
     @JsonProperty("LabourList")
-    List<Labour> labourList = new ArrayList<>();
+    List<Labour> labours = new ArrayList<>();
 
 }

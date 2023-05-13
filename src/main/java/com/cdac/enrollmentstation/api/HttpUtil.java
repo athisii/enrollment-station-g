@@ -90,7 +90,7 @@ public class HttpUtil {
         // connection timeout - very important
         // based on null value, connection status is determined is some APIs
         if (response == null || noOfRetries == 0) {
-            LOGGER.log(Level.INFO, "Connection timeout");
+            LOGGER.log(Level.INFO, "Connection timeout or http response status code is not 200.");
             return null;
         }
         return response;

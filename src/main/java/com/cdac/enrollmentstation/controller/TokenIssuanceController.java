@@ -1,26 +1,29 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.api.CardReaderAPI;
-import com.cdac.enrollmentstation.api.CardReaderAPIURLs;
+import com.cdac.enrollmentstation.api.LocalCardReaderApi;
+import com.cdac.enrollmentstation.dto.*;
+import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.*;
-import com.cdac.enrollmentstation.security.HextoASNFormat;
+import com.cdac.enrollmentstation.model.ContractorInfo;
+import com.cdac.enrollmentstation.model.DetailsHolder;
+import com.cdac.enrollmentstation.security.Asn1EncodedHexUtil;
+import com.cdac.enrollmentstation.util.LocalCardReaderErrMsgUtil;
+import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.logging.Handler;
+import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 
 
 /**
@@ -29,23 +32,40 @@ import java.util.logging.Logger;
  * @author root
  */
 public class TokenIssuanceController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
+    private static final String MANTRA_CARD_READER_NAME = "Mantra Reader (1.00) 00 00";
+    private static final byte CARD_TYPE = 4; // Naval ID/Contractor Card value is 4
+    private static final byte STATIC_TYPE = 21; // Static file -> 21
+    private static final byte FINGERPRINT_TYPE = 25; // Fingerprint file -> 25
+    private static final int CARD_READER_MAX_BUFFER_SIZE = 1024; // Max bytes card can handle
+
+    private int jniErrorCode;
+    private EnumMap<DataType, byte[]> asn1EncodedHexByteArrayMap; // GLOBAL data store.
+
+    private enum DataType {
+        STATIC(STATIC_TYPE),
+        FINGERPRINT(FINGERPRINT_TYPE);
+        private final byte value;
+
+        DataType(byte val) {
+            value = val;
+        }
+
+        private byte getValue() {
+            return value;
+        }
+    }
+
+    private ContractorInfo contractorInfo;
+
     public
     @FXML Button showContractDetails;
 
     public
-    @FXML Button show_home_token;
+    @FXML Button backBtn;
 
     public
-    @FXML Label lblcarderror;
-
-    com.cdac.enrollmentstation.api.CardReaderAPIURLs CardReaderAPIURLs = new CardReaderAPIURLs();
-
-    CardReaderAPI cardReaderAPI = new CardReaderAPI();
-
-
-    //For Application Log
-    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
-    Handler handler;
+    @FXML Label messageLabel;
 
 
     @FXML
@@ -53,257 +73,186 @@ public class TokenIssuanceController {
         App.setRoot("main_screen");
     }
 
-    public void messageStatus(String message) {
-        lblcarderror.setText(message);
-    }
-
-
-    public void responseStatus(String message) {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run() {
-                lblcarderror.setText(message);
-            }
-        });
-    }
-
-
     @FXML
-    public void readCardDetails() throws MalformedURLException, IOException, IllegalStateException {
-
-        String response = readCard();
-        if (response.equals("success")) {
-            //lblcarderror.setText("Kindly Check the CardReader Api Service");
-            App.setRoot("list_contract");
+    private void readCardDetails() {
+        contractorInfo = new ContractorInfo();
+        try {
+            asn1EncodedHexByteArrayMap = startProcedureCall();
+        } catch (GenericException ex) {
+            messageLabel.setText(ex.getMessage());
             return;
-        } else {
-            messageStatus(response);
         }
+        if (asn1EncodedHexByteArrayMap == null) {
+            LOGGER.log(Level.SEVERE, "Connection timeout. Card API service is not available.");
+            messageLabel.setText("Something went wrong. Contact the system admin.");
+            return;
+        }
+        byte[] asn1EncodedHexByteArray = asn1EncodedHexByteArrayMap.get(DataType.STATIC);
+        if (asn1EncodedHexByteArray == null) {
+            messageLabel.setText("No contractor details available in the card.");
+            return;
+        }
+        String contractorName;
+        String contractorId;
+        try {
+            contractorName = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.NAME);
+            contractorId = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.UNIQUE_ID);
+        } catch (GenericException ex) {
+            messageLabel.setText("Both contractor name and id are required.");
+            return;
+        }
+        if (contractorName.isEmpty() || contractorId.isEmpty()) {
+            messageLabel.setText("No contractor details available in the card.");
+            return;
+        }
+        contractorInfo.setContractorName(contractorName);
+        contractorInfo.setContractorId(contractorId);
+
+        DetailsHolder.getDetailsHolder().setContractorInfo(contractorInfo);
+        try {
+            App.setRoot("contract");
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            messageLabel.setText("Something went wrong. Contact the system admin.");
+        }
+
     }
 
 
-    public String readCard() {
-
-        String response = "";
-        String MantraCardReader = "Mantra Reader (1.00) 00 00";
-        String ACSCardReader = "ACS ACR1281 1S Dual Reader 00 01";
-
-        String dintializeresponse = cardReaderAPI.deInitialize();
-        //if (dintializeresponse.equals("")){
-        if (dintializeresponse.isEmpty() || dintializeresponse.contains("Exception")) {
-            response = "Kindly Check the CardReader Api Service";
-            LOGGER.log(Level.INFO, "Kindly Check the CardReader Api Service");
-            return response;
+    private EnumMap<DataType, byte[]> startProcedureCall() {
+        // required to follow the procedure calls
+        // deInitialize -> initialize ->[waitForConnect -> selectApp] -> readData
+        CRDeInitializeResDto crDeInitializeResDto = LocalCardReaderApi.getDeInitialize();
+        // api not configured properly timeout
+        if (crDeInitializeResDto == null) {
+            return null;
         }
-        String responseinit = cardReaderAPI.initialize();
-        if (responseinit.equals("")) {
-            //lblcarderror.setText("Kindly Check the CardReader Api Service");
-            response = "Kindly Check the CardReader Api Service";
-            LOGGER.log(Level.INFO, "Kindly Check the CardReader Api Service");
-            return response;
+        jniErrorCode = crDeInitializeResDto.getRetVal();
+        // -1409286131 -> prerequisites failed error
+        if (jniErrorCode != 0 && jniErrorCode != -1409286131) {
+            LOGGER.log(Level.SEVERE, () -> "DeInitializeError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
+            throw new GenericException(GENERIC_ERR_MSG);
         }
-        ObjectMapper objMapper = new ObjectMapper();
-        CardReaderInitialize cardReaderInitialize;
+        CRInitializeResDto crInitializeResDto = LocalCardReaderApi.getInitialize();
+        // api not configured properly
+        if (crInitializeResDto == null) {
+            return null;
+        }
+        jniErrorCode = crInitializeResDto.getRetVal();
+        if (jniErrorCode != 0) {
+            LOGGER.log(Level.SEVERE, () -> "InitializeError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+        String reqData;
         try {
-            cardReaderInitialize = objMapper.readValue(responseinit, CardReaderInitialize.class);
+            reqData = Singleton.getObjectMapper().writeValueAsString(new CRWaitForConnectReqDto(MANTRA_CARD_READER_NAME));
         } catch (JsonProcessingException ex) {
-            Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
-            response = "JSON Prossessing Error cardReaderInitialize";
-            LOGGER.log(Level.INFO, "JSON Prossessing Error cardReaderInitialize");
-            return response;
-
+            LOGGER.log(Level.SEVERE, ex::getMessage);
+            throw new GenericException(GENERIC_ERR_MSG);
         }
-        System.out.println("card init" + cardReaderInitialize.toString());
-        if (cardReaderInitialize.getRetVal() == 0) {
-            //String waitConnStatus = cardReaderAPI.getWaitConnectStatus(listofreaders[0].trim());
-            //String waitConnStatus = cardReaderAPI.getWaitConnectStatus(ACSCardReader);
-            String waitConnStatus = cardReaderAPI.getWaitConnectStatus(MantraCardReader);
-            System.out.println("connection status :" + waitConnStatus);
-            if (!waitConnStatus.contentEquals("connected")) {
-                //lblcarderror.setText(connectionStatus);
-                response = "Kindly Check the CardReader Api Service";
-                LOGGER.log(Level.INFO, "Kindly Check the CardReader Api Service");
-                return response;
-                //lblcarderror.setText("Kindly Check the CardReader Api Service");;
-                //return;
-            } else {
-                //String responseWaitConnect = cardReaderAPI.getWaitConnect(listofreaders[0].trim());
-                //String responseWaitConnect = cardReaderAPI.getWaitConnect(ACSCardReader);
-                String responseWaitConnect = cardReaderAPI.getWaitConnect(MantraCardReader);
-                System.out.println("response Wait For Connect " + responseWaitConnect);
 
-                ObjectMapper objMapperWaitConn = new ObjectMapper();
-                CardReaderWaitForConnect waitForConnect;
-                try {
-                    waitForConnect = objMapperWaitConn.readValue(responseWaitConnect, CardReaderWaitForConnect.class);
-                } catch (JsonProcessingException ex) {
-                    Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
-                    response = "JSON Prossessing Error CardReaderWaitforConnect";
-                    LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderWaitforConnect");
-                    return response;
-                }
-                if (waitForConnect.getRetVal() == 0) {
-                    System.out.println("Wait for conect succes");
-
-                    //Get CSN and handle Value
-                    //base 64 encoded bytes
-                    String csnValue = waitForConnect.getCsn();
-                    int handleValue = waitForConnect.getHandle();
-                    HextoASNFormat hextoasn = new HextoASNFormat();
-                    String decodedCsnValue = hextoasn.getDecodedCSN(csnValue);
-                    System.out.println("Decoded Csn Value::::" + decodedCsnValue);
-                    System.out.println("CSN Value::::" + csnValue);
-                    System.out.println("Handle Value::::" + handleValue);
-
-                    //Naval ID/Contractor Card value is 4 , For Token the value is 5
-                    byte[] cardtype = {4};
-
-                    String responseSelectApp = cardReaderAPI.getSelectApp(cardtype, handleValue);
-                    ObjectMapper objMapperSelectApp = new ObjectMapper();
-                    CardReaderSelectApp selectApp;
-                    try {
-                        selectApp = objMapperSelectApp.readValue(responseSelectApp, CardReaderSelectApp.class);
-                    } catch (JsonProcessingException ex) {
-                        Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
-                        response = "JSON Prossessing Error CardReaderSelectApp";
-                        LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderSelectApp");
-                        return response;
-                    }
-
-                    if (selectApp.getRetVal() == 0) {
-                        System.out.println("Select App Connect succes");
-
-                        //Card Reading
-                        byte[] whichdata = {21}; //static data
-                        int offset = 0;
-                        //int reqlength = 122;
-                        //int addlength = 122;
-                        int reqlength = 1024;
-                        int addlength = 1024;
-                        ArrayList<String> responseReadDataFromNavalcard = new ArrayList<String>();
-                        for (int i = 0; i <= 2; i++) {
-                            // System.out.println("Inside For Loop");
-                            responseReadDataFromNavalcard.add(cardReaderAPI.readDataFromNaval(handleValue, whichdata, offset, reqlength));
-                            offset = offset + addlength;
-                        }
-
-                        ArrayList<String> responseString = new ArrayList<String>();
-                        //String decodedResponseString = "";
-                        StringBuffer decodedResponseString = new StringBuffer("");
-                        byte[] decodedDatafromNaval;
-                        String decodedStringFromNaval;
-                        ObjectMapper objReadDataFromNaval = new ObjectMapper();
-                        CardReaderReadData readDataFromNaval = new CardReaderReadData();
-                        for (String responseReadDataArray : responseReadDataFromNavalcard) {
-                            System.out.println(responseReadDataArray);
-                            try {
-                                readDataFromNaval = objReadDataFromNaval.readValue(responseReadDataArray, CardReaderReadData.class);
-                            } catch (JsonProcessingException ex) {
-                                Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
-                                response = "JSON Prossessing Error CardReaderReadData";
-                                LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderReadData");
-                                return response;
-                            }
-
-                            if (readDataFromNaval.getRetVal() == 0) {
-                                System.out.println("Read Data from card Connect succes");
-                                //Decode Data from Naval Card
-                                decodedDatafromNaval = Base64.getDecoder().decode(readDataFromNaval.getResponse());
-
-                                decodedStringFromNaval = DatatypeConverter.printHexBinary(decodedDatafromNaval);
-                                decodedResponseString.append(decodedStringFromNaval);
-                            } else {
-                                System.out.println("Read Data from card Connect Failure");
-                                LOGGER.log(Level.INFO, "Read Data from card Connect Failure");
-                            }
-
-                        }
-                        String contractorId = "";
-                        String contractorName = "";
-                        if (decodedResponseString.length() > 0) {
-                            System.out.println("DECODED RESPONSE STRING::::" + decodedResponseString);
-                            contractorId = hextoasn.getContractorIdfromASN(decodedResponseString.toString());
-                            contractorName = hextoasn.getContractorNamefromASN(decodedResponseString.toString());
-                            System.out.println("Contractor ID:::::" + contractorId);
-                        } else {
-                            response = "Error While Reading the Card, Try with other Card";
-                            LOGGER.log(Level.INFO, "Error While Reading the Card, Try with other Card");
-                            return response;
-                        }
-
-                        //Set the Contractor Id and Card Serial Number (CSN)
-                        ContractorInfo contractorInfo = new ContractorInfo();
-                        contractorInfo.setContractorId(contractorId.trim());
-                        contractorInfo.setContractorName(contractorName);
-                        //contactdetail.setSerial_no(decodedCsnValue.toLowerCase());
-                        contractorInfo.setSerialNo(decodedCsnValue);
-                        contractorInfo.setCardReaderHandle(handleValue);
-
-                        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
-                        detailsHolder.setContractorInfo(contractorInfo);
-                        System.out.println("Details from Show Token:::" + contractorInfo.getContractorId());
-                        System.out.println("Details from Show Token:::" + contractorInfo.getSerialNo());
-
-                        String contractorID = contractorInfo.getContractorId();
-                        String serialNo = contractorInfo.getSerialNo();
-                        if (contractorID != null && !contractorID.isEmpty() && serialNo != null && !serialNo.isEmpty()) {
-                            //App.setRoot("list_contract");
-                            response = "success";
-                            return response;
-                        } else {
-                            System.out.println("Contract ID or Serial Number is Null");
-                            //lblcarderror.setText("Contract ID or Serial Number is Empty, Try Again with proper Card");
-                            response = "Contract ID or Serial Number is Empty, Try Again with proper Card";
-                            LOGGER.log(Level.INFO, "Contract ID or Serial Number is Empty, Try Again with proper Card");
-                            return response;
-                            //return;
-                        }
-                    } else {
-                        System.out.println("Select App  Failure");
-                        response = "Kindly Place the Valid Card in the Card Reader and Try Again";
-                        LOGGER.log(Level.INFO, "Kindly Place the Valid Card in the Card Reader and Try Again");
-                        return response;
-                        //lblcarderror.setText("Kindly Place the Valid Card in the Card Reader and Try Again");
-                        //return;
-                    }
-                } else {
-                    System.out.println("Wait for connect Failure");
-                    response = "Kindly Place the Valid Card in the Card Reader and Try Again";
-                    LOGGER.log(Level.INFO, "Kindly Place the Valid Card in the Card Reader and Try Again");
-                    return response;
-                    //lblcarderror.setText("Kindly Place the Card in the Card Reader and Try Again");
-                    //return;
-                }
-            }
-        } else {
-            System.out.println("Initialize Card Failed");
-            LOGGER.log(Level.INFO, "Initialize Card Failed");
-            //lblcarderror.setText("Initialize Card Failed");
-            response = "Initialize Card Failed";
-
-            String responseDeInitialize = cardReaderAPI.deInitialize();
-            ObjectMapper objMapperDeInitialize = new ObjectMapper();
-            CardReaderDeInitialize cardReaderDeInitialize = new CardReaderDeInitialize();
-            try {
-                cardReaderDeInitialize = objMapperDeInitialize.readValue(responseDeInitialize, CardReaderDeInitialize.class);
-            } catch (JsonProcessingException ex) {
-                Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-
-            if (cardReaderDeInitialize.getRetVal() == 0) {
-                System.out.println("DeInitialize Card Successfully");
-                LOGGER.log(Level.INFO, "DeInitialize Card Successfully");
-                //lblcarderror.setText("Card DeInitialized");
-                response = "Card DeInitialized";
-                return response;
-            } else {
-                System.out.println("DeInitialize Card Failed");
-                LOGGER.log(Level.INFO, "DeInitialize Card Failed");
-                //lblcarderror.setText("Card DeInitialized Failed");
-                response = "Card DeInitialized Failed";
-                return response;
-            }
+        CRWaitForConnectResDto crWaitForConnectResDto = LocalCardReaderApi.postWaitForConnect(reqData);
+        // api not configured properly
+        if (crWaitForConnectResDto == null) {
+            return null;
         }
+        jniErrorCode = crWaitForConnectResDto.getRetVal();
+        if (jniErrorCode != 0) {
+            LOGGER.log(Level.SEVERE, () -> "WaitForConnectError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+
+        // get csn
+        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        String csn = DatatypeConverter.printHexBinary(decodedHexCsn);
+        if (crWaitForConnectResDto.getCsnLength() != decodedHexCsn.length || csn == null || csn.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "WaitForConnectError: Decoded csn length not same with returned length or null or empty csn.");
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+        // required for next page
+        contractorInfo.setSerialNo(csn);
+        contractorInfo.setCardReaderHandle(crWaitForConnectResDto.getHandle());
+
+        try {
+            reqData = Singleton.getObjectMapper().writeValueAsString(new CRSelectAppReqDto(CARD_TYPE, crWaitForConnectResDto.getHandle()));
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex::getMessage);
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+        CRSelectAppResDto crSelectAppResDto = LocalCardReaderApi.postSelectApp(reqData);
+        // api not configured properly
+        if (crSelectAppResDto == null) {
+            return null;
+        }
+        jniErrorCode = crSelectAppResDto.getRetVal();
+        if (jniErrorCode != 0) {
+            LOGGER.log(Level.SEVERE, () -> "SelectAppError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
+            throw new GenericException("Place a valid card type and try again.");
+        }
+        EnumMap<DataType, byte[]> ans1EncodedHexByteArrayMap = new EnumMap<>(DataType.class);
+        ans1EncodedHexByteArrayMap.put(DataType.STATIC, readDataFromCard(crWaitForConnectResDto.getHandle(), DataType.STATIC));
+        return ans1EncodedHexByteArrayMap;
+    }
+
+    // throws GenericException
+    // Caller must handle the exception
+    private byte[] readDataFromCard(int handle, DataType dataType) {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            // for reading multiple times
+            boolean repeat = true;
+            int offset = 0;
+            while (repeat) {
+                CRReadDataResDto crReadDataResDto = readBufferedDataFromCard(handle, dataType, offset, CARD_READER_MAX_BUFFER_SIZE);
+                // api not configured properly
+                if (crReadDataResDto == null) {
+                    return null;
+                }
+                jniErrorCode = crReadDataResDto.getRetVal();
+                // if first request failed throw exception
+                if (offset == 0 && jniErrorCode != 0) {
+                    LOGGER.log(Level.SEVERE, () -> "ReadDataError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
+                    throw new GenericException("Place a valid card type and try again.");
+                }
+                // consider 1st request responseLen  = 1024 bytes
+                // therefore, we assumed more data is left to be read,
+                // so we make a 2nd request, but all data are already read.
+                // in that case we get non-zero return value.
+                if (offset != 0 && jniErrorCode != 0) {
+                    break;
+                }
+
+                byte[] base64DecodedBytes = Base64.getDecoder().decode(crReadDataResDto.getResponse());
+                // responseLen(in bytes)
+                if (base64DecodedBytes.length != crReadDataResDto.getResponseLen()) {
+                    LOGGER.log(Level.SEVERE, "ReadDataError: Number of decoded bytes and response length not equal.");
+                    throw new GenericException(GENERIC_ERR_MSG);
+                }
+                // end the read request
+                if (crReadDataResDto.getResponseLen() < CARD_READER_MAX_BUFFER_SIZE) {
+                    repeat = false;
+                }
+                offset += CARD_READER_MAX_BUFFER_SIZE;
+                byteArrayOutputStream.write(base64DecodedBytes);
+            }
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception ex) {
+            // throws if exception occurs while writing to byteOutputStream
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+    }
+
+    // throws GenericException
+    // Caller must handle the exception
+    private CRReadDataResDto readBufferedDataFromCard(int handle, DataType whichData, int offset, int requestLength) {
+        String reqData;
+        try {
+            reqData = Singleton.getObjectMapper().writeValueAsString(new CRReadDataReqDto(handle, whichData.getValue(), offset, requestLength));
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex::getMessage);
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+        return LocalCardReaderApi.postReadData(reqData);
     }
 
 }

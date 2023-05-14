@@ -69,8 +69,8 @@
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutY="725.0" prefHeight="42.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <Label fx:id="version" alignment="CENTER" layoutX="505.0" layoutY="8.0" textFill="#f8f5f5" />
+                <AnchorPane layoutY="730.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+                    <Label fx:id="version" alignment="CENTER" layoutX="505.0" layoutY="10.0" textFill="#f8f5f5" />
                 </AnchorPane>
             </AnchorPane>
         </top>

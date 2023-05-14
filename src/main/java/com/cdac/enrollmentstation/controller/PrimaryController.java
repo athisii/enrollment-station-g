@@ -15,7 +15,7 @@ public class PrimaryController implements Initializable {
     @FXML
     private Label version;
 
-    private static final String VERSION_NUMBER = "1.2";
+    private static final String VERSION_NUMBER = "1.3";
 
     @FXML
     private void showEnrollmentHome() {

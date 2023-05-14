@@ -1,9 +1,8 @@
 package com.cdac.enrollmentstation.service;
 
-import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.CardReaderAPI;
 import com.cdac.enrollmentstation.api.CardReaderAPIURLs;
-import com.cdac.enrollmentstation.logging.ApplicationLogOld;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.*;
 import com.cdac.enrollmentstation.security.ASNtoHexFormat;
 import com.cdac.enrollmentstation.security.HextoASNFormat;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,15 +25,7 @@ public class CardWrite {
 
     CardReaderAPI cardReaderAPI = new CardReaderAPI();
 
-    //For Application Log
-    ApplicationLogOld appLog = new ApplicationLogOld();
-    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-    Handler handler;
-
-    public CardWrite() {
-        // this.handler = appLog.getLogger();
-        // LOGGER.addHandler(handler);
-    }
+    private static final Logger LOGGER = ApplicationLog.getLogger(CardWrite.class);
 
 
     public String cardWriteDeatils() {
@@ -153,7 +143,7 @@ public class CardWrite {
                     }*/
                     // To get the Read Card/ Navy Card Handle
                     //To be uncommented for handle from card read
-                    DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+                    DetailsHolder detailsHolder = DetailsHolder.getDetailsHolder();
                     int cardReadhandleValue = detailsHolder.getContractorInfo().getCardReaderHandle();
 
                     for (int i = 0; i <= 1; i++) {

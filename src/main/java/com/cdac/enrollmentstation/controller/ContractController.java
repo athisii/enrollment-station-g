@@ -63,13 +63,13 @@ public class ContractController {
     }
 
     private void fetchDetails() {
-        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
-        contractorIdLabel.setText(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorId());
-        contractorNameLabel.setText(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorName());
+        DetailsHolder detailsHolder = DetailsHolder.getDetailsHolder();
+        contractorIdLabel.setText(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorId());
+        contractorNameLabel.setText(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorName());
 
         ContractResDto contractResDto;
         try {
-            contractResDto = MafisServerApi.fetchContractList(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorId(), DetailsHolder.getdetailsHolder().getContractorInfo().getSerialNo());
+            contractResDto = MafisServerApi.fetchContractList(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorId(), DetailsHolder.getDetailsHolder().getContractorInfo().getSerialNo());
         } catch (GenericException ex) {
             lblStatus.setText(ex.getMessage());
             return;
@@ -161,9 +161,9 @@ public class ContractController {
     }
 
     public void setContractIdInContractDetailHolder(String contractId) {
-        ContractorInfo contractorInfo = DetailsHolder.getdetailsHolder().getContractorInfo();
+        ContractorInfo contractorInfo = DetailsHolder.getDetailsHolder().getContractorInfo();
         contractorInfo.setContractId(contractId);
-        DetailsHolder.getdetailsHolder().setContractorInfo(contractorInfo);
+        DetailsHolder.getDetailsHolder().setContractorInfo(contractorInfo);
     }
 }
 

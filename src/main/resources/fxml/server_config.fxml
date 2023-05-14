@@ -16,11 +16,11 @@
                 <AnchorPane layoutX="262.0" layoutY="272.0" prefHeight="200.0" prefWidth="614.0"
                             style="-fx-border-color: #04127b;"/>
                 <Text fill="#04127b" layoutX="326.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Enrollment Station Unit ID :"/>
+                      text="Enrolment Station Unit ID :"/>
                 <Text fill="#04127b" layoutX="326.0" layoutY="340.0" strokeType="OUTSIDE" strokeWidth="0.0"
                       text="Mafis API Server URL :"/>
                 <Text fill="#04127b" layoutX="326.0" layoutY="390.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Enrollment Station ID :"/>
+                      text="Enrolment Station ID :"/>
                 <TextField fx:id="mafisUrlTextField" disable="true" layoutX="517.0" layoutY="322.0" prefHeight="26.0"
                            prefWidth="205.0"/>
                 <TextField fx:id="enrollmentStationIdTextField" disable="true" layoutX="517.0" layoutY="372.0" prefHeight="26.0"

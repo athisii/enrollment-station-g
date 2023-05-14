@@ -31,7 +31,7 @@ public class LocalCardReaderApi {
     public static CRDeInitializeResDto getDeInitialize() {
         HttpRequest httpRequest = HttpUtil.createGetHttpRequest(LocalCardReaderApiUrl.getDeInitialize());
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
-        // connection timeout
+        // api not configured properly
         if (response == null) {
             return null;
         }
@@ -48,7 +48,7 @@ public class LocalCardReaderApi {
     public static CRInitializeResDto getInitialize() {
         HttpRequest httpRequest = HttpUtil.createGetHttpRequest(LocalCardReaderApiUrl.getInitialize());
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
-        // connection timeout
+        // api not configured properly
         if (response == null) {
             return null;
         }
@@ -65,7 +65,7 @@ public class LocalCardReaderApi {
     public static CRWaitForConnectResDto postWaitForConnect(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalCardReaderApiUrl.getWaitForConnect(), data);
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
-        // connection timeout
+        // api not configured properly
         if (response == null) {
             return null;
         }
@@ -82,7 +82,7 @@ public class LocalCardReaderApi {
     public static CRSelectAppResDto postSelectApp(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalCardReaderApiUrl.getSelectApp(), data);
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
-        // connection timeout
+        // api not configured properly
         if (response == null) {
             return null;
         }
@@ -99,7 +99,7 @@ public class LocalCardReaderApi {
     public static CRReadDataResDto postReadData(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalCardReaderApiUrl.getReadDataFromNaval(), data);
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
-        // connection timeout
+        // api not configured properly
         if (response == null) {
             return null;
         }

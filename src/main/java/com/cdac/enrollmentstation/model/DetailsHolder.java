@@ -16,10 +16,14 @@ public class DetailsHolder {
     List<ContractDetail> contractDetailList; //not really required so far
     ContractorInfo contractorInfo; // sets by ContractorTokenIssuanceController and ContractController
     List<Labour> labours; // to used in single contract
-    private static final DetailsHolder detailsHolder = new DetailsHolder();
+    private static final DetailsHolder INSTANCE = new DetailsHolder();
 
-    public static DetailsHolder getdetailsHolder() {
-        return detailsHolder;
+    // Should not instantiate outside the class.
+    private DetailsHolder() {
+    }
+
+    public static DetailsHolder getDetailsHolder() {
+        return INSTANCE;
     }
 
 }

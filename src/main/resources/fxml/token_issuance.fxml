@@ -19,7 +19,7 @@
                     </ImageView>
                 </AnchorPane>
 
-                <Label fx:id="lblcarderror" alignment="CENTER" layoutX="230.0" layoutY="140.0" prefHeight="25.0" prefWidth="608.0" text="Kindly Place the Card in the Reader">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="230.0" layoutY="140.0" prefHeight="25.0" prefWidth="608.0" text="Kindly Place the Card in the Reader">
                     <font>
                         <Font name="System Bold" size="17.0" />
                     </font>
@@ -36,7 +36,7 @@
                             <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Button fx:id="show_home_token" layoutX="47.0" layoutY="227.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
+                    <Button fx:id="backBtn" layoutX="47.0" layoutY="227.0" maxHeight="36.0" maxWidth="150.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="36.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="14.0" />
                         </font>

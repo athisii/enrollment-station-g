@@ -31,10 +31,14 @@ public class ARCDetailsHolder {
 
     ContractorDetailsFile contractorDynamicDetails;
 
-    private static final ARCDetailsHolder ARCHolder = new ARCDetailsHolder();
+    private static final ARCDetailsHolder INSTANCE = new ARCDetailsHolder();
+
+    // Should not instantiate outside the class.
+    private ARCDetailsHolder() {
+    }
 
     public static ARCDetailsHolder getArcDetailsHolder() {
-        return ARCHolder;
+        return INSTANCE;
     }
 
 }

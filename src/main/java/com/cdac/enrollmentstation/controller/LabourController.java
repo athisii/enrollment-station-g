@@ -139,7 +139,7 @@ public class LabourController implements MIDFingerAuth_Callback {
     }
 
     public void fetchLabourList() {
-        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+        DetailsHolder detailsHolder = DetailsHolder.getDetailsHolder();
         lblContractorName.setText(detailsHolder.getContractorInfo().getContractorName());
         lblContractName.setText(detailsHolder.getContractorInfo().getContractId());
 
@@ -186,7 +186,7 @@ public class LabourController implements MIDFingerAuth_Callback {
             }
 
         }
-        DetailsHolder.getdetailsHolder().setLabours(labourResDto.getLabours());
+        DetailsHolder.getDetailsHolder().setLabours(labourResDto.getLabours());
         updateLabourDetailsInTable(labourListForTable);
     }
 
@@ -365,7 +365,7 @@ public class LabourController implements MIDFingerAuth_Callback {
         }
         //Token update Details to Mafis API
         UpdateToken updateToken = new UpdateToken();
-        DetailsHolder detail = DetailsHolder.getdetailsHolder();
+        DetailsHolder detail = DetailsHolder.getDetailsHolder();
         ContractorInfo contractorInfo = detail.getContractorInfo();
         updateToken.setCardCSN(contractorInfo.getSerialNo());    // Need to be changed later
         updateToken.setContractorCSN(contractorInfo.getSerialNo());

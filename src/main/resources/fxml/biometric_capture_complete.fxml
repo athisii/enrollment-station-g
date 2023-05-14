@@ -22,10 +22,10 @@
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <AnchorPane layoutY="737.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="738.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="155.0" layoutY="341.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/thumbnew.png" />
+                    <Image url="@../img/thumb_new.png" />
 
                 </ImageView>
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="420.0" layoutY="341.0" pickOnBounds="true" preserveRatio="true">
@@ -40,8 +40,8 @@
                 </ImageView>
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@../img/navylogo.png" />
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@../img/navy_logo.png" />
                     </ImageView>
                 </AnchorPane>
                 <ImageView fx:id="statusImageView" fitHeight="60.0" fitWidth="75.0" layoutX="885.0" layoutY="275.0" pickOnBounds="true" preserveRatio="true" />

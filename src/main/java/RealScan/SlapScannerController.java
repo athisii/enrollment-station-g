@@ -50,7 +50,7 @@ import static com.cdac.enrollmentstation.model.ARCDetailsHolder.getArcDetailsHol
 
 public class SlapScannerController {
     private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerController.class);
-    private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 3; // to be on safe side
+    private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 2; // to be on safe side
     private static final int TIME_TO_WAIT_FOR_USER_IN_SEC = 3; // wait for users to place their fingers on sensor
     private static final int TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS = 100;
     private static final int SECURITY_LEVEL_FOR_SEQUENCE_CHECK = 5; // range: 0~7
@@ -1189,7 +1189,7 @@ public class SlapScannerController {
         Platform.runLater(() -> {
             scanBtn.setText("RESCAN");
             scanBtn.setDisable(false);
-            messageLabel.setText("Fingerprints captured successfully. Please click 'CAPTURE IRIS' button to continue. ");
+            messageLabel.setText("Please click 'CAPTURE IRIS' button to continue. ");
             backBtn.setDisable(false);
             captureIrisBtn.setDisable(false);
             isFpScanCompleted = true;

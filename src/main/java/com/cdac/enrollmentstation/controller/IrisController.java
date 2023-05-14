@@ -139,14 +139,14 @@ public class IrisController implements MIDIrisEnrollCallback {
 
     public void initialize() {
         // loads failure and success images from FS.
-        InputStream inputStream = IrisController.class.getResourceAsStream("/img/redcross.png");
+        InputStream inputStream = IrisController.class.getResourceAsStream("/img/red_cross.png");
         if (inputStream == null) {
             LOGGER.log(Level.SEVERE, "Received a null inputStream stream while loading failure image from file system.");
             messageLabel.setText(GENERIC_IRIS_ERR_MSG);
             return;
         }
         failureImage = new Image(inputStream, statusImageView.getFitWidth(), statusImageView.getFitHeight(), true, false);
-        inputStream = IrisController.class.getResourceAsStream("/img/tickgreen.jpg");
+        inputStream = IrisController.class.getResourceAsStream("/img/tick_green.jpg");
         if (inputStream == null) {
             LOGGER.log(Level.SEVERE, "Received a null inputStream stream while loading success image from file system.");
             messageLabel.setText(GENERIC_IRIS_ERR_MSG);

@@ -94,7 +94,7 @@
 ////                irisController.irisCapturedRight = false;
 ////                Platform.runLater(new Runnable() {
 ////                        @Override public void run() {
-////                            Image image = new Image("/haar_facedetection/redcross.png");
+////                            Image image = new Image("/haar_facedetection/red_cross.png");
 ////                            irisController.camera.setDisable(false);
 ////                            irisController.statusImage.setImage(image);
 ////                    }

@@ -15,7 +15,7 @@
 
                     <ImageView fx:id="fingerprintImageView" fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/singlefinger.jpeg" />
+                        <Image url="@../img/single_finger.jpeg" />
 
                     </ImageView>
                     <Button fx:id="captureBtn" layoutX="21.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureBtnAction" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE" textFill="WHITE">
@@ -36,12 +36,12 @@
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <AnchorPane layoutY="739.0" prefHeight="30.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane fx:id="foot" layoutY="739.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png" />
+                        <Image url="@../img/navy_logo.png" />
 
                     </ImageView>
                     <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0" style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;" text="INS INDIA" textAlignment="CENTER" visible="false" />
@@ -50,7 +50,7 @@
                 <TextField fx:id="searchBox" layoutX="565.0" layoutY="238.0" promptText="Enter Search term" style="-fx-border-color: #04127b;" />
                 <ImageView fitHeight="29.0" fitWidth="38.0" layoutX="531.0" layoutY="237.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/Search-icon.png" />
+                    <Image url="@../img/search_icon.png" />
 
                 </ImageView>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">

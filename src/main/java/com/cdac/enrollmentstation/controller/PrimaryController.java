@@ -1,6 +1,11 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
@@ -12,17 +17,17 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PrimaryController implements Initializable {
+    private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
+
     @FXML
     private Label version;
-
-    private static final String VERSION_NUMBER = "1.3";
 
     @FXML
     private void showEnrollmentHome() {
         try {
             App.setRoot("enrollment_arc");
         } catch (IOException ex) {
-            Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
 
     }
@@ -32,7 +37,7 @@ public class PrimaryController implements Initializable {
         try {
             App.setRoot("token_issuance");
         } catch (IOException ex) {
-            Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, null, ex);
         }
 
     }
@@ -44,7 +49,12 @@ public class PrimaryController implements Initializable {
 
     @Override
     public void initialize(URL arg0, ResourceBundle arg1) {
-        version.setText(VERSION_NUMBER);
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
     }
 
 

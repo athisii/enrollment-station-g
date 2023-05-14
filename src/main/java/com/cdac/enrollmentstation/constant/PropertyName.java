@@ -29,7 +29,7 @@ public class PropertyName {
     public static final String JKS_PASSWORD = "jks.password";
     public static final String JKS_ALIAS = "jks.alias";
     public static final String URL_DATA = "url.data";
-    public static final String LOGIN_FP_MIN_THRESHOLD = "login.fp.min.threshold";
+    public static final String FP_MATCH_MIN_THRESHOLD = "fp.match.min.threshold";
     public static final String ADMIN_PASSWD = "admin.passwd";
     public static final String IMG_INPUT_FILE = "img.input.file";
     public static final String PYTHON_CAP_COMMAND = "python.cap.command";
@@ -62,5 +62,6 @@ public class PropertyName {
     public static final String FINGERPRINT_LIVENESS_MIN = "fingerprint.liveness.min";
     public static final String FINGERPRINT_LIVENESS_VALUE = "fingerprint.liveness.value";
     public static final String TWO_FACTOR_AUTH_ENABLED = "two.factor.auth.enabled";
+    public static final String APP_VERSION_NUMBER = "app.version.number";
 
 }

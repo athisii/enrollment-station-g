@@ -23,8 +23,8 @@
                       text="Enrolment Station ID :"/>
                 <TextField fx:id="mafisUrlTextField" disable="true" layoutX="517.0" layoutY="322.0" prefHeight="26.0"
                            prefWidth="205.0"/>
-                <TextField fx:id="enrollmentStationIdTextField" disable="true" layoutX="517.0" layoutY="372.0" prefHeight="26.0"
-                           prefWidth="203.0"/>
+                <TextField fx:id="enrollmentStationIdTextField" disable="true" layoutX="517.0" layoutY="372.0"
+                           prefHeight="26.0" prefWidth="203.0"/>
                 <Button fx:id="backBtn" layoutX="305.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0"
                         minHeight="35.0" minWidth="140.0" mnemonicParsing="false" onAction="#backBtnAction"
                         prefHeight="35.0" prefWidth="140.0"
@@ -34,16 +34,16 @@
                         <Font name="System Bold" size="14.0"/>
                     </font>
                 </Button>
-                <ComboBox fx:id="enrollmentStationUnitIdsComboBox" disable="true" layoutX="518.0" layoutY="419.0" prefHeight="26.0"
-                          prefWidth="201.0"/>
-                <AnchorPane layoutY="735.0" prefHeight="30.0" prefWidth="1024.0"
+                <ComboBox fx:id="enrollmentStationUnitIdsComboBox" disable="true" layoutX="518.0" layoutY="419.0"
+                          prefHeight="26.0" prefWidth="201.0"/>
+                <AnchorPane layoutY="735.0" prefHeight="40.0" prefWidth="1024.0"
                             style="-fx-background-color: #1990ea;"/>
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
                                preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png"/>
+                        <Image url="@../img/navy_logo.png"/>
 
                     </ImageView>
                 </AnchorPane>
@@ -65,9 +65,9 @@
                         <Font name="System Bold" size="17.0"/>
                     </font>
                 </Label>
-                <Button fx:id="fetchUnitsBtn" layoutX="743.0" layoutY="415.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="86.0" mnemonicParsing="false" onAction="#fetchBtnAction"
-                        prefHeight="35.0" prefWidth="86.0" disable="true"
+                <Button fx:id="fetchUnitsBtn" disable="true" layoutX="743.0" layoutY="415.0" maxHeight="35.0"
+                        maxWidth="150.0" minHeight="35.0" minWidth="86.0" mnemonicParsing="false"
+                        onAction="#fetchBtnAction" prefHeight="35.0" prefWidth="86.0"
                         style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="FETCH"
                         textFill="WHITE">
                     <font>

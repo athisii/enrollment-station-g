@@ -13,9 +13,9 @@
 
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png" />
+                        <Image url="@../img/navy_logo.png" />
 
                     </ImageView>
                 </AnchorPane>
@@ -33,7 +33,7 @@
 
                 <ImageView fitHeight="45.0" fitWidth="48.0" layoutX="880.0" layoutY="110.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/settingfirst.png" />
+                    <Image url="@../img/setting_first.png" />
 
                 </ImageView>
                 <Label layoutX="930.0" layoutY="120.0" onMouseClicked="#onSettings" prefHeight="27.0" prefWidth="88.0" style="-fx-cursor: hand;" text="SETTINGS" underline="true">
@@ -45,7 +45,7 @@
 
                     <ImageView fitHeight="210.0" fitWidth="213.0" layoutX="43.0" layoutY="18.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/biofirst.png" />
+                        <Image url="@../img/bio_first.png" />
 
                     </ImageView>
                     <Button layoutX="26.0" layoutY="259.0" mnemonicParsing="false" onAction="#showEnrollmentHome" prefHeight="37.0" prefWidth="265.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="BIOMETRIC ENROLMENT" textFill="WHITE">
@@ -59,7 +59,7 @@
 
                     <ImageView fitHeight="213.0" fitWidth="261.0" layoutX="71.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/tokenfirst.png" />
+                        <Image url="@../img/token_first.png" />
 
                     </ImageView>
                     <Button layoutX="80.0" layoutY="259.0" mnemonicParsing="false" onAction="#showContract" prefHeight="37.0" prefWidth="203.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="TOKEN ISSUANCE" textFill="WHITE">

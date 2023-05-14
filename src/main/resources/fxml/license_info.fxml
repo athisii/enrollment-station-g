@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
+
 <VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.LicenceInfoController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
@@ -21,8 +21,8 @@
                 <AnchorPane layoutY="739.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
-                        <Image url="@../img/navylogo.png" />
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
+                        <Image url="@../img/navy_logo.png" />
                     </ImageView>
 
                 </AnchorPane>
@@ -52,8 +52,7 @@
                     </font>
                 </Button>
 
-                <Label fx:id="statusLabel" alignment="CENTER" layoutX="328.0" layoutY="356.0" prefHeight="25.0"
-                       prefWidth="402.0">
+                <Label fx:id="statusLabel" alignment="CENTER" layoutX="328.0" layoutY="356.0" prefHeight="25.0" prefWidth="402.0">
                     <font>
                         <Font name="System Bold" size="17.0" />
                     </font>

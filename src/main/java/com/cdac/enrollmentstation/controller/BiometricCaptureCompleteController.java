@@ -202,9 +202,9 @@ public class BiometricCaptureCompleteController {
         Platform.runLater(() -> {
             InputStream inputStream;
             if (success) {
-                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/tickgreen.jpg");
+                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/tick_green.jpg");
             } else {
-                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/redcross.png");
+                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/red_cross.png");
             }
             if (inputStream == null) {
                 LOGGER.log(Level.SEVERE, "Image not found for updating the UI image.");

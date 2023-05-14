@@ -68,17 +68,17 @@ public class CameraController {
             WEBCAM_COMMAND = requireNonBlank(PropertyFile.getProperty(PropertyName.PYTHON_WEBCAM_COMMAND));
             SUB_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_SUB_FILE));
             // loads --> /img/
-            NO_MASK_IMAGE = loadFileFromImgDirectory("nomask.png");
-            NO_GLASSES_IMAGE = loadFileFromImgDirectory("no-goggles.jpg");
+            NO_MASK_IMAGE = loadFileFromImgDirectory("no_mask.png");
+            NO_GLASSES_IMAGE = loadFileFromImgDirectory("no_goggles.jpg");
             // loads --> /facecode
-            OUT_OF_FRAME_IMAGE = loadFileFromFaceCodeDirectory("outofframecolor.png");
-            CLOCK_COLOR_IMAGE = loadFileFromFaceCodeDirectory("clockcolor.png");
-            ANTI_CLOCK_COLOR_IMAGE = loadFileFromFaceCodeDirectory("anticlockcolor.png");
-            RIGHT_ROTATE_COLOR_IMAGE = loadFileFromFaceCodeDirectory("rightrotatecolor.png");
-            LEFT_ROTATE_COLOR_IMAGE = loadFileFromFaceCodeDirectory("leftrotatecolor.png");
-            CHIN_DOWN_COLORED_IMAGE = loadFileFromFaceCodeDirectory("chindowncolored.png");
-            CHIN_UP_COLOR_IMAGE = loadFileFromFaceCodeDirectory("chinupcolor.png");
-            TICK_GREEN_IMAGE = loadFileFromFaceCodeDirectory("tickgreen.jpg");
+            OUT_OF_FRAME_IMAGE = loadFileFromFaceCodeDirectory("out_of_frame_color.png");
+            CLOCK_COLOR_IMAGE = loadFileFromFaceCodeDirectory("clock_color.png");
+            ANTI_CLOCK_COLOR_IMAGE = loadFileFromFaceCodeDirectory("anti_clock_color.png");
+            RIGHT_ROTATE_COLOR_IMAGE = loadFileFromFaceCodeDirectory("right_rotate_color.png");
+            LEFT_ROTATE_COLOR_IMAGE = loadFileFromFaceCodeDirectory("left_rotate_color.png");
+            CHIN_DOWN_COLORED_IMAGE = loadFileFromFaceCodeDirectory("chin_down_colored.png");
+            CHIN_UP_COLOR_IMAGE = loadFileFromFaceCodeDirectory("chin_up_color.png");
+            TICK_GREEN_IMAGE = loadFileFromFaceCodeDirectory("tick_green.jpg");
 
         } catch (GenericException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());

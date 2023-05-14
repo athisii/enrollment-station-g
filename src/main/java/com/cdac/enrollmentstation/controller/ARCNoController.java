@@ -9,15 +9,19 @@ import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
-import javafx.event.ActionEvent;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.util.Duration;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +30,16 @@ import java.util.logging.Logger;
  * Created on 29/03/23
  */
 public class ARCNoController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(ARCNoController.class);
+    private static final int INACTIVE_TIME_IN_SEC = 6;
+
+    // *****************************BARCODE SCANNER *************************
+    private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23
+    private static final int KEY_PRESSED_EVENT_GAP_THRESHOLD = 50;
+    private long lastEventTimeStamp = 0L;
+    private static final StringBuilder barcodeStringBuffer = new StringBuilder();
+    // ***************************************************************************
+
     @FXML
     public Button continueBtn;
     @FXML
@@ -33,8 +47,6 @@ public class ARCNoController {
     public Button backBtn;
     @FXML
     public Button showArcBtn;
-    @FXML
-    private TextField txtARCBarcode;
 
     @FXML
     private TextField arcNumberTextField;
@@ -59,7 +71,6 @@ public class ARCNoController {
 
     @FXML
     private TextField txtBiometricOptions;
-    private static final Logger LOGGER = ApplicationLog.getLogger(ARCNoController.class);
 
     public void initialize() {
         backBtn.setOnAction(event -> backBtnAction());
@@ -71,6 +82,20 @@ public class ARCNoController {
                 showArcDetails();
             }
         });
+
+        //**************** Create a Timeline with a KeyFrame to disable arcNumberTextField after some seconds ********************************
+        // This way Barcode scanner will work properly
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(INACTIVE_TIME_IN_SEC), event -> {
+            arcNumberTextField.setFocusTraversable(false);
+            showArcBtn.requestFocus();
+        })
+        );
+        timeline.setCycleCount(1); // Run only once
+        arcNumberTextField.setOnKeyReleased(event -> timeline.playFromStart());
+        arcNumberTextField.setOnKeyTyped(event -> timeline.stop());
+        arcNumberTextField.setOnMouseClicked(event -> timeline.playFromStart()); // when user click it but never type in.
+        //**************** Create a Timeline with a KeyFrame to disable focus after some seconds ********************************
+
     }
 
     private void continueBtnAction() {
@@ -212,7 +237,6 @@ public class ARCNoController {
         holder.setArcDetails(arcDetails);
         SaveEnrollmentDetails saveEnrollmentDetails = new SaveEnrollmentDetails();
 
-        //throws exception -- /etc/data.txt
         try {
             saveEnrollmentDetails.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
             saveEnrollmentDetails.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
@@ -262,11 +286,6 @@ public class ARCNoController {
         return arcNumberTextField.getText().split("-").length != 3;
     }
 
-    public void barcodeAction(ActionEvent actionEvent) {
-        //TODO to be implemented
-
-    }
-
     private void disableControls(Node... nodes) {
         for (Node node : nodes) {
             node.setDisable(true);
@@ -277,5 +296,23 @@ public class ARCNoController {
         for (Node node : nodes) {
             node.setDisable(false);
         }
+    }
+
+    @FXML
+    public void keyTyped(KeyEvent keyEvent) {
+        long now = Instant.now().toEpochMilli();
+        // events must come fast enough to separate from manual input
+        if (now - lastEventTimeStamp > KEY_PRESSED_EVENT_GAP_THRESHOLD) {
+            barcodeStringBuffer.setLength(0);
+        }
+        if (keyEvent.getCode().equals(KeyCode.ENTER) || barcodeStringBuffer.length() >= MIN_ARC_LENGTH) {
+            LOGGER.log(Level.INFO, () -> "Barcode e-ARC: " + barcodeStringBuffer);
+            arcNumberTextField.setText(barcodeStringBuffer.toString());
+            showArcDetails();
+            barcodeStringBuffer.setLength(0);
+        } else {
+            barcodeStringBuffer.append(keyEvent.getCharacter());
+        }
+        lastEventTimeStamp = now;
     }
 }

@@ -49,7 +49,7 @@ public class ASNtoHexFormat {
     public static Object[] getEncodedLabourPhoto() {
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenPhoto tokenPhoto = new TokenPhoto();
         tokenPhoto.setPhoto(contractorDynamicDetails.getLabourPhoto());
@@ -110,11 +110,11 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenDefaultAccessValidity tokenDefaultAccess = new TokenDefaultAccessValidity();
-        tokenDefaultAccess.setFromDate(contractorDynamicDetails.getAccessDetailsFromDate());
-        tokenDefaultAccess.setToDate(contractorDynamicDetails.getAccessDetailsToDate());
+        tokenDefaultAccess.setFromDate(contractorDynamicDetails.getAccessFromDate());
+        tokenDefaultAccess.setToDate(contractorDynamicDetails.getAccessToDate());
         //    tokenDefaultAccess.setFromdate("20-10-2021");
         //    tokenDefaultAccess.setTodate("21-10-2021");
 
@@ -181,12 +181,12 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenSpecialAccessPermission tokenSpecialAccess = new TokenSpecialAccessPermission();
-        tokenSpecialAccess.setUnitCode(contractorDynamicDetails.getAccessPermissionUnitCode());
-        tokenSpecialAccess.setWorkingHourCode(contractorDynamicDetails.getAccessPermissionWorkingCode());
-        tokenSpecialAccess.setZoneId(contractorDynamicDetails.getAccessPermissionZoneId());
+        tokenSpecialAccess.setUnitCode(contractorDynamicDetails.getAccessUnitCode());
+        tokenSpecialAccess.setWorkingHourCode(contractorDynamicDetails.getAccessWorkingHourCode());
+        tokenSpecialAccess.setZoneId(contractorDynamicDetails.getAccessZoneId());
 
         int length = 0;
         ByteArrayOutputStream bufferOut = new ByteArrayOutputStream();
@@ -276,7 +276,7 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
         DynamicFile dynamicFile = new DynamicFile();
         dynamicFile.setContractorId(contractorDynamicDetails.getDynamicContractorId());
         dynamicFile.setUserCategoryId(contractorDynamicDetails.getDynamicUserCategoryId());
@@ -418,7 +418,7 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenFingerPrint tokenFingerPrint = new TokenFingerPrint();
         tokenFingerPrint.setFpData(contractorDynamicDetails.getLabourFpData());
@@ -486,7 +486,7 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenSignature1 tokenSign1 = new TokenSignature1();
         tokenSign1.setSignFile1(contractorDynamicDetails.getSignatureFile1());
@@ -546,7 +546,7 @@ public class ASNtoHexFormat {
         //return decodedCsnValue;
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         Labour labourDetails = holder.getLabourDetails();
-        ContractorDynamicFile contractorDynamicDetails = holder.getContractorDynamicDetails();
+        ContractorDetailsFile contractorDynamicDetails = holder.getContractorDynamicDetails();
 
         TokenSignature3 tokenSign3 = new TokenSignature3();
         tokenSign3.setSignFile3(contractorDynamicDetails.getSignatureFile3());

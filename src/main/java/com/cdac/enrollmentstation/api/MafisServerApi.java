@@ -6,10 +6,7 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ARCDetails;
-import com.cdac.enrollmentstation.model.ARCDetailsList;
-import com.cdac.enrollmentstation.model.Unit;
-import com.cdac.enrollmentstation.model.UnitListDetails;
+import com.cdac.enrollmentstation.model.*;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.HmacUtil;
 import com.cdac.enrollmentstation.security.PkiUtil;
@@ -178,7 +175,15 @@ public class MafisServerApi {
      * @return UpdateTokenResponse or null on connection timeout
      * @throws GenericException exception on error, json parsing exception etc.
      */
-    public static UpdateTokenResponse updateTokenStatus(String data) {
+    public static UpdateTokenResponse updateTokenStatus(UpdateToken updateToken) {
+        String data;
+        try {
+            data = Singleton.getObjectMapper().writeValueAsString(updateToken);
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getTokenUpdateUrl(), data));
         // connection timeout
         if (response == null) {

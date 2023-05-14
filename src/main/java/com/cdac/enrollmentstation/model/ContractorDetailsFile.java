@@ -10,15 +10,15 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ContractorDynamicFile {
+public class ContractorDetailsFile {
     String dynamicUserCategoryId;
     String dynamicIssuanceUnit;
     String dynamicContractorId;
-    String accessDetailsFromDate;
-    String accessDetailsToDate;
-    String accessPermissionUnitCode;
-    String accessPermissionZoneId;
-    String accessPermissionWorkingCode;
+    String accessFromDate;
+    String accessToDate;
+    String accessUnitCode;
+    String accessZoneId;
+    String accessWorkingHourCode;
     String labourPhoto;
     String labourFpPos;
     String labourFpData;

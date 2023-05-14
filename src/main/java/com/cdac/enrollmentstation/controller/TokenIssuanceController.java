@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class ShowTokenController {
+public class TokenIssuanceController {
     public
     @FXML Button showContractDetails;
 
@@ -44,7 +44,7 @@ public class ShowTokenController {
 
 
     //For Application Log
-    private static final Logger LOGGER = ApplicationLog.getLogger(ShowTokenController.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
     Handler handler;
 
 
@@ -88,23 +88,6 @@ public class ShowTokenController {
         String MantraCardReader = "Mantra Reader (1.00) 00 00";
         String ACSCardReader = "ACS ACR1281 1S Dual Reader 00 01";
 
-        /*
-        String[] listofreaders = cardReaderAPI.listofreaders();
-
-        if(listofreaders == null ){
-            response = "Kindly Check the Card Service running or not";
-            LOGGER.log(Level.INFO, "Kindly Check the Card Service running or not" );
-            //lblcarderror.setText("Kindly Check the Card Service running or not");
-            return response;
-        }
-
-        if(listofreaders.length < 2 ){
-            //lblcarderror.setText("Kindly Check the Both Card readers connected");
-            response = "Kindly Check the Card Service running or not";
-             LOGGER.log(Level.INFO, "Kindly Check the Card Service running or not" );
-            return response;
-        }*/
-
         String dintializeresponse = cardReaderAPI.deInitialize();
         //if (dintializeresponse.equals("")){
         if (dintializeresponse.isEmpty() || dintializeresponse.contains("Exception")) {
@@ -124,7 +107,7 @@ public class ShowTokenController {
         try {
             cardReaderInitialize = objMapper.readValue(responseinit, CardReaderInitialize.class);
         } catch (JsonProcessingException ex) {
-            Logger.getLogger(ShowTokenController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
             response = "JSON Prossessing Error cardReaderInitialize";
             LOGGER.log(Level.INFO, "JSON Prossessing Error cardReaderInitialize");
             return response;
@@ -154,7 +137,7 @@ public class ShowTokenController {
                 try {
                     waitForConnect = objMapperWaitConn.readValue(responseWaitConnect, CardReaderWaitForConnect.class);
                 } catch (JsonProcessingException ex) {
-                    Logger.getLogger(ShowTokenController.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
                     response = "JSON Prossessing Error CardReaderWaitforConnect";
                     LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderWaitforConnect");
                     return response;
@@ -181,7 +164,7 @@ public class ShowTokenController {
                     try {
                         selectApp = objMapperSelectApp.readValue(responseSelectApp, CardReaderSelectApp.class);
                     } catch (JsonProcessingException ex) {
-                        Logger.getLogger(ShowTokenController.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
                         response = "JSON Prossessing Error CardReaderSelectApp";
                         LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderSelectApp");
                         return response;
@@ -214,12 +197,9 @@ public class ShowTokenController {
                         for (String responseReadDataArray : responseReadDataFromNavalcard) {
                             System.out.println(responseReadDataArray);
                             try {
-                                //Commented on 270522 for code review
-                                //ObjectMapper objReadDataFromNaval = new ObjectMapper();
-                                //CardReaderReadData readDataFromNaval = objReadDataFromNaval.readValue(responseReadDataArray, CardReaderReadData.class);
                                 readDataFromNaval = objReadDataFromNaval.readValue(responseReadDataArray, CardReaderReadData.class);
                             } catch (JsonProcessingException ex) {
-                                Logger.getLogger(ShowTokenController.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
                                 response = "JSON Prossessing Error CardReaderReadData";
                                 LOGGER.log(Level.INFO, "JSON Prossessing Error CardReaderReadData");
                                 return response;
@@ -231,14 +211,10 @@ public class ShowTokenController {
                                 decodedDatafromNaval = Base64.getDecoder().decode(readDataFromNaval.getResponse());
 
                                 decodedStringFromNaval = DatatypeConverter.printHexBinary(decodedDatafromNaval);
-                                //decodedResponseString = decodedResponseString+decodedStringFromNaval;
                                 decodedResponseString.append(decodedStringFromNaval);
                             } else {
                                 System.out.println("Read Data from card Connect Failure");
                                 LOGGER.log(Level.INFO, "Read Data from card Connect Failure");
-                                //lblcarderror.setText("Error While Reading the Card, Try with other Card");
-                                //response = "Error While Reading the Card, Try with other Card";
-                                //return response;
                             }
 
                         }
@@ -254,27 +230,22 @@ public class ShowTokenController {
                             LOGGER.log(Level.INFO, "Error While Reading the Card, Try with other Card");
                             return response;
                         }
-                      /*
-                       System.out.println("DECODED RESPONSE STRING::::"+decodedResponseString);
-                       String contractorId = hextoasn.getContractorIdfromASN(decodedResponseString.toString());
-                       String contractorName = hextoasn.getContractorNamefromASN(decodedResponseString.toString());
-                       System.out.println("Contractor ID:::::"+contractorId); */
 
                         //Set the Contractor Id and Card Serial Number (CSN)
-                        ContractInfo contactdetail = new ContractInfo();
-                        contactdetail.setContractorId(contractorId.trim());
-                        contactdetail.setContractorName(contractorName);
+                        ContractorInfo contractorInfo = new ContractorInfo();
+                        contractorInfo.setContractorId(contractorId.trim());
+                        contractorInfo.setContractorName(contractorName);
                         //contactdetail.setSerial_no(decodedCsnValue.toLowerCase());
-                        contactdetail.setSerialNo(decodedCsnValue);
-                        contactdetail.setCardReaderHandle(handleValue);
+                        contractorInfo.setSerialNo(decodedCsnValue);
+                        contractorInfo.setCardReaderHandle(handleValue);
 
-                        DetailsHolder detailsHolder = DetailsHolder.getDetails();
-                        detailsHolder.setContractDetail(contactdetail);
-                        System.out.println("Details from Show Token:::" + contactdetail.getContractorId());
-                        System.out.println("Details from Show Token:::" + contactdetail.getSerialNo());
+                        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+                        detailsHolder.setContractorInfo(contractorInfo);
+                        System.out.println("Details from Show Token:::" + contractorInfo.getContractorId());
+                        System.out.println("Details from Show Token:::" + contractorInfo.getSerialNo());
 
-                        String contractorID = contactdetail.getContractorId();
-                        String serialNo = contactdetail.getSerialNo();
+                        String contractorID = contractorInfo.getContractorId();
+                        String serialNo = contractorInfo.getSerialNo();
                         if (contractorID != null && !contractorID.isEmpty() && serialNo != null && !serialNo.isEmpty()) {
                             //App.setRoot("list_contract");
                             response = "success";
@@ -316,7 +287,7 @@ public class ShowTokenController {
             try {
                 cardReaderDeInitialize = objMapperDeInitialize.readValue(responseDeInitialize, CardReaderDeInitialize.class);
             } catch (JsonProcessingException ex) {
-                Logger.getLogger(ShowTokenController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(TokenIssuanceController.class.getName()).log(Level.SEVERE, null, ex);
             }
 
             if (cardReaderDeInitialize.getRetVal() == 0) {
@@ -332,11 +303,7 @@ public class ShowTokenController {
                 response = "Card DeInitialized Failed";
                 return response;
             }
-
-
         }
-
-
     }
 
 }

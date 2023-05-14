@@ -6,8 +6,8 @@ import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.dto.ContractResDto;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ContractInfo;
 import com.cdac.enrollmentstation.model.ContractDetail;
+import com.cdac.enrollmentstation.model.ContractorInfo;
 import com.cdac.enrollmentstation.model.DetailsHolder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -24,8 +24,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ContractController {
+    private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     @FXML
-    private TableView<ContractDetail> contractTableView;
+    private TableView<ContractDetail> tableView;
 
     @FXML
     private Label lblStatus;
@@ -62,13 +63,13 @@ public class ContractController {
     }
 
     private void fetchDetails() {
-        DetailsHolder detailsHolder = DetailsHolder.getDetails();
-        contractorIdLabel.setText(DetailsHolder.getDetails().getContractDetail().getContractorId());
-        contractorNameLabel.setText(DetailsHolder.getDetails().getContractDetail().getContractorName());
+        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+        contractorIdLabel.setText(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorId());
+        contractorNameLabel.setText(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorName());
 
         ContractResDto contractResDto;
         try {
-            contractResDto = MafisServerApi.fetchContractList(DetailsHolder.getDetails().getContractDetail().getContractorId(), DetailsHolder.getDetails().getContractDetail().getSerialNo());
+            contractResDto = MafisServerApi.fetchContractList(DetailsHolder.getdetailsHolder().getContractorInfo().getContractorId(), DetailsHolder.getdetailsHolder().getContractorInfo().getSerialNo());
         } catch (GenericException ex) {
             lblStatus.setText(ex.getMessage());
             return;
@@ -88,37 +89,29 @@ public class ContractController {
             return;
         }
         contractDetails = new ArrayList<>(contractResDto.getContractDetails());
-        pagination.setPageCount(contractDetails.size() / 8 + 1);
-        pagination.setCurrentPageIndex(0);
 
-        pagination.setPageFactory(pageIndex -> {
-            if (pageIndex > contractDetails.size() / 8 + 1) {
-                return null;
-            }
-            return createPage(pageIndex);
-        });
-
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> contractTableView.setItems(filterList(contractDetails, newValue)));
-
-        ObservableList<ContractDetail> observablelist = FXCollections.observableArrayList(contractDetails);
-
-//        //Set the contract ID , valid from, valid to to the FXML Table
+        //for property bindings
         contractIdTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractId"));
         contractValidFromTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractValidFrom"));
         contractValidUptoTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractValidUpto"));
 
-        detailsHolder.setContractDetailList(contractDetails);
-        contractTableView.setFixedCellSize(35.0);
-        contractTableView.setItems(observablelist);
-        contractTableView.refresh();
-    }
+        int extraPage;
+        if (contractDetails.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+            extraPage = 0;
+        } else {
+            extraPage = 1;
+        }
+        int pageCount = contractDetails.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
 
-
-    private Node createPage(int pageIndex) {
-        int fromIndex = pageIndex * 8;
-        int toIndex = Math.min(fromIndex + 8, contractDetails.size());
-
-        contractTableView.setRowFactory(tv -> {
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        pagination.setPageFactory(pageIndex -> {
+            if (pageIndex > pageCount) {
+                return null;
+            }
+            return createPage(pageIndex);
+        });
+        tableView.setRowFactory(tv -> {
             TableRow<ContractDetail> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
@@ -135,9 +128,21 @@ public class ContractController {
             return row;
 
         });
-        contractTableView.setFixedCellSize(30.0);
-        contractTableView.setItems(FXCollections.observableArrayList(contractDetails.subList(fromIndex, toIndex)));
-        return contractTableView;
+        tableView.setFixedCellSize(35.0);
+        ObservableList<ContractDetail> observablelist = FXCollections.observableArrayList(contractDetails);
+        tableView.setItems(observablelist);
+        tableView.refresh();
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(contractDetails, newValue)));
+        // keep for next screen if required
+        detailsHolder.setContractDetailList(contractDetails);
+    }
+
+
+    private Node createPage(int pageIndex) {
+        int fromIndex = pageIndex * NUMBER_OF_ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + NUMBER_OF_ROWS_PER_PAGE, contractDetails.size());
+        tableView.setItems(FXCollections.observableArrayList(contractDetails.subList(fromIndex, toIndex)));
+        return tableView;
     }
 
 
@@ -145,22 +150,20 @@ public class ContractController {
         fetchDetails();
     }
 
-    private boolean searchFindsOrder(ContractDetail contractDetail, String searchText) {
-        return (contractDetail.getContractId().toLowerCase().contains(searchText.toLowerCase())) || (contractDetail.getContractValidFrom().toLowerCase().contains(searchText.toLowerCase())) || (contractDetail.getContractValidUpto().toLowerCase().contains(searchText.toLowerCase()));
-    }
-
     private ObservableList<ContractDetail> filterList(List<ContractDetail> list, String searchText) {
         List<ContractDetail> filteredList = new ArrayList<>();
         for (ContractDetail contract : list) {
-            if (searchFindsOrder(contract, searchText)) filteredList.add(contract);
+            if (contract.getContractId().toLowerCase().contains(searchText.toLowerCase()) || (contract.getContractValidFrom().toLowerCase().contains(searchText.toLowerCase())) || (contract.getContractValidUpto().toLowerCase().contains(searchText.toLowerCase()))) {
+                filteredList.add(contract);
+            }
         }
         return FXCollections.observableList(filteredList);
     }
 
     public void setContractIdInContractDetailHolder(String contractId) {
-        ContractInfo contractDetail = DetailsHolder.getDetails().getContractDetail();
-        contractDetail.setContactId(contractId);
-        DetailsHolder.getDetails().setContractDetail(contractDetail);
+        ContractorInfo contractorInfo = DetailsHolder.getdetailsHolder().getContractorInfo();
+        contractorInfo.setContractId(contractId);
+        DetailsHolder.getdetailsHolder().setContractorInfo(contractorInfo);
     }
 }
 

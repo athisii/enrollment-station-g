@@ -30,7 +30,7 @@ public class PrimaryController implements Initializable {
     @FXML
     private void showContract() {
         try {
-            App.setRoot("show_token");
+            App.setRoot("token_issuance");
         } catch (IOException ex) {
             Logger.getLogger(PrimaryController.class.getName()).log(Level.SEVERE, null, ex);
         }

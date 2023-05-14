@@ -1,1139 +1,483 @@
-//package com.cdac.enrollmentstation.controller;
-//
-//import com.cdac.enrollmentstation.App;
-//import com.cdac.enrollmentstation.api.APIServerCheck;
-//import com.cdac.enrollmentstation.dto.UpdateTokenResponse;
-//import com.cdac.enrollmentstation.logging.ApplicationLogOld;
-//import com.cdac.enrollmentstation.model.*;
-//import com.cdac.enrollmentstation.service.CardWrite;
-//import com.cdac.enrollmentstation.service.TokenDispense;
-//import com.cdac.enrollmentstation.util.TestProp;
-//import com.fasterxml.jackson.core.JsonProcessingException;
-//import com.fasterxml.jackson.databind.DeserializationFeature;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.mantra.midfingerauth.DeviceInfo;
-//import com.mantra.midfingerauth.MIDFingerAuth;
-//import com.mantra.midfingerauth.MIDFingerAuth_Callback;
-//import com.mantra.midfingerauth.enums.DeviceDetection;
-//import com.mantra.midfingerauth.enums.DeviceModel;
-//import com.mantra.midfingerauth.enums.TemplateFormat;
-//import javafx.application.Platform;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
-//import javafx.fxml.FXML;
-//import javafx.scene.Node;
-//import javafx.scene.control.*;
-//import javafx.scene.control.cell.PropertyValueFactory;
-//import javafx.scene.image.ImageView;
-//import javafx.scene.image.PixelWriter;
-//import javafx.scene.image.WritableImage;
-//import javafx.scene.input.MouseButton;
-//import javafx.util.Callback;
-//
-//import javax.imageio.ImageIO;
-//import java.awt.image.BufferedImage;
-//import java.io.*;
-//import java.time.LocalDateTime;
-//import java.time.format.DateTimeFormatter;
-//import java.util.*;
-//import java.util.logging.Handler;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-//import java.util.stream.Collectors;
-//
-//
-//public class LabourController implements MIDFingerAuth_Callback {
-//    @FXML
-//    private Label lblContractName;
-//
-//    @FXML
-//    private Label lblContractorName;
-//
-//    @FXML
-//    public Label lblWorkerError;
-//
-//    @FXML
-//    private javafx.scene.image.ImageView mFingerPrintImage;
-//
-//
-//    @FXML
-//    public TableView<LabourDetails> tableview;
-//
-//    @FXML
-//    public TableColumn<LabourDetails, String> labourName;
-//
-//    @FXML
-//    public TableColumn<LabourDetails, String> labourID;
-//
-//    @FXML
-//    public TableColumn<LabourDetails, String> dateOfBirth;
-//
-//    @FXML
-//    public TableColumn<LabourDetails, String> strStatus;
-//
-//    @FXML
-//    private TextField searchBox;
-//
-//    @FXML
-//    public Button captureSingleFinger;
-//
-//    @FXML
-//    private Pagination pagination;
-//
-//    List<Labour> labourFpLists = new ArrayList<>();
-//
-//
-//    List<LabourDetails> labourList = new ArrayList<LabourDetails>();
-//
-//    //List<AccessDetails> specialAccessList = new ArrayList<AccessDetails>();
-//
-//    Map<String, Labour> labourMap = new HashMap<String, Labour>();
-//
-//    public APIServerCheck apiServerCheck = new APIServerCheck();
-//
-//    ContractorDynamicFile contractorDynamicFile = new ContractorDynamicFile();
-//
-//    public String id;
-//    public String name;
-//    public String dob;
-//
-//    int fingerprintInit;
-//    int fpQuality = 96;
-//    String fpquality = null;
-//
-//
-//    TestProp prop = new TestProp();
-//
-//    //For Application Log
-//    ApplicationLogOld appLog = new ApplicationLogOld();
-//    private static final Logger LOGGER = Logger.getLogger(App.class.getName());
-//    Handler handler;
-//
-//    @FXML
-//    private Button capturefinger;
-//    //MFS100 mfs100 = null;
-//    //int quality = 60;
-//    int minQuality = 60;
-//    int timeout = 10000;
-//    byte[] ISOTemplate = null;
-//    byte[] ANSITemplate = null;
-//    String key = "";
-//    //DeviceInfo deviceInfo = new DeviceInfo();
-//
-//    private MIDFingerAuth midFingerAuth = null; // For MID finger jar
-//    private DeviceInfo deviceInfo = null;
-//    private byte[] lastCaptureTemplat = null;
-//
-//    public void messageStatus(String message) {
-//        lblWorkerError.setText(message);
-//    }
-//
-//
-//    public LabourController() {
-//
-//
-//        // this.handler = appLog.getLogger();
-//        // LOGGER.addHandler(handler);
-//
-//        //MIDfinger
-//        midFingerAuth = new MIDFingerAuth(this);
-//
-//        String version = midFingerAuth.GetSDKVersion();
-//
-//
-//        //mfs100 = new MFS100(this, key);
-//        try {
-//            //System.out.println("JAVA_VERSION: " + System.getProperty("java.version"));
-//            LOGGER.log(Level.INFO, "JAVA_VERSION:" + System.getProperty("java.version"));
-//
-//        } catch (Exception e) {
-//            //e.printStackTrace();
-//            LOGGER.log(Level.INFO, "Exception:" + e);
-//        }
-//
-//        //MIDfinger
-//        List<String> deviceList = new ArrayList<String>();
-//        //deviceList = null;
-//        //int ret = midFingerAuth.GetSupportedDevices(deviceList);
-//        int ret = midFingerAuth.GetConnectedDevices(deviceList);
-//
-//        if (ret != 0) {
-//            //System.out.println("supported devices " +midFingerAuth.GetErrorMessage(ret));
-//            LOGGER.log(Level.INFO, "supported devices:" + midFingerAuth.GetErrorMessage(ret));
-//            return;
-//        }
-//
-//        for (int i = 0; i < deviceList.size(); i++) {
-//
-//            // Print all elements of List
-//            //System.out.println(deviceList.get(i));
-//            LOGGER.log(Level.INFO, "deviceList:" + deviceList.get(i));
-//        }
-//        //String model = jcbConnectedDevices.getSelectedItem().toString();
-//        String model = "MFS100";
-//        boolean isDeviceConnected = midFingerAuth.IsDeviceConnected(DeviceModel.valueFor(deviceList.get(0)));
-//        if (isDeviceConnected) {
-//            //System.out.println("Device is connected... ");
-//            LOGGER.log(Level.INFO, "Device is connected...");
-//        } else {
-//            //System.out.println("Device is not Connected...");
-//            LOGGER.log(Level.INFO, "Device is not connected...");
-//        }
-//                   /*
-//                    if(mfs100.IsConnected()){
-//                        System.out.println("Device is connected... ");
-//                        System.out.println(mfs100.GetSDKVersion());
-//
-//                    }else{
-//                        System.out.println("Device is not Connected...");
-//                        //lblworkererror.setText("Kindly Reconnect the Single Fingerprint reader");
-//                    }*/
-//
-//        //MIDFinger Init
-//        // String model = jcbConnectedDevices.getSelectedItem().toString();
-//        DeviceInfo info = new DeviceInfo();
-//        int fingerprintinit = midFingerAuth.Init(DeviceModel.valueFor(model), info);
-//        if (fingerprintinit != 0) {
-//            //System.out.println("Device Initialization not success");
-//            //System.out.println("Device Initialization not success"+midFingerAuth.GetErrorMessage(fingerprintinit));
-//            LOGGER.log(Level.INFO, "Device Initialization not success:" + midFingerAuth.GetErrorMessage(fingerprintinit));
-//            return;
-//        }
-//
-//        if (fingerprintinit == 0) {
-//            deviceInfo = info;
-//            System.out.println("Width: " + String.valueOf(deviceInfo.Width));
-//            System.out.println("Height: " + String.valueOf(deviceInfo.Height));
-//        } else {
-//            LOGGER.log(Level.INFO, "Error Single Fingerprint reader not initialized");
-//        }
-//    }
-//
-//    public void initialize() {
-//
-//        String response = listLabourDetailsInfxml();
-//        messageStatus(response);
-//    }
-//
-//    public String listLabourDetailsInfxml() {
-//        String response = "";
-//        try {
-//
-//            DetailsHolder detail = DetailsHolder.getDetails();
-//            //To set the Contrator Name
-//            lblContractorName.setText(detail.getContractDetail().getContractorName());
-//            String jsonLabourList = "";
-//            String connurl = apiServerCheck.getLabourListURL();
-//            ContractInfo contractDetails = detail.getContractDetail();
-//            jsonLabourList = apiServerCheck.getLabourListAPI(connurl, contractDetails.getContractorId(), contractDetails.getContactId());
-//            System.out.println("Decrypted Labour List :" + jsonLabourList);
-//            if (jsonLabourList.contains("Exception")) {
-//                response = "Labour List is not available from Server, Try Again";
-//                return response;
-//            }
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            objectMapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY); //Added for single value as array for dynamic details
-//            //objectMapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
-//            //System.out.println("contractTableView in fetchdetailscontroller:"+ contractTableView);
-//            LabourListDetails labourListResponse = null;
-//
-//            try {
-//                //uncomment after
-//                //System.out.println(jsonLabourList);
-//                labourListResponse = objectMapper.readValue(jsonLabourList, LabourListDetails.class);
-//                //For testing purpose
-//                //labourListResponse.getLaboursList().add(labourListResponse.getLaboursList().get(0));
-//                //labourListResponse.getLaboursList().add(labourListResponse.getLaboursList().get(0));
-//                //healthResponse = objectMapper.readValue(testJson, LabourListDetails.class);
-//                System.out.println("labour list detals : " + labourListResponse.toString());
-//            } catch (JsonProcessingException ex) {
-//                Logger.getLogger(LabourController.class.getName()).log(Level.SEVERE, null, ex);
-//                LOGGER.log(Level.INFO, "JsonProcessingException:" + ex);
-//                //lblworkererror.setText("Labour List is not Available or not approved for today");
-//                response = "Labour List from Server is Corrupted, Try Again";
-//                return response;
-//            }
-//
-//            String errorcode_labour = labourListResponse.getErrorCode();
-//            System.out.println("Error Code ::: " + errorcode_labour);
-//            if (!errorcode_labour.equals("0")) {
-//                System.out.println("Error" + labourListResponse.getDesc());
-//                //lblworkererror.setText(labourListResponse.Desc);
-//                response = labourListResponse.getDesc();
-//                return response;
-//            }
-//
-//            if (labourListResponse.getLabourList() != null) {
-//                labourFpLists = labourListResponse.getLabourList();
-//            }
-//
-//
-//            if (labourListResponse.getLabourList().size() > 0) {
-//                for (Labour labour : labourListResponse.getLabourList()) {
-//                    //Dynamic File List For a Labour
-//                    for (DynamicFileList dynamicFileList : labour.getDynamicFileList()) {
-//                        System.out.println("Contractor ID::::" + dynamicFileList.getContractorId());
-//                        contractorDynamicFile.setDynamicContractorId(dynamicFileList.getContractorId());
-//                        contractorDynamicFile.setDynamicIssuanceUnit(dynamicFileList.getIssuanceUnit());
-//                        contractorDynamicFile.setDynamicUserCategoryId(dynamicFileList.getUserCategoryId());
-//                        //Modified by K. Karthikeyan
-//                        System.out.println("\nContractor ID: " + dynamicFileList.getContractorId() + "\nIssuance Unit: " + dynamicFileList.getIssuanceUnit());
-//                        System.out.println("\nUserCategory ID: " + dynamicFileList.getUserCategoryId());
-//                        //
-//                    }
-//                    //Access Files Lsit For a Labour
-//                    for (AccessFileList accessFileList : labour.getAccessFileList()) {
-//                        contractorDynamicFile.setAccessPermissionUnitCode(accessFileList.getUnitCode());
-//                        contractorDynamicFile.setAccessPermissionZoneId(accessFileList.getZoneId());
-//                        contractorDynamicFile.setAccessPermissionWorkingCode(accessFileList.getWorkingHourCode());
-//                        contractorDynamicFile.setAccessDetailsFromDate(accessFileList.getFromDate());
-//                        contractorDynamicFile.setAccessDetailsToDate(accessFileList.getToDate());
-//                        //Modified by K. Karthikeyan
-//                        System.out.println("\nAccPerUnitCode: " + accessFileList.getUnitCode() + "\nZoneId : " + accessFileList.getZoneId());
-//                        System.out.println("\nAccPerWorkingCode: " + accessFileList.getWorkingHourCode() + "\nFrom Date: " + accessFileList.getFromDate());
-//                        System.out.println("To Date: " + accessFileList.getToDate());
-//                        //Modified by K. Karthikeyan
-//                    }
-//                    //Fingerprint List For a labour
-//                    for (LabourFP labourFP : labour.getFPs()) {
-//                        contractorDynamicFile.setLabourFpPos(labourFP.getFpPos());
-//                        contractorDynamicFile.setLabourFpData(labourFP.getFpData());
-//                        //Modified by K. Karthikeyan
-//                        //System.out.println("\nFpPos "+labourFP.getFpPos()+"\nFpData"+labourFP.getFpData());
-//                    }
-//
-//                    contractorDynamicFile.setSignatureFile1(labour.getSignFile1());
-//                    contractorDynamicFile.setSignatureFile3(labour.getSignFile3());
-//                }
-//            } else {
-//                //lblworkererror.setText("Labour List is not Available or not approved for today");
-//                response = "Labour List is not Available or not approved for today";
-//                LOGGER.log(Level.INFO, "Labour List is not Available or not approved for today");
-//                return response;
-//            }
-//
-//
-//            //Set the Contract Name
-//            lblContractName.setText(contractorDynamicFile.getDynamicContractorId());
-//            //System.out.println("Dynamic Contractor ID :"+contractorDynamicFile.getDynamicContractorId());
-//            LOGGER.log(Level.INFO, "Dynamic Contractor ID :" + contractorDynamicFile.getDynamicContractorId());
-//
-//
-//            List<LabourDetails> labourListres = new ArrayList<LabourDetails>();
-//
-//
-//            if (labourListResponse != null) {
-//                if (labourListResponse.getLabourList().size() > 0) {
-//                    for (Labour labour : labourListResponse.getLabourList()) {
-//                        for (DynamicFileList dynamicFileList : labour.getDynamicFileList()) {
-//                            LabourDetails labourDetails = new LabourDetails();
-//
-//                            labourDetails.setDateOfBirth(dynamicFileList.getLabourDateOfBirth());
-//                            labourDetails.setLabourID(dynamicFileList.getLabourId());
-//                            labourDetails.setLabourName(dynamicFileList.getLabourName());
-//                            labourDetails.setStrStatus("Not verified");
-//                            labourListres.add(labourDetails);
-//                            // labourMap.put(labour.getLabourId(), labour);
-//                            labourMap.put(dynamicFileList.getLabourId(), labour);
-//                            //Modified by K. Karthikeyan
-//                            System.out.println("\nDOB : " + dynamicFileList.getLabourDateOfBirth() + "\nLabourID" + dynamicFileList.getLabourId());
-//                            System.out.println("\nName : " + dynamicFileList.getLabourName());//+"\nStrstatus"+dynamicFileList.getLabourId());
-//
-//                        }
-//
-//                    }
-//
-//                }
-//            }
-//
-//            labourList = labourListres;
-//
-//            System.out.println("LABOUR LIST:::::" + labourList.toString());
-//            System.out.println("LABOUR LIST:::::" + labourList.size());
-//
-//            String uptadelabourdetailstable = updateLabourDetailsInTable(labourList, labourListResponse);
-//
-//            //System.out.println("Update Labour Details"+uptadelabourdetailstable);
-//
-//        } catch (NullPointerException e) {
-//            //System.out.print("NullPointerException caught");
-//            LOGGER.log(Level.INFO, "Exception :" + e);
-//            //lblworkererror.setText("Labour List is not Available or not approved for today");
-//            response = "Labour List is not Available or not approved for today";
-//            return response;
-//        }
-//        return response;
-//    }
-//
-//    public String updateLabourDetailsInTable(List<LabourDetails> labourList, LabourListDetails labourListResponse) {
-//        DetailsHolder detail = DetailsHolder.getDetails();
-//        int extra_page = 0;
-//        if (labourList.size() % 8 == 0)
-//            extra_page = 0;
-//        else
-//            extra_page = 1;
-//        int pagesize = labourList.size() / 8 + extra_page;
-//        //System.out.println("Labour List Size::"+labourList.size());
-//        LOGGER.log(Level.INFO, "Labour List Size::" + labourList.size());
-//        LOGGER.log(Level.INFO, "Page Size::" + pagesize);
-//        //System.out.println("Page Size::"+pagesize);
-//        pagination.setPageCount(pagesize);
-//        pagination.setCurrentPageIndex(0);
-//
-//        //Set Page Factory
-//        pagination.setPageFactory(new Callback<Integer, Node>() {
-//            @Override
-//            public Node call(Integer pageIndex) {
-//                System.out.println("page index :" + pageIndex);
-//                if (pageIndex > labourList.size() / 8 + 1) {
-//                    return null;
-//                } else {
-//                    return createPage(pageIndex);
-//                }
-//            }
-//        });
-//
-//        //Set Row Factory
-//        tableview.setRowFactory(tv -> new TableRow<LabourDetails>() {
-//            @Override
-//            public void updateItem(LabourDetails item, boolean empty) {
-//                super.updateItem(item, empty);
-//                if (item == null) {
-//                    setStyle("");
-//                } else if (item.getStrStatus().equals("verified")) {
-//                    setStyle("-fx-background-color: green;");
-//                    //setStyle("-fx-background-color: #66ccff;");
-//                } else {
-//                    setStyle("");
-//                }
-//            }
-//        });
-//        //Added on 07-03-22
-//
-//        ObservableList<LabourDetails> observablelist = FXCollections.observableArrayList(labourList);
-//
-//        System.out.println("Observable List::::" + observablelist.toString());
-//        searchBox.textProperty().addListener((observable, oldValue, newValue) ->
-//                tableview.setItems(filterList(labourList, newValue))
-//        );
-//
-//
-//        labourName.setCellValueFactory(new PropertyValueFactory<>("labourName"));
-//        labourID.setCellValueFactory(new PropertyValueFactory<>("labourID"));
-//        dateOfBirth.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
-//        strStatus.setCellValueFactory(new PropertyValueFactory<>("strStatus"));
-//        detail.setLabourListDetail(labourListResponse);
-//
-//        tableview.setStyle(".table-row-cell {-fx-font-size: 12pt ;}");
-//        tableview.setFixedCellSize(35.0);
-//
-//        tableview.setItems(observablelist);
-//        tableview.refresh();
-//        System.out.println("Observable List2::::" + observablelist.toString());
-//
-//        tableview.setRowFactory(tv -> {
-//            TableRow<LabourDetails> row = new TableRow<>();
-//            row.setOnMouseClicked(event -> {
-//                // check for non-empty rows, double-click with the primary button of the mouse
-//                captureSingleFinger.setDisable(false);
-//                if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
-//                    LabourDetails element = row.getItem();
-//                    // now you can do whatever you want with the myModel variable.
-//                    System.out.println(element.toString());
-//                    id = element.getLabourID();
-//                    name = element.getLabourName();
-//                    dob = element.getDateOfBirth();
-//                    //System.out.println(name);
-//                    LOGGER.log(Level.INFO, "name::" + name);
-//
-//                    //setContractID(element);
-//
-//                }
-//            });
-//            return row;
-//        });
-//        return "success";
-//    }
-//
-//   /*
-//    public void startCapture() throws InterruptedException{
-//              lblworkererror.setText("Start Capture");
-//        Runnable helloRunnable = new Runnable() {
-//            public void run() {
-//
-//                    int retValue = mfs100.StartCapture(quality, timeout, true);
-//                    System.out.println("ret val :"+ retValue);
-//
-//                    if( retValue != 0 ) {
-//                    System.out.println("Error..!!");
-//                  }
-//
-//            }
-//    };
-//
-//ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-//executor.scheduleAtFixedRate(helloRunnable, 0, 5, TimeUnit.SECONDS);
-//
-//    } */
-//
-//    @FXML
-//    private void showHome() throws IOException {
-//        App.setRoot("contract");
-//    }
-//
-//    @FXML
-//    private void btnInitActionPerformed() throws Exception {
-//
-//        // lblworkererror.setText("Button Init");
-////            Object object =  tableview.getSelectionModel().selectedItemProperty().getClass();
-////            int index = tableview.getSelectionModel().selectedIndexProperty().get();
-////
-////            System.out.println(object);
-////            System.out.println("The Row number of User is:   "+index);
-//        //Empty the lblworkererror
-//        lblWorkerError.setText("");
-//        captureSingleFinger.setDisable(true);
-//
-//
-//              /*
-//              //Initialize Fingerprint Device if not initialized
-//              if(fingerprintinit != 0){
-//                 fingerprintinit = mfs100.Init();
-//                 System.out.println("FingerPrintinit:::"+fingerprintinit);
-//              }*/
-//
-//        //MIDAuth Init
-//        if (fingerprintInit != 0) {
-//            String model = "MFS100";
-//            DeviceInfo info = new DeviceInfo();
-//            int fingerprintinit = midFingerAuth.Init(DeviceModel.valueFor(model), info);
-//            //System.out.println("FingerPri"+fingerprintinit);
-//            LOGGER.log(Level.INFO, "fingerprintinit::" + fingerprintinit);
-//        }
-//
-//
-//        //System.out.println("FingerPrintinitttt:::"+fingerprintinit);
-//        LOGGER.log(Level.INFO, "fingerprintinit:" + fingerprintInit);
-//
-//        if (tableview.getSelectionModel().getSelectedItem() == null) {
-//            //lblworkererror.setText("Kindly Select the Labour");
-//            messageStatus("Kindly Select the Labour");
-//            LOGGER.log(Level.INFO, "Kindly Select the Labour");
-//            return;
-//
-//        } else {
-//                    /*
-//                    int ret = mfs100.StartCapture(quality, timeout, true);
-//                    System.out.println("ret val :"+ ret);
-//                     if( ret != 0 ) {
-//                        System.out.println("Error..!!");
-//                        lblworkererror.setText("Reconnect the single Fingerprint Device");
-//                    } */
-//
-//            //MIDAuth StartCapture
-//            int retCapture = midFingerAuth.StartCapture(minQuality, timeout);
-//            if (retCapture != 0) {
-//                //System.out.println("Start Capture Error:"+midFingerAuth.GetErrorMessage(retCapture));
-//                LOGGER.log(Level.INFO, "Start Capture Error:" + midFingerAuth.GetErrorMessage(retCapture));
-//                messageStatus("Start Capture Error:" + midFingerAuth.GetErrorMessage(retCapture));
-//                return;
-//            }
-//        }
-//
-//    }
-//
-//    @FXML
-//    //public void fingerprintMatching(FingerData fingerData) {
-//    public void fingerprintMatching(byte[] fingerData) throws IOException {
-//
-//        String fpqpath = prop.getProp().getProperty("fpquality");
-//        if (fpqpath.isBlank() || fpqpath.isEmpty() || fpqpath == null) {
-//            //System.out.println("The property 'fpquality' is empty, Please add it in properties");
-//            LOGGER.log(Level.INFO, "The property 'fpquality' is empty, Please add it in properties");
-//            return;
-//        }
-//        try (BufferedReader file = new BufferedReader(new FileReader(fpqpath))) {
-//            String input = " ";
-//            String fpq = file.lines().collect(Collectors.joining());
-//            fpQuality = Integer.parseInt(fpq);
-//            System.out.println("FP Quality is :: " + fpQuality);
-//            LOGGER.log(Level.INFO, "FP Quality is :: " + fpQuality);
-//            file.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            //System.out.println("Problem reading file./usr/share/enrollment/quality/fpquality");
-//            LOGGER.log(Level.INFO, "Problem reading file./usr/share/enrollment/quality/fpquality");
-//        }
-//
-//        String fpData = "";
-//        int matchfound = 0;
-//        LabourDetails row = tableview.getSelectionModel().getSelectedItem();
-//        for (int j = 0; j < labourFpLists.size(); j++) {
-//            String labourID = labourFpLists.get(j).getDynamicFileList().get(0).getLabourId();
-//            String rowLabourID = row.getLabourID();
-//            System.out.println("J:::::" + j);
-//            System.out.println("Row LabourID:::::" + rowLabourID);
-//            System.out.println("LabourID:::::" + labourFpLists.get(j).getDynamicFileList().get(0).getLabourId());
-//            if (labourID.equals(rowLabourID)) {
-//                System.out.println("The Employee matched");
-//                List<LabourFP> labour = labourFpLists.get(j).getFPs();
-//                //=================
-//                for (int k = 0; k < labour.size(); k++) {
-//                    System.out.println("FingerPrint position:::::" + labour.get(k).getFpPos());
-//                    System.out.println("FingerPrint Data:::::" + labour.get(k).getFpData());
-//                    //System.out.println("MatchISO\n"+fingerData.ISOTemplate()+"\n===========================\n"+Base64.getDecoder().decode(labour.get(k).fpData));
-//                    //int ret = mfs100.MatchISO(fingerData.ISOTemplate(),Base64.getDecoder().decode(labour.get(k).fpData));
-//
-//
-//                    //byte[] fmrTemplate = Base64.getDecoder().decode("Rk1SADAzMAAAAADrAAEAAAAA3P///////////wAAAAAAAAAAAMUAxQABIQGZYB9AkQDepmSAXgDdHmSAygD/s2RAlAE30ElA2AEO1WRAuACW/2RA7AEeY0RAlQFmZ0FA2QCJ+GSAXQFrAx5AqgAtikxAdwDToGRAcQEhsGRAdQCynGSA0QDXiGRAlAFERy9AygCiiGRAgAFifjGAngB1k2RAkgFyeBRAVQB1GGRAXgECpl9AfAEoxGSASADnpGSAcQE7vGRANADkH2RA7wDTbWRAXAFZF0WAPgCPmWSAtAFvZBFASABxmlsAAA==");
-//                    //System.out.println("fmrTemplate:::"+fmrTemplate);
-//                    int[] matchScore = new int[1];
-//
-//                    //int ret = midFingerAuth.MatchTemplate(fingerData, fmrTemplate, matchScore, TemplateFormat.FMR_V2011);
-//                    int ret = FingerprintTemplateMatching(fingerData, Base64.getDecoder().decode(labour.get(k).getFpData()), matchScore, TemplateFormat.FMR_V2011);
-//                    // int ret = midFingerAuth.MatchTemplate(fingerData, Base64.getDecoder().decode(labour.get(k).fpData), matchScore, TemplateFormat.FMR_V2011);
-//
-//                    if (ret < 0) {
-//                        //System.out.println(midFingerAuth.GetErrorMessage(ret));
-//                        LOGGER.log(Level.INFO, "midFingerAuth.GetErrorMessage" + midFingerAuth.GetErrorMessage(ret));
-//                    } else {
-//                        int minThresold = 96;
-//                        if (matchScore[0] >= minThresold) {
-//                            //System.out.println("Finger matched with score: " + matchScore[0]);
-//                            LOGGER.log(Level.INFO, "Finger matched with score: " + matchScore[0]);
-//                        } else {
-//                            //System.out.println("Finger not matched with score: " + matchScore[0]);
-//                            LOGGER.log(Level.INFO, "Finger not matched with score: " + matchScore[0]);
-//                        }
-//                    }
-//
-//                    //int ret = -1309;
-//                    //System.out.println("return value:: : "+ret);
-//                    LOGGER.log(Level.INFO, "return value:: : " + ret);
-//
-//                    if (matchScore[0] > fpQuality) {   //Match Single Fingerprint
-//                        //System.out.println("Finger print quality check : "+fpQuality);
-//                        LOGGER.log(Level.INFO, "Finger print quality check : " + fpQuality);
-//                        MatchIsoTemplate(matchScore[0]);
-//                        matchfound = 1;
-//                        break;
-//                    }
-//                }
-//
-//
-//            } else {
-//                continue;
-//            }
-//
-//            System.out.println("Finger fp list :" + labourFpLists.get(j).toString());
-//            System.out.println("size :" + labourFpLists.get(j).getFPs().size());
-//
-//            if (matchfound == 1) {
-//                //System.out.println("Match found exiting");
-//                LOGGER.log(Level.INFO, "Match found exiting");
-//                break;
-//            }
-//
-//
-//        }
-//
-//        if (matchfound == 0) {
-//            //System.out.println("Finger Print NOT Matched");
-//            LOGGER.log(Level.INFO, "Finger Print NOT Matched");
-//            Platform.runLater(new Runnable() {
-//                @Override
-//                public void run() {
-//                    lblWorkerError.setText("Finger print not Matched Try Again");
-//                }
-//            });
-//        }
-//
-//    }
-//
-//    public int FingerprintTemplateMatching(byte[] fingerData, byte[] fingerprintData, int[] matchScore, TemplateFormat format) {
-//        int ret = midFingerAuth.MatchTemplate(fingerData, fingerprintData, matchScore, TemplateFormat.FMR_V2011);
-//        return ret;
-//    }
-//
-//    @FXML
-//    //public void MatchIsoTemplate(byte[] ISOTemplate, byte[] decode,int ret) {
-//    public void MatchIsoTemplate(int ret) throws IOException {
-//        //     public void MatchIsoTemplate(byte[] ISOTemplate, byte[] decode) {
-//        String fpqpath = prop.getProp().getProperty("fpquality");
-//        if (fpqpath.isBlank() || fpqpath.isEmpty() || fpqpath == null) {
-//            //System.out.println("The property 'fpquality' is empty, Please add it in properties");
-//            LOGGER.log(Level.INFO, "The property 'fpquality' is empty, Please add it in properties");
-//            return;
-//        }
-//        try (BufferedReader file = new BufferedReader(new FileReader(fpqpath))) {
-//            String input = " ";
-//            String fpq = file.lines().collect(Collectors.joining());
-//            fpQuality = Integer.parseInt(fpq);
-//            System.out.println("FP Quality is : " + fpQuality);
-//            file.close();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            //System.out.println("Problem reading file./usr/share/enrollment/quality/fpquality");
-//            LOGGER.log(Level.INFO, "Problem reading file./usr/share/enrollment/quality/fpquality");
-//        }
-//
-//
-//        LabourDetails row = tableview.getSelectionModel().getSelectedItem();
-//        System.out.println("Selected Row is : " + row.toString());
-//        if (row == null) {
-//            Platform.runLater(new Runnable() {
-//                @Override
-//                public void run() {
-//                    //lblworkererror.setText("Finger Print Matching...");
-//                    lblWorkerError.setText("Kindly Select the Labour");
-//                    LOGGER.log(Level.INFO, "Kindly Select the Labour");
-//                }
-//            });
-//
-//        } else {
-//            //Base64.getDecoder().decode(fpData);
-//            //int ret = mfs100.MatchISO(ISOTemplate,decode);
-//            System.out.println("return value : " + ret);
-//            //Label lblworkererror = new Label();
-//
-//            System.out.println("FPQuality@::" + fpQuality);
-//            //uncomment later
-//            if (ret > fpQuality) {
-//                //if(ret == 0){
-//                //if(ret < 0){
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        //lblworkererror.setText("Finger Print Matching...");
-//                        lblWorkerError.setText("Finger print Matched");
-//                        LOGGER.log(Level.INFO, "Finger print Matched");
-//                    }
-//                });
-//
-//
-//                //Token Dispence
-//                //Uncomment Later
-//
-//                //Commented for Testing without TokenDispense
-//
-//                TokenDispense tokenDispence = new TokenDispense();
-//                String tokenDispenceOutput = tokenDispence.tokenDispense();
-//                if (tokenDispenceOutput.contains("failure")) {
-//                    Platform.runLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            lblWorkerError.setText("Kindly Connect the Token Dispencer And Try Again");
-//                            LOGGER.log(Level.INFO, "Kindly Connect the Token Dispencer And Try Again");
-//                        }
-//                    });
-//                    //mfs100.Uninit();
-//                } else {
-//
-//                    System.out.println("TokenDispenceOutput::::" + tokenDispenceOutput);
-//
-//                    System.out.println("clicked labour Details::::" + row);
-//                    System.out.println("Finger print matched1::::");
-//
-////                LabourDetails row = new LabourDetails();
-////                row.setDateOfBirth(labourLists.get(j).getDateOfBirth());
-////                row.setLabourID(labourLists.get(j).getLabourId());
-////                row.setLabourName(labourLists.get(j).getLabourName());
-//                    //row.setStrStatus("verified");
-//                    //tableview.getSelectionModel().select(row);
-//
-//
-//                    Labour labourDetails = labourMap.get(row.getLabourID());
-//                    ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-//                    holder.setLabourDetails(labourDetails);
-//                    holder.setContractorDynamicDetails(contractorDynamicFile);
-//                    System.out.println("HolDer:::" + holder.getLabourDetails().toString());
-//                    //tableview.getItems().remove(row);
-//                    // row.setStrStatus("verified");
-//                    // tableview.refresh();
-//
-//                    /*
-//                    ASNtoHexFormat getDynamicFileDetail = new ASNtoHexFormat();
-//                    byte[] dynamicEncodedbytes =  getDynamicFileDetail.getEncodedDyanamicFile();
-//                    String encodedbase64Dynamic = Base64.getEncoder().encodeToString(dynamicEncodedbytes);
-//                    System.out.println("Encoded Card Write Base64 Dynamic File :::"+encodedbase64Dynamic);
-//
-//                     byte[] photoEncodedbytes =  getDynamicFileDetail.getEncodedLabourPhoto();
-//                    String encodedbase64LabourPhoto = Base64.getEncoder().encodeToString(photoEncodedbytes);
-//                    System.out.println("Encoded Card Write Base64 Dynamic File :::"+encodedbase64LabourPhoto);
-//
-//                    byte[] defaultAccessValidityEncodedbytes =  getDynamicFileDetail.getEncodedDefaultAccessValidity();
-//                    String encodedbase64DAC = Base64.getEncoder().encodeToString(defaultAccessValidityEncodedbytes);
-//                    System.out.println("Encoded Card Write Base64 Default Access :::"+encodedbase64DAC);
-//
-//                    byte[] defaultSpecialAccessEncodedbytes =  getDynamicFileDetail.getEncodedSpecialAccessPermission();
-//                    String encodedbase64specialaccess = Base64.getEncoder().encodeToString(defaultSpecialAccessEncodedbytes);
-//                    System.out.println("Encoded Card Write Base64 Special Access Permission :::"+encodedbase64specialaccess);*/
-//
-//                    //Write to the Token
-//                    CardWrite cardwrite = new CardWrite();
-//                    String returncardwrite;
-//
-//                    try {
-//                        returncardwrite = cardwrite.cardWriteDeatils();
-//                        //System.out.println("Card Write Details:::"+returncardwrite);
-//                        LOGGER.log(Level.INFO, "Card Write Details:::" + returncardwrite);
-//
-//                        if (returncardwrite.contains("Failure")) {
-//                            Platform.runLater(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    //lblworkererror.setText("Kindly put the token in Token Dispencer And Try Again");
-//                                    //lblworkererror.setText("Card Write Failure, Kindly put the Token back to Dispencer");
-//                                    lblWorkerError.setText(returncardwrite);
-//                                }
-//                            });
-//                            return;
-//
-//                        } else {
-//
-//
-//                            //Token update Details to Mafis API
-//                            UpdateToken token = new UpdateToken();
-//                            DetailsHolder detail = DetailsHolder.getDetails();
-//                            ContractInfo contractDetails = detail.getContractDetail();
-//                            token.setCardCSN(contractDetails.getSerialNo());    // Need to be changed later
-//                            token.setContractorCSN(contractDetails.getSerialNo());
-//                            token.setContractorID(contractDetails.getContractorId());
-//                            token.setContractID(contractDetails.getContactId());
-//                            token.setEnrollmentStationUnitID(apiServerCheck.getUnitID());
-//                            token.setUniqueNo(row.getLabourID());
-//                            token.setEnrollmentStationID(apiServerCheck.getStationID());
-//                            token.setTokenID(contractDetails.getSerialNo());   // Need to be changed later
-//                            //token.setVerifyFPSerialNo(mfs100.GetDeviceInfo().SerialNo()); //commented for MFS100
-//                            token.setVerifyFPSerialNo(deviceInfo.SerialNo);
-//                            //set token issuance date and time
-//                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//                            LocalDateTime now = LocalDateTime.now();
-//                            System.out.println(dtf.format(now));
-//                            token.setTokenIssuanceDate(dtf.format(now));
-//                            try {
-//                                String errorresponse = updateToken(token);
-//                                if (errorresponse.contentEquals("0")) {
-//                                    //To change verified and color of the Row
-//                                    row.setStrStatus("verified");
-//                                    tableview.getItems().remove(row);
-//                                    tableview.setRowFactory(tv -> new TableRow<LabourDetails>() {
-//                                        @Override
-//                                        public void updateItem(LabourDetails item, boolean empty) {
-//                                            super.updateItem(item, empty);
-//                                            if (item == null) {
-//                                                setStyle("");
-//                                            } else if (item.getStrStatus().equals("verified")) {
-//                                                //setStyle("-fx-background-color: green;");
-//                                                setStyle("-fx-background-color: #66ccff;");
-//                                            } else {
-//                                                setStyle("");
-//                                            }
-//                                        }
-//                                    });
-//
-//                                    tableview.refresh();
-//
-//                                    Platform.runLater(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            lblWorkerError.setText("Kindly collect the Token");
-//                                            LOGGER.log(Level.INFO, "Kindly collect the Token");
-//                                        }
-//                                    });
-//
-//                                } else {
-//
-//                                    Platform.runLater(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            lblWorkerError.setText("Token Details Not Updated to Server, Try Again");
-//                                            LOGGER.log(Level.INFO, "Token Details Not Updated to Server, Try Again");
-//                                        }
-//                                    });
-//
-//                                }
-//                                captureSingleFinger.setDisable(false);
-//
-//                                /*ImageView imView = new ImageView();
-//                                System.out.println("IMAGEEEEEE"+imView.getImage().toString());
-//                                m_FingerPrintImage.setImage(imView.getImage());*/
-//
-//
-//                            } catch (IOException ex) {
-//                                Logger.getLogger(LabourController.class.getName()).log(Level.SEVERE, null, ex);
-//                                LOGGER.log(Level.INFO, "IOException" + ex);
-//                            }
-//                            if (tableview.getItems().size() == 0) {
-//                                try {
-//                                    App.setRoot("list_contract");
-//                                } catch (IOException ex) {
-//                                    Logger.getLogger(LabourController.class.getName()).log(Level.SEVERE, null, ex);
-//                                    LOGGER.log(Level.INFO, "IOException" + ex);
-//                                }
-//                            }
-//                        }
-//                    } catch (Exception ex) {
-//                        Logger.getLogger(LabourController.class.getName()).log(Level.SEVERE, null, ex);
-//                        LOGGER.log(Level.INFO, "IOException" + ex);
-//                    }
-//                }//Commented for Testing without TokenDispense
-//            } else {
-//                System.out.println("Finger Print NOT Matched");
-//                LOGGER.log(Level.INFO, "Finger Print NOT Matched");
-//                Platform.runLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        lblWorkerError.setText("Finger print not Matched Try Again");
-//                        LOGGER.log(Level.INFO, "Finger print not Matched Try Again");
-//                    }
-//                });
-//
-//
-//            }
-//        }
-//
-//    }
-//
-//
-//    private String updateToken(UpdateToken token) throws IOException {
-//
-//        ObjectMapper mapper = new ObjectMapper();
-//        String postJson;
-//        String desc = "";
-//        String error = "";
-//        try {
-//            postJson = mapper.writeValueAsString(token);
-//            postJson = postJson.replace("\n", "");
-//            int jsonHash = postJson.hashCode();
-//            // System.out.println("post json final :"+ postJson);
-////                 File json = new File("/home/cloud/postjson");
-////
-////                 FileOutputStream output = new FileOutputStream(json);
-////                 output.write(postJson.getBytes());
-////                 output.close();
-//            String connurl = apiServerCheck.getTokenUpdateURL();
-//            String uniqueNo = token.getUniqueNo();
-//            String enrollStationId = token.getEnrollmentStationID();
-//            String cardcsnNo = token.getCardCSN();
-//            String contractorId = token.getContractorID();
-//            String contractorCSN = token.getContractorCSN();
-//            String tokenIssuanceDate = token.getTokenIssuanceDate();
-//            String contractID = token.getContractID();
-//            String enrollmentStationUnitId = token.getEnrollmentStationUnitID();
-//            String tokenId = token.getTokenID();
-//            String verifyFPSerialNo = token.getVerifyFPSerialNo();
-//            String jsonInputString = "{\"UniqueNo\": \"" + uniqueNo + "\"" + ",\"EnrollmentStationID\": \"" + enrollStationId + "\"" + ",\"CardCSN\": \"" + cardcsnNo + "\"" + ",\"ContractorID\": \"" + contractorId + "\"" + ",\"ContractorCSN\": \"" + contractorCSN + "\"" + ",\"TokenIssuanceDate\": \"" + tokenIssuanceDate + "\"" + ",\"ContractID\": \"" + contractID + "\"" + ",\"EnrollmentStationUnitID\": \"" + enrollmentStationUnitId + "\"" + ",\"TokenID\": \"" + tokenId + "\"" + ",\"VerifyFPSerialNo\": \"" + verifyFPSerialNo + "\"}";
-//            System.out.println("TOKEN JSON INPUT STRING::::" + jsonInputString);
-//
-////        String testJson = "{\n" +
-////"  \"UniqueNo\": \"LAB0001\",\n" +
-////"  \"EnrollmentStationID\": \"EST123456789\",\n" +
-////"  \"CardCSN\": \"1234567890\",\n" +
-////"  \"ContractorID\": \"CONTRACT001\",\n" +
-////"  \"ContractorCSN\": \"1234567890\",\n" +
-////"  \"TokenIssuanceDate\": \"2021-04-26 10:10:31\",\n" +
-////"  \"ContractID\": \"CONTRA0001\",\n" +
-////"  \"EnrollmentStationUnitID\": \"U1\",\n" +
-////"  \"TokenID\": \"1234567890\"\n" +
-////"  \"VerifyFPSerialNo\": \"11223344\"\n" +
-////"}";
-//            // String connectionStatus = apiServerCheck.getStatusTokenUpdate(connurl, testJson);
-//            String jsonTokenUpdateResponse = "";
-//            String sessionkey_token = "";
-//
-////        String connectionStatus = apiServerCheck.getStatusTokenUpdate(connurl, jsonInputString);
-////        System.out.println("connection status :"+connectionStatus);
-//
-////        if(!connectionStatus.contentEquals("connected")) {
-////
-////           // App.setRoot("capturecomplete");
-////
-////             lblworkererror.setText("MAFIS API Connection Error, Try Again");
-////        }
-////        else {
-//            try {
-//                jsonTokenUpdateResponse = apiServerCheck.getTokenUpdate(connurl, jsonInputString);
-//                System.out.println("outputTokenJSON :" + jsonTokenUpdateResponse);
-//
-//
-//                //Getting Session Key from the TokenUpdate API(APIServerCheck)
-////                    System.out.println("SessionKey----"+apiServerCheck.sessionkey);
-////                    sessionkey_token = apiServerCheck.sessionkey;
-////                    System.out.println("SESSION KEY"+sessionkey_token);
-////                    System.out.println("SESSION KEY_public"+sessionKey_public);
-//
-//                //Encrypt the session key
-////                    CryptoAES256 aes256 = new CryptoAES256(sessionkey_token);
-//
-//                //decrypt the JSON output using aes256
-////                    String decJson = aes256.decryptString(jsonTokenUpdateResponse);
-////                    System.out.println("Decrypted JSON"+decJson);
-//
-//                //decrypted JSON to obj
-//                // Object obj = JsonReader.jsonToJava(decJson);
-//                //Object obj = JsonReader.jsonToJava(jsonTokenUpdateResponse);
-//                //System.out.println("obj str : " +obj.toString());
-//
-//                //JSON String to a Java object using the ObjectMapper class
-//
-//                ObjectMapper objectMapper = new ObjectMapper();
-//                //UpdateTokenResponse updateTokenResponse = objectMapper.readValue(decJson, UpdateTokenResponse.class);
-//                UpdateTokenResponse updateTokenResponse = objectMapper.readValue(jsonTokenUpdateResponse, UpdateTokenResponse.class);
-//                desc = updateTokenResponse.getDesc();
-//                error = updateTokenResponse.getErrorCode();
-//                System.out.println("ERORR:::" + error);
-//                System.out.println("DESC:::" + desc);
-//                if (error.contentEquals("0")) {
-//                    Platform.runLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            lblWorkerError.setText("Kindly collect the Token");
-//                            LOGGER.log(Level.INFO, "Kindly collect the Token");
-//                        }
-//                    });
-//                    LOGGER.log(Level.INFO, "Token Details Updated to Server");
-//                    //System.out.println("Token Details Updated to Server");
-//                } else {
-//                    Platform.runLater(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            lblWorkerError.setText("Token Details Not Updated to Server, Try Again");
-//                            LOGGER.log(Level.INFO, "Token Details Not Updated to Server, Try Again");
-//                        }
-//                    });
-//
-//                    //System.out.println("Token Not Updated to Server, Try Again");
-//                    LOGGER.log(Level.INFO, "Token Details Not Updated to Server, Try Again");
-//                }
-//
-//            } catch (Exception e) {
-//                System.out.println(e);
-//                LOGGER.log(Level.INFO, "Exception:" + e);
-//            }
-//
-//        } catch (JsonProcessingException ex) {
-//            //System.out.println("Json exception : "+ ex.getMessage());
-//            LOGGER.log(Level.INFO, "Json Exception" + ex);
-//        }
-//        //System.out.println("Error : "+ error);
-//        LOGGER.log(Level.INFO, "Error" + error);
-//        return error;
-//    }
-//
-//
-//    private Node createPage(int pageIndex) {
-//
-//        int fromIndex = pageIndex * 8;
-//        int toIndex = Math.min(fromIndex + 8, labourList.size());
-//        //System.out.println(" data size :"+ labourList.size() + " " + fromIndex + " " + toIndex);
-//        LOGGER.log(Level.INFO, " data size :" + labourList.size() + " " + fromIndex + " " + toIndex);
-//
-//
-//        tableview.setFixedCellSize(30.0);
-//        tableview.setItems(FXCollections.observableArrayList(labourList.subList(fromIndex, toIndex)));
-//        //contractTableView.refresh();
-//        return tableview;
-//    }
-//
-//    private boolean searchFindsOrder(LabourDetails labourDetails, String searchText) {
-//        return (labourDetails.getLabourID().toLowerCase().contains(searchText.toLowerCase())) ||
-//                (labourDetails.getLabourName().toLowerCase().contains(searchText.toLowerCase())) ||
-//                (labourDetails.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase()));
-//    }
-//
-//    private ObservableList<LabourDetails> filterList(List<LabourDetails> list, String searchText) {
-//        List<LabourDetails> filteredList = new ArrayList<>();
-//        for (LabourDetails labourData : list) {
-//            if (searchFindsOrder(labourData, searchText)) filteredList.add(labourData);
-//        }
-//        return FXCollections.observableList(filteredList);
-//    }
-//
-//
-//    @Override
-//    public void OnDeviceDetection(String arg0, DeviceDetection arg1) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    @Override
-//    public void OnPreview(int errorCode, int quality, final byte[] image) {
-//        if (errorCode != 0) {
-//            //System.out.println("errorCode: " + errorCode);
-//            LOGGER.log(Level.INFO, "errorCode: " + errorCode);
-//            //System.out.println("errorCode: " + midFingerAuth.GetErrorMessage(errorCode));
-//            LOGGER.log(Level.INFO, "errorCode: " + midFingerAuth.GetErrorMessage(errorCode));
-//            return;
-//        }
-//        try {
-//            // jlbPreviewQuality.setText("Quality: " + quality);
-//
-//            new Thread(new Runnable() {
-//
-//                @Override
-//                public void run() {
-//                    try {
-//                        InputStream in = new ByteArrayInputStream(image);
-//                        BufferedImage bufferedImage = ImageIO.read(in);
-//                        WritableImage wr = null;
-//                        if (bufferedImage != null) {
-//                            System.out.println("BUFDREA not null");
-//                            wr = new WritableImage(bufferedImage.getWidth(), bufferedImage.getHeight());
-//                            PixelWriter pw = wr.getPixelWriter();
-//                            for (int x = 0; x < bufferedImage.getWidth(); x++) {
-//                                for (int y = 0; y < bufferedImage.getHeight(); y++) {
-//                                    pw.setArgb(x, y, bufferedImage.getRGB(x, y));
-//                                }
-//                            }
-//                        }
-//
-//                        ImageView imView = new ImageView(wr);
-//                        System.out.println("IMAGEEEEEE" + imView.getImage().toString());
-//                        mFingerPrintImage.setImage(wr);
-//
-//                    } catch (Exception e) {
-//                    }
-//                }
-//            }).start();
-//
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
-//
-//
-//    @Override
-//    public void OnComplete(int errorCode, int Quality, int NFIQ) {
-//        if (errorCode != 0) {
-//            //System.out.println("Capture"+midFingerAuth.GetErrorMessage(errorCode));
-//            LOGGER.log(Level.INFO, "Capture:" + midFingerAuth.GetErrorMessage(errorCode));
-//            return;
-//        }
-//        try {
-//
-//            //System.out.println("Capture Success");
-//            //System.out.println("Quality: " + Quality + ", NFIQ: " + NFIQ);
-//            LOGGER.log(Level.INFO, "Capture Success");
-//            LOGGER.log(Level.INFO, "Quality: " + Quality + ", NFIQ: " + NFIQ);
-//            //getBitmapOnComplete();
-//            //  templateProcess();
-//            // String fingertemplate2011="Rk1SADAzMAAAAADrAAEAAAAA3P///////////wAAAAAAAAAAAMUAxQABIQGZYB9AkQDepmSAXgDdHmSAygD/s2RAlAE30ElA2AEO1WRAuACW/2RA7AEeY0RAlQFmZ0FA2QCJ+GSAXQFrAx5AqgAtikxAdwDToGRAcQEhsGRAdQCynGSA0QDXiGRAlAFERy9AygCiiGRAgAFifjGAngB1k2RAkgFyeBRAVQB1GGRAXgECpl9AfAEoxGSASADnpGSAcQE7vGRANADkH2RA7wDTbWRAXAFZF0WAPgCPmWSAtAFvZBFASABxmlsAAA==";
-//            int[] dataLen = new int[]{2500};
-//            byte[] data = new byte[dataLen[0]];
-//
-//            int ret = midFingerAuth.GetTemplate(data, dataLen, TemplateFormat.FMR_V2011);
-//            lastCaptureTemplat = new byte[dataLen[0]];
-//            System.arraycopy(data, 0, lastCaptureTemplat, 0, dataLen[0]);
-//
-//
-//            fingerprintMatching(lastCaptureTemplat);
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//            LOGGER.log(Level.INFO, "Exception:" + ex);
-//        }
-//    }
-//
-//
-//}
-//
-//
+package com.cdac.enrollmentstation.controller;
+
+import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.api.MafisServerApi;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.LabourResDto;
+import com.cdac.enrollmentstation.dto.UpdateTokenResponse;
+import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.model.*;
+import com.cdac.enrollmentstation.service.CardWrite;
+import com.cdac.enrollmentstation.util.PropertyFile;
+import com.cdac.enrollmentstation.util.TokenDispenserUtil;
+import com.mantra.midfingerauth.DeviceInfo;
+import com.mantra.midfingerauth.MIDFingerAuth;
+import com.mantra.midfingerauth.MIDFingerAuth_Callback;
+import com.mantra.midfingerauth.enums.DeviceDetection;
+import com.mantra.midfingerauth.enums.DeviceModel;
+import com.mantra.midfingerauth.enums.TemplateFormat;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+
+
+public class LabourController implements MIDFingerAuth_Callback {
+    private static final Logger LOGGER = ApplicationLog.getLogger(LabourController.class);
+
+    private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    private int jniErrorCode;
+
+    //***********************Fingerprint***************************//
+    private MIDFingerAuth midFingerAuth; // For MID finger jar
+    private DeviceInfo deviceInfo;
+    private boolean isDeviceInitialized;
+    private static final int MIN_QUALITY = 60;
+    private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
+
+    //***********************Fingerprint***************************//
+
+    private List<LabourDetails> labourListForTable;
+
+    private Map<String, Labour> labourMap;
+    private LabourFP matchedLabourFp;
+
+    @FXML
+    private Label lblContractName;
+
+    @FXML
+    private Label lblContractorName;
+
+    @FXML
+    private Label messageLabel;
+
+    @FXML
+    private javafx.scene.image.ImageView fingerprintImageView;
+
+
+    @FXML
+    private TableView<LabourDetails> tableview;
+
+    @FXML
+    private TableColumn<LabourDetails, String> labourName;
+
+    @FXML
+    private TableColumn<LabourDetails, String> labourID;
+
+    @FXML
+    public TableColumn<LabourDetails, String> dateOfBirth;
+
+    @FXML
+    private TableColumn<LabourDetails, String> strStatus;
+
+    @FXML
+    private TextField searchBox;
+
+    @FXML
+    private Button captureBtn;
+
+    @FXML
+    private Pagination pagination;
+
+
+    public void updateUi(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
+    }
+
+    public void initialize() {
+        midFingerAuth = new MIDFingerAuth(this);
+        if (!initFpReader()) {
+            return;
+        }
+        // initially disable it until a row is selected
+        captureBtn.setDisable(true);
+        fetchLabourList();
+    }
+
+    private boolean initFpReader() {
+        List<String> devices = new ArrayList<>();
+        jniErrorCode = midFingerAuth.GetConnectedDevices(devices);
+        if (jniErrorCode != 0 || devices.isEmpty()) {
+            LOGGER.log(Level.INFO, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
+            messageLabel.setText("Single fingerprint reader not connected.");
+            return false;
+        }
+        if (!midFingerAuth.IsDeviceConnected(DeviceModel.valueFor(devices.get(0)))) {
+            LOGGER.log(Level.INFO, "Fingerprint reader not connected");
+            messageLabel.setText("Device not connected. Please connect and try again.");
+            return false;
+        }
+
+        deviceInfo = new DeviceInfo();
+        jniErrorCode = midFingerAuth.Init(DeviceModel.valueFor(devices.get(0)), deviceInfo);
+        if (jniErrorCode != 0) {
+            LOGGER.log(Level.INFO, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
+            messageLabel.setText("Single fingerprint reader not initialized.");
+            return false;
+        }
+        isDeviceInitialized = true;
+        return true;
+    }
+
+    public void fetchLabourList() {
+        DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+        lblContractorName.setText(detailsHolder.getContractorInfo().getContractorName());
+        lblContractName.setText(detailsHolder.getContractorInfo().getContractId());
+
+        ContractorInfo contractDetails = detailsHolder.getContractorInfo();
+        LabourResDto labourResDto;
+        try {
+            labourResDto = MafisServerApi.fetchLabourList(contractDetails.getContractorId(), contractDetails.getContractId());
+        } catch (GenericException ex) {
+            messageLabel.setText(ex.getMessage());
+            return;
+        }
+
+        if (labourResDto == null) {
+            messageLabel.setText("Connection timeout. Please try again.");
+            return;
+        }
+
+        if (!"0".equals(labourResDto.getErrorCode())) {
+            messageLabel.setText(labourResDto.getDesc());
+            return;
+        }
+        if (labourResDto.getLabours().isEmpty()) {
+            messageLabel.setText("No labour found for contractor id: " + contractDetails.getContractorId() + " with contract id: " + contractDetails.getContractId());
+            return;
+        }
+
+        labourListForTable = new ArrayList<>();
+        labourMap = new HashMap<>();
+
+        for (Labour labour : labourResDto.getLabours()) {
+            if (labour.getDynamicFileList() == null || labour.getDynamicFileList().isEmpty()) {
+                // for debugging purposes
+                LOGGER.log(Level.INFO, "Labour dynamicFileList is null or empty.");
+            } else {
+                for (DynamicFileList dynamicFileList : labour.getDynamicFileList()) {
+                    LabourDetails labourDetails = new LabourDetails();
+                    labourDetails.setDateOfBirth(dynamicFileList.getLabourDateOfBirth());
+                    labourDetails.setLabourID(dynamicFileList.getLabourId());
+                    labourDetails.setLabourName(dynamicFileList.getLabourName());
+                    labourDetails.setStrStatus("Not verified"); //not sure why?
+                    labourListForTable.add(labourDetails);
+                    labourMap.put(dynamicFileList.getLabourId(), labour);
+                }
+            }
+
+        }
+        DetailsHolder.getdetailsHolder().setLabours(labourResDto.getLabours());
+        updateLabourDetailsInTable(labourListForTable);
+    }
+
+    public void updateLabourDetailsInTable(List<LabourDetails> labourList) {
+        int extraPage;
+        if (labourList.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+            extraPage = 0;
+        } else {
+            extraPage = 1;
+        }
+        int pageCount = labourList.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
+
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        pagination.setPageFactory(pageIndex -> {
+            if (pageIndex > pageCount) {
+                return null;
+            }
+            return createPage(pageIndex);
+        });
+
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableview.setItems(filterList(labourList, newValue)));
+
+        ObservableList<LabourDetails> observablelist = FXCollections.observableArrayList(labourList);
+
+        labourName.setCellValueFactory(new PropertyValueFactory<>("labourName"));
+        labourID.setCellValueFactory(new PropertyValueFactory<>("labourID"));
+        dateOfBirth.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
+        strStatus.setCellValueFactory(new PropertyValueFactory<>("strStatus"));
+
+        tableview.setStyle(".table-row-cell {-fx-font-size: 12pt ;}");
+        tableview.setFixedCellSize(35.0);
+        tableview.setItems(observablelist);
+        tableview.refresh();
+
+        tableview.setRowFactory(tv -> {
+            TableRow<LabourDetails> row = new TableRow<>() {
+                @Override
+                public void updateItem(LabourDetails item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item.getStrStatus().equalsIgnoreCase("verified")) {
+                        setStyle("-fx-background-color: green;");
+                    } else {
+                        setStyle("");
+                    }
+                }
+            };
+            row.setOnMouseClicked(event -> {
+                // check for non-empty rows, double-click with the primary button of the mouse
+                if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                    captureBtn.setDisable(false);
+                }
+            });
+            return row;
+        });
+    }
+
+    @FXML
+    private void showHome() throws IOException {
+        App.setRoot("contract");
+    }
+
+    @FXML
+    private void captureBtnAction() {
+        messageLabel.setText("");
+        captureBtn.setDisable(true);
+        if (!isDeviceInitialized && (!initFpReader())) {
+            //message updated by initFpReader()
+            captureBtn.setDisable(false);
+            return;
+        }
+        if (tableview.getSelectionModel().getSelectedItem() == null) {
+            messageLabel.setText("Kindly select a labour");
+        } else {
+            jniErrorCode = midFingerAuth.StartCapture(MIN_QUALITY, (int) TimeUnit.SECONDS.toMillis(FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC));
+            if (jniErrorCode != 0) {
+                LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
+                messageLabel.setText(midFingerAuth.GetErrorMessage(jniErrorCode));
+            }
+        }
+
+    }
+
+    // runs in worker thread spawned by OnComplete() callback
+    private void matchFingerprintTemplate(byte[] fingerData) {
+        LabourDetails labourDetailsRow = tableview.getSelectionModel().getSelectedItem();
+        if (labourDetailsRow == null) {
+            updateUi("Kindly select a labour.");
+            return;
+        }
+
+        Labour labour = labourMap.get(labourDetailsRow.getLabourID());
+        if (labour == null) {
+            updateUi("No labour details found for selected labour id: " + labourDetailsRow.getLabourID());
+            return;
+        }
+
+        if (labour.getFps().isEmpty()) {
+            updateUi("No fingerprint data for selected labour id: " + labourDetailsRow.getLabourID());
+            return;
+        }
+        int[] matchScore = new int[1];
+        boolean matchFound = false;
+        int fpMinThreshold;
+        try {
+            fpMinThreshold = Integer.parseInt(PropertyFile.getProperty(PropertyName.LOGIN_FP_MIN_THRESHOLD).trim());
+        } catch (NumberFormatException | GenericException ex) {
+            LOGGER.log(Level.SEVERE, () -> "Not a number or no entry for '" + PropertyName.LOGIN_FP_MIN_THRESHOLD + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException(GENERIC_ERR_MSG);
+        }
+
+        for (int i = 0; i < labour.getFps().size(); i++) {
+            jniErrorCode = midFingerAuth.MatchTemplate(fingerData, Base64.getDecoder().decode(labour.getFps().get(i).getFpData()), matchScore, TemplateFormat.FMR_V2011);
+            if (jniErrorCode != 0) {
+                LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
+                updateUi(midFingerAuth.GetErrorMessage(jniErrorCode));
+                return;
+            }
+            if (matchScore[0] >= fpMinThreshold) {
+                matchFound = true;
+                matchedLabourFp = labour.getFps().get(i);
+                break;
+            }
+        }
+
+        if (!matchFound) {
+            updateUi("Fingerprint not matched for labour id: " + labourDetailsRow.getLabourID());
+            return;
+        }
+        updateUi("Fingerprint matched for labour id: " + labourDetailsRow.getLabourID());
+        //now match found.
+        dispenseToken(labourDetailsRow, labour);
+    }
+
+    private void dispenseToken(LabourDetails labourDetailsRow, Labour labour) {
+        //dispenses token on card writer
+        if (!TokenDispenserUtil.dispenseToken()) {
+            updateUi("Kindly connect the Token Dispenser And Try Again");
+            return;
+        }
+
+        ContractorDetailsFile contractorDetailsFile = new ContractorDetailsFile();
+        // already checked for nullity and emptiness
+        // need to confirm why it comes in list.
+        DynamicFileList dynamicFileListAtIndex0 = labour.getDynamicFileList().get(0);
+        contractorDetailsFile.setDynamicContractorId(dynamicFileListAtIndex0.getContractorId());
+        contractorDetailsFile.setDynamicIssuanceUnit(dynamicFileListAtIndex0.getIssuanceUnit());
+        contractorDetailsFile.setDynamicUserCategoryId(dynamicFileListAtIndex0.getUserCategoryId());
+
+        if (labour.getAccessFileList() == null || labour.getAccessFileList().isEmpty()) {
+            LOGGER.log(Level.INFO, "Access file list is null or empty");
+        } else {
+            AccessFileList accessFileListAtIndex0 = labour.getAccessFileList().get(0);
+            contractorDetailsFile.setAccessUnitCode(accessFileListAtIndex0.getUnitCode());
+            contractorDetailsFile.setAccessZoneId(accessFileListAtIndex0.getZoneId());
+            contractorDetailsFile.setAccessWorkingHourCode(accessFileListAtIndex0.getWorkingHourCode());
+            contractorDetailsFile.setAccessFromDate(accessFileListAtIndex0.getFromDate());
+            contractorDetailsFile.setAccessToDate(accessFileListAtIndex0.getToDate());
+        }
+
+        contractorDetailsFile.setSignatureFile1(labour.getSignFile1());
+        contractorDetailsFile.setSignatureFile3(labour.getSignFile3());
+        contractorDetailsFile.setLabourPhoto(labour.getPhoto());
+        contractorDetailsFile.setLabourFpPos(matchedLabourFp.getFpPos());
+        contractorDetailsFile.setLabourFpData(matchedLabourFp.getFpData());
+
+        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
+        holder.setLabourDetails(labour);
+        holder.setContractorDynamicDetails(contractorDetailsFile);
+
+        CardWrite cardwrite = new CardWrite();
+        String returnedCardWriteMessage = cardwrite.cardWriteDeatils();
+        if (returnedCardWriteMessage.toLowerCase().contains("failure")) {
+            updateUi(returnedCardWriteMessage);
+            return;
+        }
+        //Token update Details to Mafis API
+        UpdateToken updateToken = new UpdateToken();
+        DetailsHolder detail = DetailsHolder.getdetailsHolder();
+        ContractorInfo contractorInfo = detail.getContractorInfo();
+        updateToken.setCardCSN(contractorInfo.getSerialNo());    // Need to be changed later
+        updateToken.setContractorCSN(contractorInfo.getSerialNo());
+        updateToken.setContractorID(contractorInfo.getContractorId());
+        updateToken.setContractID(contractorInfo.getContractId());
+        updateToken.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
+        updateToken.setUniqueNo(labourDetailsRow.getLabourID());
+        updateToken.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
+        updateToken.setTokenID(contractorInfo.getSerialNo());   // Need to be changed later
+        updateToken.setVerifyFPSerialNo(deviceInfo.SerialNo);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        updateToken.setTokenIssuanceDate(dtf.format(LocalDateTime.now()));
+
+        UpdateTokenResponse updateTokenResponse;
+        try {
+            updateTokenResponse = MafisServerApi.updateTokenStatus(updateToken);
+        } catch (GenericException ex) {
+            updateUi(ex.getMessage());
+            return;
+        }
+        // connection timeout
+        if (updateTokenResponse == null) {
+            LOGGER.log(Level.INFO, "Connection timeout. Failed to update token status to server.");
+            updateUi("Connection timeout. Failed to update token status to server. Please try again.");
+            return;
+        }
+
+        if (!"0".equals(updateTokenResponse.getErrorCode())) {
+            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + updateTokenResponse.getDesc());
+            updateUi(updateTokenResponse.getDesc());
+            return;
+        }
+        updateUi("Kindly collect the token");
+        LOGGER.log(Level.INFO, "Token dispensed successfully.");
+        labourDetailsRow.setStrStatus("verified");
+        tableview.getItems().remove(labourDetailsRow);
+        tableview.refresh();
+        if (tableview.getItems().isEmpty()) {
+            try {
+                App.setRoot("contract");
+            } catch (IOException ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                throw new GenericException(GENERIC_ERR_MSG);
+            }
+        }
+
+    }
+
+    private Node createPage(int pageIndex) {
+        int fromIndex = pageIndex * 8;
+        int toIndex = Math.min(fromIndex + 8, labourListForTable.size());
+        tableview.setFixedCellSize(30.0);
+        tableview.setItems(FXCollections.observableArrayList(labourListForTable.subList(fromIndex, toIndex)));
+        return tableview;
+    }
+
+    private ObservableList<LabourDetails> filterList(List<LabourDetails> labourDetailsList, String searchText) {
+        List<LabourDetails> filteredList = new ArrayList<>();
+        for (LabourDetails labourData : labourDetailsList) {
+            if (labourData.getLabourID().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
+                filteredList.add(labourData);
+            }
+        }
+        return FXCollections.observableList(filteredList);
+    }
+
+
+    @Override
+    public void OnDeviceDetection(String s, DeviceDetection deviceDetection) {
+        if (DeviceDetection.DISCONNECTED == deviceDetection) {
+            LOGGER.log(Level.INFO, "Fingerprint scanner disconnected.");
+            updateUi("Fingerprint scanner disconnected.");
+            midFingerAuth.Uninit();
+            isDeviceInitialized = false;
+        }
+    }
+
+    @Override
+    public void OnPreview(int errorCode, int quality, final byte[] imageData) {
+        if (errorCode != 0 || imageData == null) {
+            LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
+            captureBtn.setDisable(false);
+            return;
+        }
+        InputStream inputStream = new ByteArrayInputStream(imageData);
+        Image image = new Image(inputStream, fingerprintImageView.getFitWidth(), fingerprintImageView.getFitHeight(), true, false);
+        fingerprintImageView.setImage(image);
+    }
+
+
+    @Override
+    public void OnComplete(int errorCode, int Quality, int NFIQ) {
+        if (errorCode != 0) {
+            LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
+            updateUi("Fingerprint quality too poor. Please try again.");
+            captureBtn.setDisable(false);
+            return;
+        }
+
+        int dataLen = 2500;  // as is. but can also be used from OnPreview callback
+        byte[] template = new byte[dataLen];
+        int[] templateLen = {dataLen};
+        jniErrorCode = midFingerAuth.GetTemplate(template, templateLen, TemplateFormat.FMR_V2011);
+        if (jniErrorCode != 0) {
+            LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
+            updateUi(midFingerAuth.GetErrorMessage(errorCode));
+            captureBtn.setDisable(false);
+            return;
+        }
+        // tries matching fingerprint
+        matchFingerprintTemplate(template);
+    }
+}
+
+

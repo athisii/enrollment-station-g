@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -16,13 +15,13 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Labour {
     @JsonProperty("DynamicFile")
-    List<DynamicFileList> dynamicFileList = new ArrayList<>();
+    List<DynamicFileList> dynamicFileList;
 
     @JsonProperty("DefaultValidityFile")
-    List<DefaultValidityFileList> defaultValidityFileList = new ArrayList<>();
+    List<DefaultValidityFileList> defaultValidityFileList;
 
     @JsonProperty("AccessFile")
-    List<AccessFileList> accessFileList = new ArrayList<>();
+    List<AccessFileList> accessFileList;
 
     @JsonProperty("SignFile1")
     String signFile1;
@@ -31,13 +30,13 @@ public class Labour {
     String signFile3;
 
     @JsonProperty("FPs")
-    List<LabourFP> fPs = new ArrayList<>();
+    List<LabourFP> fps;
 
     @JsonProperty("IRIS1")
-    String iRIS1;
+    String iris1;
 
     @JsonProperty("IRIS2")
-    String iRIS2;
+    String iris2;
 
     @JsonProperty("Photo")
     String photo;

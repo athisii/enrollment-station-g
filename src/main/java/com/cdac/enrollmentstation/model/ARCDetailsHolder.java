@@ -29,7 +29,7 @@ public class ARCDetailsHolder {
 
     Labour labourDetails;
 
-    ContractorDynamicFile contractorDynamicDetails;
+    ContractorDetailsFile contractorDynamicDetails;
 
     private static final ARCDetailsHolder ARCHolder = new ARCDetailsHolder();
 

@@ -109,8 +109,8 @@ public class BiometricCaptureCompleteController {
             // only adds photo
             try {
                 addPhoto(saveEnrollmentDetails);
-            } catch (GenericException ignored) {
-                onErrorUpdateUiControls();
+            } catch (GenericException ex) {
+                onErrorUpdateUiControls(ex.getMessage());
                 return;
             }
             // set NA for slap_scanner, iris etc.
@@ -126,8 +126,8 @@ public class BiometricCaptureCompleteController {
             // so now add only photo
             try {
                 addPhoto(saveEnrollmentDetails);
-            } catch (GenericException ignored) {
-                onErrorUpdateUiControls();
+            } catch (GenericException ex) {
+                onErrorUpdateUiControls(ex.getMessage());
                 return;
             }
         }
@@ -145,8 +145,8 @@ public class BiometricCaptureCompleteController {
         // saves saveEnrollmentDetails for backups
         try {
             SaveEnrollmentDetailsUtil.writeToFile(saveEnrollmentDetails);
-        } catch (GenericException ignored) {
-            onErrorUpdateUiControls();
+        } catch (GenericException ex) {
+            onErrorUpdateUiControls(ex.getMessage());
             return;
         }
 
@@ -156,7 +156,7 @@ public class BiometricCaptureCompleteController {
             jsonData = Singleton.getObjectMapper().writeValueAsString(saveEnrollmentDetails);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
-            onErrorUpdateUiControls();
+            onErrorUpdateUiControls(ApplicationConstant.GENERIC_ERR_MSG);
             return;
         }
 
@@ -164,8 +164,8 @@ public class BiometricCaptureCompleteController {
         // try submitting to the server.
         try {
             saveEnrollmentResDto = MafisServerApi.postEnrollment(jsonData);
-        } catch (GenericException ignored) {
-            onErrorUpdateUiControls();
+        } catch (GenericException ex) {
+            onErrorUpdateUiControls(ex.getMessage());
             return;
         }
 
@@ -194,8 +194,7 @@ public class BiometricCaptureCompleteController {
         try {
             SaveEnrollmentDetailsUtil.delete();
         } catch (GenericException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            onErrorUpdateUiControls();
+            onErrorUpdateUiControls(ex.getMessage());
         }
     }
 
@@ -254,10 +253,10 @@ public class BiometricCaptureCompleteController {
         saveEnrollmentDetails.setEnrollmentStatus("PhotoCompleted");
     }
 
-    private void onErrorUpdateUiControls() {
+    private void onErrorUpdateUiControls(String message) {
         Platform.runLater(() -> {
             progressIndicator.setVisible(false);
-            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+            messageLabel.setText(message);
             homeBtn.setDisable(false);
             fetchArcBtn.setDisable(false);
         });

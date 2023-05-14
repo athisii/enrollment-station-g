@@ -13,14 +13,13 @@ import java.util.List;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DetailsHolder {
-    List<ContractDetail> contractDetailList;
-    ContractInfo contractDetail;
-    //TODO should contain only List<Labour>
-    LabourListDetails labourListDetail;
-    private static final DetailsHolder detail = new DetailsHolder();
+    List<ContractDetail> contractDetailList; //not really required so far
+    ContractorInfo contractorInfo; // sets by ContractorTokenIssuanceController and ContractController
+    List<Labour> labours; // to used in single contract
+    private static final DetailsHolder detailsHolder = new DetailsHolder();
 
-    public static DetailsHolder getDetails() {
-        return detail;
+    public static DetailsHolder getdetailsHolder() {
+        return detailsHolder;
     }
 
 }

@@ -32,6 +32,6 @@ public class ContractResDto {
     String desc;
 
     @JsonProperty("ContractIDList")
-    Set<ContractDetail> contractDetails = new HashSet<>();
+    Set<ContractDetail> contractDetails;
 
 }

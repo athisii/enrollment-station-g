@@ -8,7 +8,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +28,6 @@ public class LabourResDto {
     String desc;
 
     @JsonProperty("LabourList")
-    List<Labour> labours = new ArrayList<>();
+    List<Labour> labours;
 
 }

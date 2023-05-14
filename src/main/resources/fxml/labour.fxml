@@ -4,95 +4,75 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.1"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cdac.enrollmentstation.controller.LabourController">
+
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.LabourController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <bottom>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
 
-                <AnchorPane layoutX="772.0" layoutY="470.0" prefHeight="217.0" prefWidth="191.0"
-                            style="-fx-background-color: #fff; -fx-border-color: #04127b;">
+                <AnchorPane layoutX="772.0" layoutY="470.0" prefHeight="217.0" prefWidth="191.0" style="-fx-background-color: #fff; -fx-border-color: #04127b;">
 
-                    <ImageView fx:id="mFingerPrintImage" fitHeight="125.0" fitWidth="100.0" layoutX="46.0"
-                               layoutY="29.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="fingerprintImageView" fitHeight="125.0" fitWidth="100.0" layoutX="46.0" layoutY="29.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/singlefinger.jpeg"/>
+                        <Image url="@../img/singlefinger.jpeg" />
 
                     </ImageView>
-                    <Button fx:id="captureSingleFinger" layoutX="21.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0"
-                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#btnInitActionPerformed"
-                            prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE"
-                            textFill="WHITE">
+                    <Button fx:id="captureBtn" layoutX="21.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureBtnAction" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE" textFill="WHITE">
                         <font>
-                            <Font name="System Bold" size="14.0"/>
+                            <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
 
                 </AnchorPane>
 
-                <Text fill="#04127b" layoutX="49.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="LIST OF WORKERS" wrappingWidth="237.38671875">
+                <Text fill="#04127b" layoutX="49.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0" text="LIST OF WORKERS" wrappingWidth="237.38671875">
                     <font>
-                        <Font size="22.0"/>
+                        <Font size="22.0" />
                     </font>
                 </Text>
-                <Button layoutX="288.0" layoutY="634.0" maxHeight="35.0" maxWidth="236.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0"
-                        prefWidth="236.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="SELECT NEXT CONTRACT" textFill="WHITE">
+                <Button layoutX="288.0" layoutY="634.0" maxHeight="35.0" maxWidth="236.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="236.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SELECT NEXT CONTRACT" textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="14.0"/>
+                        <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <AnchorPane layoutY="711.0" prefHeight="30.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
+                <AnchorPane layoutY="739.0" prefHeight="30.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true"
-                               preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="17.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navylogo.png"/>
+                        <Image url="@../img/navylogo.png" />
 
                     </ImageView>
-                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"
-                           style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;"
-                           text="INS INDIA" textAlignment="CENTER" visible="false"/>
+                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0" style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;" text="INS INDIA" textAlignment="CENTER" visible="false" />
 
                 </AnchorPane>
-                <TextField fx:id="searchBox" layoutX="565.0" layoutY="238.0" promptText="Enter Search term"
-                           style="-fx-border-color: #04127b;"/>
-                <ImageView fitHeight="29.0" fitWidth="38.0" layoutX="531.0" layoutY="237.0" pickOnBounds="true"
-                           preserveRatio="true">
+                <TextField fx:id="searchBox" layoutX="565.0" layoutY="238.0" promptText="Enter Search term" style="-fx-border-color: #04127b;" />
+                <ImageView fitHeight="29.0" fitWidth="38.0" layoutX="531.0" layoutY="237.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/Search-icon.png"/>
+                    <Image url="@../img/Search-icon.png" />
 
                 </ImageView>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
 
-                    <Label layoutX="47.0" layoutY="17.0" prefHeight="20.0" prefWidth="187.0" text="CONTRACTOR NAME :"
-                           textAlignment="RIGHT" textFill="WHITE">
+                    <Label layoutX="47.0" layoutY="17.0" prefHeight="20.0" prefWidth="187.0" text="CONTRACTOR NAME :" textAlignment="RIGHT" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
-                    <Label layoutX="482.0" layoutY="17.0" prefHeight="20.0" prefWidth="170.0" text="CONTRACT NAME  :"
-                           textAlignment="RIGHT" textFill="WHITE">
+                    <Label layoutX="524.0" layoutY="17.0" prefHeight="20.0" prefWidth="130.0" text="CONTRACT ID :" textAlignment="RIGHT" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
                     <Label fx:id="lblContractorName" layoutX="240.0" layoutY="17.0" text="Manish" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
-                    <Label fx:id="lblContractName" layoutX="660.0" layoutY="17.0" text="CONTRACT002" textFill="WHITE">
+                    <Label fx:id="lblContractName" layoutX="666.0" layoutY="17.0" text="CONTRACT002" textFill="WHITE">
                         <font>
-                            <Font size="16.0"/>
+                            <Font size="16.0" />
                         </font>
                     </Label>
 
@@ -101,42 +81,30 @@
                     <fx:define>
                         <VBox fx:id="labourVBox">
 
-                            <javafx.scene.control.TableView fx:id="tableview" layoutX="32.0" layoutY="271.0"
-                                                            prefHeight="350.0" prefWidth="740.0"
-                                                            stylesheets="@style.css">
+                            <javafx.scene.control.TableView fx:id="tableview" layoutX="32.0" layoutY="271.0" prefHeight="350.0" prefWidth="740.0" stylesheets="@style.css">
                                 <columns>
-                                    <javafx.scene.control.TableColumn fx:id="labourName" prefWidth="267.0"
-                                                                      text="LABOUR NAME"/>
-                                    <javafx.scene.control.TableColumn fx:id="labourID" prefWidth="177.0"
-                                                                      text="LABOUR ID"/>
-                                    <javafx.scene.control.TableColumn fx:id="dateOfBirth" prefWidth="267.0"
-                                                                      text="DATE OF BIRTH"/>
-                                    <javafx.scene.control.TableColumn fx:id="strStatus" prefWidth="267.0"
-                                                                      text="STATUS"/>
+                                    <javafx.scene.control.TableColumn fx:id="labourName" prefWidth="267.0" text="LABOUR NAME" />
+                                    <javafx.scene.control.TableColumn fx:id="labourID" prefWidth="177.0" text="LABOUR ID" />
+                                    <javafx.scene.control.TableColumn fx:id="dateOfBirth" prefWidth="267.0" text="DATE OF BIRTH" />
+                                    <javafx.scene.control.TableColumn fx:id="strStatus" prefWidth="267.0" text="STATUS" />
                                 </columns>
                             </javafx.scene.control.TableView>
-
                         </VBox>
-
                     </fx:define>
-
                 </Pagination>
-                <ImageView fitHeight="128.0" fitWidth="239.0" layoutX="772.0" layoutY="298.0" pickOnBounds="true"
-                           preserveRatio="true">
+                <ImageView fitHeight="128.0" fitWidth="239.0" layoutX="772.0" layoutY="298.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/table.png"/>
+                    <Image url="@../img/table.png" />
 
                 </ImageView>
-                <Label layoutX="781.0" layoutY="404.0" prefHeight="41.0" prefWidth="228.0"
-                       text="Click on a row to select labour and press capture button" wrapText="true">
+                <Label layoutX="781.0" layoutY="404.0" prefHeight="41.0" prefWidth="228.0" text="Click on a row to select labour and press capture button" wrapText="true">
                     <font>
-                        <Font size="14.0"/>
+                        <Font size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblWorkerError" alignment="CENTER" layoutX="91.0" layoutY="681.0" prefHeight="25.0"
-                       prefWidth="619.0">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="91.0" layoutY="681.0" prefHeight="25.0" prefWidth="619.0">
                     <font>
-                        <Font name="System Bold" size="17.0"/>
+                        <Font name="System Bold" size="17.0" />
                     </font>
                 </Label>
 

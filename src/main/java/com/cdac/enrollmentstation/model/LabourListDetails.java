@@ -17,7 +17,6 @@ import java.util.List;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties(ignoreUnknown = true)
-//@JsonRootName(value = "Labours")
 public class LabourListDetails {
     @JsonProperty("ErrorCode")
     String errorCode;
@@ -25,6 +24,6 @@ public class LabourListDetails {
     @JsonProperty("Desc")
     String desc;
     @JsonProperty("LabourList")
-    List<Labour> labourList = new ArrayList<>();
+    List<Labour> labourList;
 
 }

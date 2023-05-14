@@ -153,8 +153,8 @@ public class CardWrite {
                     }*/
                     // To get the Read Card/ Navy Card Handle
                     //To be uncommented for handle from card read
-                    DetailsHolder detailsHolder = DetailsHolder.getDetails();
-                    int cardReadhandleValue = detailsHolder.getContractDetail().getCardReaderHandle();
+                    DetailsHolder detailsHolder = DetailsHolder.getdetailsHolder();
+                    int cardReadhandleValue = detailsHolder.getContractorInfo().getCardReaderHandle();
 
                     for (int i = 0; i <= 1; i++) {
                         if (i == 1) {

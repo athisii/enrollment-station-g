@@ -9,7 +9,7 @@ import com.cdac.enrollmentstation.dto.UpdateTokenResponse;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.*;
-import com.cdac.enrollmentstation.service.CardWrite;
+import com.cdac.enrollmentstation.util.CardWrite;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.TokenDispenserUtil;
 import com.mantra.midfingerauth.DeviceInfo;

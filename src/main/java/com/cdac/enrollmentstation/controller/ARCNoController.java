@@ -17,9 +17,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +34,14 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
 public class ARCNoController {
     private static final Logger LOGGER = ApplicationLog.getLogger(ARCNoController.class);
     private static final int INACTIVE_TIME_IN_SEC = 10;
+
+
+    // *****************************BARCODE SCANNER *************************
+    private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23
+    private static final int KEY_PRESSED_EVENT_GAP_THRESHOLD = 30;
+    private long lastEventTimeStamp = 0L;
+    private static final StringBuilder barcodeStringBuilder = new StringBuilder();
+    // *
     private String tempArc;
 
     private Timeline refocusArcInputTimeline;
@@ -80,12 +90,12 @@ public class ARCNoController {
         });
 
         refocusArcInputTimeline = new Timeline(new KeyFrame(Duration.seconds(INACTIVE_TIME_IN_SEC), event -> {
-            if (!arcNumberTextField.isFocused()) {
-                arcNumberTextField.requestFocus();
-            }
+            showArcBtn.requestFocus();
         }));
         refocusArcInputTimeline.setCycleCount(1);
         refocusArcInputTimeline.playFromStart();
+        arcNumberTextField.setOnKeyReleased(event -> refocusArcInputTimeline.playFromStart());
+        arcNumberTextField.setOnKeyPressed(event -> refocusArcInputTimeline.stop());
     }
 
     private void continueBtnAction() {
@@ -250,9 +260,11 @@ public class ARCNoController {
             saveEnrollmentDetails.setBiometricOptions(arcDetails.getBiometricOptions());
             holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
             continueBtn.setDisable(false);
+            backBtn.setDisable(false);
+            showArcBtn.setDisable(false);
             refocusArcInputTimeline.playFromStart();
         }).start();
-        
+
         messageLabel.setText("Please wait. Fetching details for e-ARC: " + tempArc);
     }
 
@@ -302,5 +314,23 @@ public class ARCNoController {
         for (Node node : nodes) {
             node.setDisable(false);
         }
+    }
+
+    @FXML
+    public void keyTyped(KeyEvent keyEvent) {
+        long now = Instant.now().toEpochMilli();
+        // events must come fast enough to separate from manual input
+        if (now - lastEventTimeStamp > KEY_PRESSED_EVENT_GAP_THRESHOLD) {
+            barcodeStringBuilder.setLength(0);
+        }
+        barcodeStringBuilder.append(keyEvent.getCharacter());
+        if (keyEvent.getCode().equals(KeyCode.ENTER) || barcodeStringBuilder.length() >= MIN_ARC_LENGTH) {
+            LOGGER.log(Level.INFO, () -> "Barcode e-ARC: " + barcodeStringBuilder);
+            arcNumberTextField.setText(barcodeStringBuilder.toString());
+            showArcBtn.requestFocus();
+            showArcDetails();
+            barcodeStringBuilder.setLength(0);
+        }
+        lastEventTimeStamp = now;
     }
 }

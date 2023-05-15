@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" onKeyTyped="#keyTyped" xmlns="http://javafx.com/javafx/11.0.14-internal"
+<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ARCNoController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
@@ -35,7 +35,7 @@
                     <TextField fx:id="arcNumberTextField" layoutX="190.0" layoutY="23.0" prefHeight="26.0"
                                prefWidth="267.0"/>
                     <Button fx:id="showArcBtn" layoutX="459.0" layoutY="14.0" mnemonicParsing="false" prefHeight="46.0"
-                            prefWidth="50.0" >
+                            prefWidth="50.0">
                         <graphic>
                             <ImageView fitHeight="43.0" fitWidth="50.0">
                                 <Image url="@../img/muted_manual_down.png"/>

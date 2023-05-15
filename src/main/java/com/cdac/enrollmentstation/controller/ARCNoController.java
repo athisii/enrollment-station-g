@@ -88,8 +88,7 @@ public class ARCNoController {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(INACTIVE_TIME_IN_SEC), event -> {
             arcNumberTextField.setFocusTraversable(false);
             showArcBtn.requestFocus();
-        })
-        );
+        }));
         timeline.setCycleCount(1); // Run only once
         arcNumberTextField.setOnKeyReleased(event -> timeline.playFromStart());
         arcNumberTextField.setOnKeyTyped(event -> timeline.stop());
@@ -218,7 +217,11 @@ public class ARCNoController {
             LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetails.getDesc());
             enableControls(backBtn, showArcBtn);
             updateUiTextFields(null);
-            messageLabel.setText(arcDetails.getDesc());
+            if (arcDetails.getDesc().toLowerCase().contains("not found")) {
+                messageLabel.setText("Details not found for e-ARC: " + arcNumberTextField.getText());
+            } else {
+                messageLabel.setText(arcDetails.getDesc());
+            }
             return;
         }
 

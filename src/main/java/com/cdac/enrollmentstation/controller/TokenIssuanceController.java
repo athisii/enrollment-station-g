@@ -40,6 +40,8 @@ public class TokenIssuanceController {
     private static final int CARD_READER_MAX_BUFFER_SIZE = 1024; // Max bytes card can handle
 
     private int jniErrorCode;
+    private static final String ERROR_MESSAGE = "Place a valid card type and try again.";
+
     private EnumMap<DataType, byte[]> asn1EncodedHexByteArrayMap; // GLOBAL data store.
 
     private enum DataType {
@@ -159,7 +161,7 @@ public class TokenIssuanceController {
         jniErrorCode = crWaitForConnectResDto.getRetVal();
         if (jniErrorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> "WaitForConnectError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException(GENERIC_ERR_MSG);
+            throw new GenericException(ERROR_MESSAGE);
         }
 
         // get csn
@@ -187,7 +189,7 @@ public class TokenIssuanceController {
         jniErrorCode = crSelectAppResDto.getRetVal();
         if (jniErrorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> "SelectAppError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException("Place a valid card type and try again.");
+            throw new GenericException(ERROR_MESSAGE);
         }
         EnumMap<DataType, byte[]> ans1EncodedHexByteArrayMap = new EnumMap<>(DataType.class);
         ans1EncodedHexByteArrayMap.put(DataType.STATIC, readDataFromCard(crWaitForConnectResDto.getHandle(), DataType.STATIC));
@@ -211,7 +213,7 @@ public class TokenIssuanceController {
                 // if first request failed throw exception
                 if (offset == 0 && jniErrorCode != 0) {
                     LOGGER.log(Level.SEVERE, () -> "ReadDataError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-                    throw new GenericException("Place a valid card type and try again.");
+                    throw new GenericException(ERROR_MESSAGE);
                 }
                 // consider 1st request responseLen  = 1024 bytes
                 // therefore, we assumed more data is left to be read,

@@ -7,7 +7,8 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ARCNoController" onKeyTyped="#keyTyped">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ARCNoController"
+      onKeyTyped="#keyTyped">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>
@@ -26,7 +27,7 @@
                     </font>
                 </Label>
                 <AnchorPane layoutY="151.0" prefHeight="74.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-                    <Label layoutX="13.0" layoutY="26.0" prefHeight="20.0" prefWidth="200.0" text="INPUT e-ARC Number"
+                    <Label layoutX="13.0" layoutY="26.0" prefHeight="20.0" prefWidth="200.0" text="Input e-ARC Number"
                            textFill="WHITE">
                         <font>
                             <Font size="16.0"/>
@@ -116,22 +117,23 @@
                         </font>
                     </Label>
 
-                    <TextField fx:id="txtName" editable="false" focusTraversable="false" layoutX="17.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtRank" editable="false" focusTraversable="false" layoutX="243.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtApp" editable="false" focusTraversable="false" layoutX="475.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtUnit" editable="false" focusTraversable="false" layoutX="17.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtFinger" editable="false" focusTraversable="false" layoutX="243.0"
-                               layoutY="134.0" prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtIris" editable="false" focusTraversable="false" layoutX="475.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtBiometricOptions" editable="false" focusTraversable="false" layoutX="20.0"
-                               layoutY="200.0" prefHeight="26.0" prefWidth="204.0"/>
-                    <TextField fx:id="txtArcStatus" editable="false" focusTraversable="false" layoutX="245.0"
-                               layoutY="199.0" prefHeight="26.0" prefWidth="204.0"/>
+                    <Label fx:id="txtName" layoutX="17.0" layoutY="72.0"
+                           prefHeight="26.0" prefWidth="204.0"
+                           style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtRank"  layoutX="243.0" layoutY="72.0"
+                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtApp" layoutX="475.0" layoutY="72.0"
+                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtUnit" layoutX="17.0" layoutY="134.0"
+                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtFinger" layoutX="243.0"
+                               layoutY="134.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtIris" layoutX="475.0" layoutY="134.0"
+                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtBiometricOptions" layoutX="20.0"
+                               layoutY="200.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
+                    <Label fx:id="txtArcStatus" layoutX="245.0"
+                               layoutY="199.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
 
                     <Button fx:id="backBtn" layoutX="241.0" layoutY="272.0" maxHeight="36.0" maxWidth="150.0"
                             minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"

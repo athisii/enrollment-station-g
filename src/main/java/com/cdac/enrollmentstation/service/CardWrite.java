@@ -21,7 +21,6 @@ import java.util.logging.Logger;
  * @author padmanabhanj
  */
 public class CardWrite {
-    CardReaderAPIURLs cardReaderAPIURLs = new CardReaderAPIURLs();
 
     CardReaderAPI cardReaderAPI = new CardReaderAPI();
 

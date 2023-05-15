@@ -12,6 +12,8 @@ import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
 import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +46,6 @@ public class BiometricCaptureCompleteController {
     private static final Logger LOGGER = ApplicationLog.getLogger(BiometricCaptureCompleteController.class);
     private static final String NOT_AVAILABLE = "Not Available";
 
-
     @FXML
     private Label messageLabel;
 
@@ -61,6 +63,14 @@ public class BiometricCaptureCompleteController {
 
     @FXML
     private ProgressIndicator progressIndicator;
+    // after submitted successfully/failed, go back to main screen after 10 secs
+    private static final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
+        try {
+            App.setRoot("main_screen");
+        } catch (IOException e) {
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+    }));
 
     // calls automatically by JavaFx runtime
     public void initialize() {
@@ -174,7 +184,10 @@ public class BiometricCaptureCompleteController {
             Platform.runLater(() -> {
                 progressIndicator.setVisible(false);
                 messageLabel.setText("Connection timeout. Failed to save record.");
+                submitBtn.setDisable(false);
                 homeBtn.setDisable(false);
+                timeline.setCycleCount(1);
+                timeline.play();
             });
             return;
         }
@@ -196,6 +209,9 @@ public class BiometricCaptureCompleteController {
         } catch (GenericException ex) {
             onErrorUpdateUiControls(ex.getMessage());
         }
+        timeline.setCycleCount(1);
+        timeline.play();
+
     }
 
     private void updateUiIconOnServerResponse(boolean success, String message) {

@@ -8,8 +8,6 @@ import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -18,7 +16,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.util.Duration;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -33,8 +30,6 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
  */
 public class ARCNoController {
     private static final Logger LOGGER = ApplicationLog.getLogger(ARCNoController.class);
-    private static final int INACTIVE_TIME_IN_SEC = 10;
-
 
     // *****************************BARCODE SCANNER *************************
     private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23
@@ -43,8 +38,6 @@ public class ARCNoController {
     private static final StringBuilder barcodeStringBuilder = new StringBuilder();
     // *
     private String tempArc;
-
-    private Timeline refocusArcInputTimeline;
 
     @FXML
     public Button continueBtn;
@@ -61,41 +54,33 @@ public class ARCNoController {
     private Label messageLabel;
 
     @FXML
-    private TextField txtName;
+    private Label txtName;
     @FXML
-    private TextField txtRank;
+    private Label txtRank;
     @FXML
-    private TextField txtApp;
+    private Label txtApp;
     @FXML
-    private TextField txtUnit;
+    private Label txtUnit;
     @FXML
-    private TextField txtFinger;
+    private Label txtFinger;
     @FXML
-    private TextField txtIris;
+    private Label txtIris;
     @FXML
-    private TextField txtArcStatus;
+    private Label txtArcStatus;
 
     @FXML
-    private TextField txtBiometricOptions;
+    private Label txtBiometricOptions;
 
     public void initialize() {
         backBtn.setOnAction(event -> backBtnAction());
-        showArcBtn.setOnAction(event -> showArcDetails());
+        showArcBtn.setOnAction(event -> showArcBtnAction());
         continueBtn.setOnAction(event -> continueBtnAction());
 
         arcNumberTextField.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
-                showArcDetails();
+                showArcBtnAction();
             }
         });
-
-        refocusArcInputTimeline = new Timeline(new KeyFrame(Duration.seconds(INACTIVE_TIME_IN_SEC), event -> {
-            showArcBtn.requestFocus();
-        }));
-        refocusArcInputTimeline.setCycleCount(1);
-        refocusArcInputTimeline.playFromStart();
-        arcNumberTextField.setOnKeyReleased(event -> refocusArcInputTimeline.playFromStart());
-        arcNumberTextField.setOnKeyPressed(event -> refocusArcInputTimeline.stop());
     }
 
     private void continueBtnAction() {
@@ -191,81 +176,82 @@ public class ARCNoController {
     }
 
     private void showArcDetails() {
+        ARCDetails arcDetails;
+        try {
+            disableControls(backBtn, showArcBtn);
+            arcDetails = MafisServerApi.fetchARCDetails(tempArc);
+        } catch (GenericException ex) {
+            enableControls(backBtn, showArcBtn);
+            updateUiTextFields(null);
+            updateUi(GENERIC_ERR_MSG);
+            return;
+        }
+
+        // connection timeout
+        if (arcDetails == null) {
+            enableControls(backBtn, showArcBtn);
+            LOGGER.log(Level.INFO, "Connection timeout");
+            updateUiTextFields(null);
+            updateUi("Connection timeout. Please try again.");
+            return;
+        }
+
+        if (!"0".equals(arcDetails.getErrorCode())) {
+            LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetails.getDesc());
+            enableControls(backBtn, showArcBtn);
+            updateUiTextFields(null);
+            if ("-9999".equals(arcDetails.getErrorCode()) || "null".equals(arcDetails.getDesc())) { // very common error when server's dependencies are not available
+                updateUi("Received an unexpected response from server. Kindly try again.");
+            } else if (arcDetails.getDesc().toLowerCase().contains("not found")) {
+                updateUi("Details not found for e-ARC: " + tempArc);
+            } else {
+                updateUi(arcDetails.getDesc());
+            }
+            return;
+        }
+
+        if (arcDetails.getBiometricOptions() == null || arcDetails.getBiometricOptions().isBlank() || arcDetails.getBiometricOptions().trim().equalsIgnoreCase("none")) {
+            enableControls(backBtn, showArcBtn);
+            LOGGER.log(Level.INFO, () -> "Biometric capturing not required for e-ARC: " + tempArc);
+            updateUiTextFields(arcDetails);
+            updateUi("Biometric capturing not required for e-ARC: " + tempArc);
+            return;
+        }
+
+        updateUiTextFields(arcDetails);
+        updateUi("");
+
+        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
+        holder.setArcDetails(arcDetails);
+        SaveEnrollmentDetails saveEnrollmentDetails = new SaveEnrollmentDetails();
+
+        try {
+            saveEnrollmentDetails.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
+            saveEnrollmentDetails.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
+        } catch (GenericException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            updateUi(GENERIC_ERR_MSG);
+            return;
+        }
+
+        saveEnrollmentDetails.setArcNo(arcDetails.getArcNo());
+        saveEnrollmentDetails.setBiometricOptions(arcDetails.getBiometricOptions());
+        holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
+        continueBtn.setDisable(false);
+        backBtn.setDisable(false);
+        showArcBtn.setDisable(false);
+    }
+
+    private void showArcBtnAction() {
         tempArc = arcNumberTextField.getText().trim();
         if (isMalformedArc()) {
             messageLabel.setText("Kindly enter correct e-ARC number.");
-            refocusArcInputTimeline.playFromStart();
             return;
         }
-        disableControls(showArcBtn);
+        disableControls(showArcBtn, backBtn);
         // fetches e-ARC in worker thread.
-        new Thread(() -> {
-            ARCDetails arcDetails;
-            try {
-                disableControls(backBtn, showArcBtn);
-                arcDetails = MafisServerApi.fetchARCDetails(tempArc);
-            } catch (GenericException ex) {
-                enableControls(backBtn, showArcBtn);
-                updateUiTextFields(null);
-                updateUi(GENERIC_ERR_MSG);
-                return;
-            }
-
-            // connection timeout
-            if (arcDetails == null) {
-                enableControls(backBtn, showArcBtn);
-                LOGGER.log(Level.INFO, "Connection timeout");
-                updateUiTextFields(null);
-                updateUi("Connection timeout. Please try again.");
-                return;
-            }
-
-            if (!"0".equals(arcDetails.getErrorCode())) {
-                LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetails.getDesc());
-                enableControls(backBtn, showArcBtn);
-                updateUiTextFields(null);
-                if (arcDetails.getDesc().toLowerCase().contains("not found")) {
-                    updateUi("Details not found for e-ARC: " + tempArc);
-                } else {
-                    updateUi(arcDetails.getDesc());
-                }
-                return;
-            }
-
-            if (arcDetails.getBiometricOptions() == null || arcDetails.getBiometricOptions().isBlank() || arcDetails.getBiometricOptions().trim().equalsIgnoreCase("none")) {
-                enableControls(backBtn, showArcBtn);
-                LOGGER.log(Level.INFO, () -> "Biometric capturing not required for e-ARC: " + tempArc);
-                updateUiTextFields(arcDetails);
-                updateUi("Biometric capturing not required for e-ARC: " + tempArc);
-                return;
-            }
-
-            updateUiTextFields(arcDetails);
-            updateUi("");
-
-            ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-            holder.setArcDetails(arcDetails);
-            SaveEnrollmentDetails saveEnrollmentDetails = new SaveEnrollmentDetails();
-
-            try {
-                saveEnrollmentDetails.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
-                saveEnrollmentDetails.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
-            } catch (GenericException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                updateUi(GENERIC_ERR_MSG);
-                return;
-            }
-
-            saveEnrollmentDetails.setArcNo(arcDetails.getArcNo());
-            saveEnrollmentDetails.setBiometricOptions(arcDetails.getBiometricOptions());
-            holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
-            continueBtn.setDisable(false);
-            backBtn.setDisable(false);
-            showArcBtn.setDisable(false);
-            refocusArcInputTimeline.playFromStart();
-        }).start();
-
-        messageLabel.setText("Please wait. Fetching details for e-ARC: " + tempArc);
+        new Thread(this::showArcDetails).start();
+        messageLabel.setText("Fetching details for e-ARC: " + tempArc + ". Kindly wait...");
     }
 
     private void updateUiTextFields(ARCDetails arcDetails) {
@@ -293,8 +279,8 @@ public class ARCNoController {
         });
     }
 
-    private void clearLabelText(TextField... textFields) {
-        for (TextField label : textFields) {
+    private void clearLabelText(Label... labels) {
+        for (Label label : labels) {
             label.setText("");
         }
     }
@@ -317,7 +303,7 @@ public class ARCNoController {
     }
 
     @FXML
-    public void keyTyped(KeyEvent keyEvent) {
+    private void keyTyped(KeyEvent keyEvent) {
         long now = Instant.now().toEpochMilli();
         // events must come fast enough to separate from manual input
         if (now - lastEventTimeStamp > KEY_PRESSED_EVENT_GAP_THRESHOLD) {
@@ -325,10 +311,9 @@ public class ARCNoController {
         }
         barcodeStringBuilder.append(keyEvent.getCharacter());
         if (keyEvent.getCode().equals(KeyCode.ENTER) || barcodeStringBuilder.length() >= MIN_ARC_LENGTH) {
-            LOGGER.log(Level.INFO, () -> "Barcode e-ARC: " + barcodeStringBuilder);
-            arcNumberTextField.setText(barcodeStringBuilder.toString());
+            arcNumberTextField.setText(barcodeStringBuilder.toString().trim());
             showArcBtn.requestFocus();
-            showArcDetails();
+            showArcBtnAction();
             barcodeStringBuilder.setLength(0);
         }
         lastEventTimeStamp = now;

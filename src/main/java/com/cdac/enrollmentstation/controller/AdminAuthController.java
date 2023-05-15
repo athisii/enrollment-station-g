@@ -8,11 +8,15 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.security.AuthUtil;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -23,6 +27,7 @@ import java.io.IOException;
  */
 public class AdminAuthController {
     private static final int MAX_LENGTH = 30;
+    private static volatile boolean isDone = false;
     @FXML
     private Label statusMsg;
 
@@ -40,19 +45,27 @@ public class AdminAuthController {
 
     @FXML
     public void serverConfig() {
-        try {
-            if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
-                App.setRoot("admin_config");
-                return;
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+            if (!isDone) {
+                statusMsg.setText("The server is taking more time than expected. Kindly wait.");
             }
-            statusMsg.setText("Wrong username or password.");
-        } catch (GenericException | IOException ex) {
-            statusMsg.setText(ex.getMessage());
-        }
-        // clean up UI on failure
-        textField.requestFocus();
-        textField.setText("");
-        passwordField.setText("");
+        }));
+        timeline.setCycleCount(1);
+        timeline.play();
+        new Thread(() -> {
+            try {
+                if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
+                    App.setRoot("main_screen");
+                    return;
+                }
+                updateUi("Wrong username or password.");
+            } catch (GenericException | IOException ex) {
+                updateUi(ex.getMessage());
+            }
+            isDone = true;
+            // clean up UI on failure
+            clearPasswordField();
+        }).start();
     }
 
     public void initialize() {
@@ -79,5 +92,18 @@ public class AdminAuthController {
             textField.setText(oldValue);
         }
     }
+
+    private void updateUi(String message) {
+        Platform.runLater(() -> statusMsg.setText(message));
+    }
+
+    private void clearPasswordField() {
+        Platform.runLater(() -> {
+            textField.requestFocus();
+            textField.setText("");
+            passwordField.setText("");
+        });
+    }
+
 
 }

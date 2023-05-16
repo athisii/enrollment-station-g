@@ -64,11 +64,14 @@ public class BiometricCaptureCompleteController {
     @FXML
     private ProgressIndicator progressIndicator;
     // after submitted successfully/failed, go back to main screen after 10 secs
+    private static boolean isStillHere = true;
     private static final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
-        try {
-            App.setRoot("main_screen");
-        } catch (IOException e) {
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        if (isStillHere) {
+            try {
+                App.setRoot("main_screen");
+            } catch (IOException e) {
+                throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+            }
         }
     }));
 
@@ -80,6 +83,7 @@ public class BiometricCaptureCompleteController {
 
     @FXML
     private void homeBtnAction() {
+        isStillHere = false;
         try {
             App.setRoot("main_screen");
         } catch (IOException ex) {
@@ -89,6 +93,7 @@ public class BiometricCaptureCompleteController {
 
     @FXML
     private void fetchArcBtnAction() {
+        isStillHere = false;
         try {
             App.setRoot("enrollment_arc");
         } catch (IOException ex) {
@@ -211,7 +216,6 @@ public class BiometricCaptureCompleteController {
         }
         timeline.setCycleCount(1);
         timeline.play();
-
     }
 
     private void updateUiIconOnServerResponse(boolean success, String message) {

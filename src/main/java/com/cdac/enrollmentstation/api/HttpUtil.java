@@ -27,6 +27,11 @@ public class HttpUtil {
     private static final int WRITE_TIMEOUT_IN_SEC = 30;
     private static final ThreadLocal<HttpClient> HTTP_CLIENT_THREAD_LOCAL;
 
+    public enum MethodType {
+        POST,
+        GET;
+    }
+
     static {
         HTTP_CLIENT_THREAD_LOCAL = ThreadLocal.withInitial(() -> HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build());
     }
@@ -37,12 +42,7 @@ public class HttpUtil {
     }
 
     public static HttpRequest createGetHttpRequest(String url) {
-        return HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .header(HttpHeader.CONTENT_TYPE, "application/json; utf-8")
-                .header(HttpHeader.ACCEPT, "application/json")
-                .timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC))
-                .build();
+        return createHttpRequest(MethodType.GET, url, null, null);
     }
 
     public static HttpRequest createPostHttpRequest(String url, String data) {
@@ -50,16 +50,28 @@ public class HttpUtil {
     }
 
     public static HttpRequest createPostHttpRequest(String url, String data, Map<String, String> extraHeaders) {
-        HttpRequest.Builder builder = HttpRequest.newBuilder();
-        if (extraHeaders != null) {
-            extraHeaders.forEach(builder::header);
+        return createHttpRequest(MethodType.POST, url, data, extraHeaders);
+
+    }
+
+    public static HttpRequest createHttpRequest(MethodType methodType, String url, String data, Map<String, String> extraHeaders) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder();
+            if (extraHeaders != null) {
+                extraHeaders.forEach(builder::header);
+            }
+            if (MethodType.POST == methodType) {
+                builder.POST(HttpRequest.BodyPublishers.ofString(data));
+            }
+            return builder.uri(URI.create(url))
+                    .header(HttpHeader.CONTENT_TYPE, "application/json; utf-8")
+                    .header(HttpHeader.ACCEPT, "application/json")
+                    .timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC))
+                    .build();
+        } catch (RuntimeException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException("Invalid url or ip address. Kindly try again.");
         }
-        return builder.uri(URI.create(url))
-                .POST(HttpRequest.BodyPublishers.ofString(data))
-                .header(HttpHeader.CONTENT_TYPE, "application/json; utf-8")
-                .header(HttpHeader.ACCEPT, "application/json")
-                .timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC))
-                .build();
 
     }
 
@@ -88,7 +100,7 @@ public class HttpUtil {
                 Thread.currentThread().interrupt();
             } catch (RuntimeException ex) {
                 LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new GenericException("Received an invalid url or ip address. Kindly try again.");
+                throw new GenericException("Invalid url or ip address. Kindly try again.");
             }
         }
         // connection timeout - very important

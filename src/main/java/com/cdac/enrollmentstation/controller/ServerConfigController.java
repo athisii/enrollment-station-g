@@ -8,8 +8,6 @@ import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.Unit;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -18,7 +16,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -37,7 +34,6 @@ import java.util.stream.Collectors;
 
 public class ServerConfigController {
     private static final Logger LOGGER = ApplicationLog.getLogger(ServerConfigController.class);
-    private Timeline timeline;
     private List<Unit> units;
 
     @FXML
@@ -109,13 +105,6 @@ public class ServerConfigController {
         }
         homeBtn.requestFocus();
         messageLabel.setText("Fetching units...");
-        timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
-            messageLabel.setText("Server is taking longer time than expected time.");
-            backBtn.setDisable(false);
-            homeBtn.setDisable(true);
-        }));
-        timeline.setCycleCount(1);
-        timeline.play();
         disableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
         new Thread(this::fetchUnits).start();
     }

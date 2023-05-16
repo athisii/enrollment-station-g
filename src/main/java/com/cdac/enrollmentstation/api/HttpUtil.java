@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.constant.HttpHeader;
+import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 
 import java.io.IOException;
@@ -81,16 +82,19 @@ public class HttpUtil {
                     break;
                 }
             } catch (IOException ignored) {
-                LOGGER.log(Level.INFO, String.format("%s", (NO_OF_RETRIES + 1 - noOfRetries) + " Retrying connection."));
+                LOGGER.log(Level.SEVERE, String.format("%s", (NO_OF_RETRIES + 1 - noOfRetries) + " Retrying connection."));
                 noOfRetries--;
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
+            } catch (RuntimeException ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                throw new GenericException("Received an invalid url or ip address. Kindly try again.");
             }
         }
         // connection timeout - very important
         // based on null value, connection status is determined is some APIs
         if (response == null || noOfRetries == 0) {
-            LOGGER.log(Level.INFO, "Connection timeout or http response status code is not 200.");
+            LOGGER.log(Level.SEVERE, "Connection timeout or http response status code is not 200.");
             return null;
         }
         return response;

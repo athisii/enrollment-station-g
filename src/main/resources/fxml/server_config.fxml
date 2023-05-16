@@ -13,6 +13,16 @@
             <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
                         BorderPane.alignment="CENTER">
 
+                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+
+                    <ImageView fitHeight="91.0" fitWidth="363.0" focusTraversable="true" layoutX="20.0" layoutY="10.0"
+                               pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@../img/navy_logo.png"/>
+
+                    </ImageView>
+                </AnchorPane>
                 <AnchorPane layoutX="262.0" layoutY="272.0" prefHeight="200.0" prefWidth="614.0"
                             style="-fx-border-color: #04127b;"/>
                 <Text fill="#04127b" layoutX="326.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0"
@@ -38,15 +48,6 @@
                           prefHeight="26.0" prefWidth="201.0"/>
                 <AnchorPane layoutY="735.0" prefHeight="40.0" prefWidth="1024.0"
                             style="-fx-background-color: #1990ea;"/>
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
-                               preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png"/>
-
-                    </ImageView>
-                </AnchorPane>
                 <Label layoutX="67.0" layoutY="105.0" prefHeight="45.0" prefWidth="417.0" text="SERVER CONFIGURATION"
                        textFill="#04127b">
                     <font>

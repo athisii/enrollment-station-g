@@ -37,6 +37,8 @@ public class App extends Application implements EventHandler<WindowEvent> {
         scene = new Scene(loadFXML("main_screen"), 1024, 768);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LOGGER.log(Level.INFO, () -> "Caught by default Uncaught Exception Handler. Will exit now");
+            LOGGER.log(Level.INFO, () -> "Caused: " + throwable.getCause());
+            LOGGER.log(Level.INFO, () -> "Message: " + throwable.getMessage());
             throwable.printStackTrace();
         });
         stage.initStyle(StageStyle.UNDECORATED);

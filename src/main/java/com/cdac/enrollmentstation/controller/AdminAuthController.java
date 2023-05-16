@@ -55,7 +55,7 @@ public class AdminAuthController {
         new Thread(() -> {
             try {
                 if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
-                    App.setRoot("main_screen");
+                    App.setRoot("admin_config");
                     return;
                 }
                 updateUi("Wrong username or password.");

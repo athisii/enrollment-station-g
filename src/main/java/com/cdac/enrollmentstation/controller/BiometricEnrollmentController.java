@@ -247,7 +247,7 @@ public class BiometricEnrollmentController {
             messageLabel.setText("Kindly enter the valid format for e-ARC number.");
             return;
         }
-        disableControls(showArcBtn, backBtn);
+        disableControls(showArcBtn, backBtn, continueBtn);
         // fetches e-ARC in worker thread.
         App.getThreadPool().execute(this::showArcDetails);
         messageLabel.setText("Fetching details for e-ARC: " + tempArc + ". Kindly wait...");

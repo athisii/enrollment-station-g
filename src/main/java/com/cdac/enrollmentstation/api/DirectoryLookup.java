@@ -48,7 +48,7 @@ public class DirectoryLookup {
             throw new GenericException("Failed to connect with server.");
         } catch (NamingException ex) {
             LOGGER.log(Level.SEVERE, ex::getMessage);
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+            throw new GenericException("Connection timeout or ldap is configured incorrectly.");
         }
     }
 

@@ -16,6 +16,8 @@ import org.opencv.core.Core;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,6 +28,13 @@ import java.util.logging.Logger;
 public class App extends Application implements EventHandler<WindowEvent> {
     private static Scene scene;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
+    // GLOBAL THREAD POOL for the application.
+    private static final ExecutorService executorService;
+
+    static {
+        int processorCount = Runtime.getRuntime().availableProcessors();
+        executorService = Executors.newFixedThreadPool(Math.min(processorCount, 2));
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -65,6 +74,10 @@ public class App extends Application implements EventHandler<WindowEvent> {
     @Override
     public void handle(WindowEvent arg0) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public static ExecutorService getThreadPool() {
+        return executorService;
     }
 
 

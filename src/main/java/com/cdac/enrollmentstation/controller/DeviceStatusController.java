@@ -23,7 +23,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,19 +53,10 @@ public class DeviceStatusController {
     private ImageView mafisUrlImage;
 
     private void checkDevicesStatus() {
-        ForkJoinPool.commonPool().execute(() -> {
-            LOGGER.log(Level.INFO, () -> "MafisApi:Thread: " + Thread.currentThread().getName());
-            checkMafisApi();
-        });
-        ForkJoinPool.commonPool().execute(() -> {
-            LOGGER.log(Level.INFO, () -> "SlapScanner:Thread: " + Thread.currentThread().getName());
-            checkSlapScanner();
-        });
+        App.getThreadPool().execute(this::checkMafisApi);
+        App.getThreadPool().execute(this::checkSlapScanner);
 
-        ForkJoinPool.commonPool().execute(() -> {
-            LOGGER.log(Level.INFO, () -> "Barcode:Thread: " + Thread.currentThread().getName());
-            checkBarcode();
-        });
+        App.getThreadPool().execute(this::checkBarcode);
         checkCamera();
         checkIris();
     }

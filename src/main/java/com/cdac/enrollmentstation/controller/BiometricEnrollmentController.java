@@ -28,8 +28,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class ARCNoController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(ARCNoController.class);
+public class BiometricEnrollmentController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentController.class);
 
     // *****************************BARCODE SCANNER *************************
     private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23
@@ -182,7 +182,7 @@ public class ARCNoController {
             arcDetails = MafisServerApi.fetchARCDetails(tempArc);
         } catch (GenericException ex) {
             enableControls(backBtn, showArcBtn);
-            updateUiTextFields(null);
+            updateUiDynamicLabelText(null);
             updateUi(GENERIC_ERR_MSG);
             return;
         }
@@ -191,7 +191,7 @@ public class ARCNoController {
         if (arcDetails == null) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.INFO, "Connection timeout");
-            updateUiTextFields(null);
+            updateUiDynamicLabelText(null);
             updateUi("Connection timeout. Please try again.");
             return;
         }
@@ -199,7 +199,7 @@ public class ARCNoController {
         if (!"0".equals(arcDetails.getErrorCode())) {
             LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetails.getDesc());
             enableControls(backBtn, showArcBtn);
-            updateUiTextFields(null);
+            updateUiDynamicLabelText(null);
             if ("-9999".equals(arcDetails.getErrorCode()) || "null".equals(arcDetails.getDesc())) { // very common error when server's dependencies are not available
                 updateUi("Received an unexpected response from server. Kindly try again.");
             } else if (arcDetails.getDesc().toLowerCase().contains("not found")) {
@@ -211,15 +211,15 @@ public class ARCNoController {
         }
 
         if (arcDetails.getBiometricOptions() == null || arcDetails.getBiometricOptions().isBlank() || arcDetails.getBiometricOptions().trim().equalsIgnoreCase("none")) {
-            enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.INFO, () -> "Biometric capturing not required for e-ARC: " + tempArc);
-            updateUiTextFields(arcDetails);
+            enableControls(backBtn, showArcBtn);
+            updateUiDynamicLabelText(arcDetails);
             updateUi("Biometric capturing not required for e-ARC: " + tempArc);
             return;
         }
 
-        updateUiTextFields(arcDetails);
-        updateUi("");
+        updateUiDynamicLabelText(arcDetails);
+        updateUi("Details fetched successfully for e-ARC: " + tempArc);
 
         ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
         holder.setArcDetails(arcDetails);
@@ -229,6 +229,7 @@ public class ARCNoController {
             saveEnrollmentDetails.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
             saveEnrollmentDetails.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
         } catch (GenericException ex) {
+            enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.SEVERE, ex.getMessage());
             updateUi(GENERIC_ERR_MSG);
             return;
@@ -237,24 +238,22 @@ public class ARCNoController {
         saveEnrollmentDetails.setArcNo(arcDetails.getArcNo());
         saveEnrollmentDetails.setBiometricOptions(arcDetails.getBiometricOptions());
         holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
-        continueBtn.setDisable(false);
-        backBtn.setDisable(false);
-        showArcBtn.setDisable(false);
+        enableControls(showArcBtn, backBtn, continueBtn);
     }
 
     private void showArcBtnAction() {
         tempArc = arcNumberTextField.getText().trim();
         if (isMalformedArc()) {
-            messageLabel.setText("Kindly enter correct e-ARC number.");
+            messageLabel.setText("Kindly enter the valid format for e-ARC number.");
             return;
         }
         disableControls(showArcBtn, backBtn);
         // fetches e-ARC in worker thread.
-        new Thread(this::showArcDetails).start();
+        App.getThreadPool().execute(this::showArcDetails);
         messageLabel.setText("Fetching details for e-ARC: " + tempArc + ". Kindly wait...");
     }
 
-    private void updateUiTextFields(ARCDetails arcDetails) {
+    private void updateUiDynamicLabelText(ARCDetails arcDetails) {
         Platform.runLater(() -> {
             if (arcDetails == null) {
                 clearLabelText(txtName, txtRank, txtApp, txtUnit, txtFinger, txtIris, txtBiometricOptions, txtArcStatus);

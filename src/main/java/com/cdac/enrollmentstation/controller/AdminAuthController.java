@@ -52,7 +52,7 @@ public class AdminAuthController {
         }));
         timeline.setCycleCount(1);
         timeline.play();
-        new Thread(() -> {
+        App.getThreadPool().execute(() -> {
             try {
                 if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
                     App.setRoot("admin_config");
@@ -65,7 +65,7 @@ public class AdminAuthController {
             isDone = true;
             // clean up UI on failure
             clearPasswordField();
-        }).start();
+        });
     }
 
     public void initialize() {

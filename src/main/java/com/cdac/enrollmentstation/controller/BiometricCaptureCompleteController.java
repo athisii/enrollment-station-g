@@ -33,7 +33,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -95,7 +94,7 @@ public class BiometricCaptureCompleteController {
     private void fetchArcBtnAction() {
         isStillHere = false;
         try {
-            App.setRoot("enrollment_arc");
+            App.setRoot("biometric_enrollment");
         } catch (IOException ex) {
             LOGGER.log(Level.INFO, ex.getMessage());
         }
@@ -107,7 +106,7 @@ public class BiometricCaptureCompleteController {
         submitBtn.setDisable(true);
         progressIndicator.setVisible(true);
         messageLabel.setText("Please wait...");
-        ForkJoinPool.commonPool().execute(this::submitData);
+        App.getThreadPool().execute(this::submitData);
     }
 
     private void submitData() {

@@ -28,7 +28,7 @@ public class PrimaryController implements Initializable {
     @FXML
     private void showEnrollmentHome() {
         try {
-            App.setRoot("enrollment_arc");
+            App.setRoot("biometric_enrollment");
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
         }

@@ -106,7 +106,7 @@ public class ServerConfigController {
         homeBtn.requestFocus();
         messageLabel.setText("Fetching units...");
         disableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
-        new Thread(this::fetchUnits).start();
+        App.getThreadPool().execute(this::fetchUnits);
     }
 
     private void fetchUnits() {

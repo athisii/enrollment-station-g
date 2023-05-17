@@ -33,7 +33,7 @@ public class App extends Application implements EventHandler<WindowEvent> {
 
     static {
         int processorCount = Runtime.getRuntime().availableProcessors();
-        executorService = Executors.newFixedThreadPool(Math.min(processorCount, 2));
+        executorService = Executors.newFixedThreadPool(Math.min(processorCount, 3));
     }
 
     @Override

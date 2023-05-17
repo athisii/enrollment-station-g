@@ -58,7 +58,6 @@ public class PkiUtil {
             PublicKey publicKey = certificate.getPublicKey();
             keyPair = new KeyPair(publicKey, privateKey);
         } catch (GeneralSecurityException | IOException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -71,7 +70,6 @@ public class PkiUtil {
             CIPHER_THREAD_LOCAL.get().init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
             return CIPHER_THREAD_LOCAL.get().doFinal(data.getBytes(StandardCharsets.UTF_8));
         } catch (GeneralSecurityException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -85,14 +83,8 @@ public class PkiUtil {
             byte[] decryptedInput = CIPHER_THREAD_LOCAL.get().doFinal(encryptedData);
             return new String(decryptedInput, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-
-    }
-
-    public static void removeCipherFromThreadLocal() {
-        CIPHER_THREAD_LOCAL.remove();
     }
 }

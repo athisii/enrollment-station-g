@@ -12,6 +12,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -29,6 +30,10 @@ public class AdminAuthController {
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;
     @FXML
+    private Button backBtn;
+    @FXML
+    private Button loginBtn;
+    @FXML
     private Label statusMsg;
 
     @FXML
@@ -45,27 +50,33 @@ public class AdminAuthController {
 
     @FXML
     public void serverConfig() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             if (!isDone) {
-                statusMsg.setText("The server is taking more time than expected. Kindly wait.");
+                statusMsg.setText("The server is taking more time than expected. Kindly try again.");
+                enableControls(backBtn, loginBtn);
             }
         }));
         timeline.setCycleCount(1);
         timeline.play();
-        App.getThreadPool().execute(() -> {
-            try {
-                if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
-                    App.setRoot("admin_config");
-                    return;
-                }
-                updateUi("Wrong username or password.");
-            } catch (GenericException | IOException ex) {
-                updateUi(ex.getMessage());
+        disableControls(backBtn, loginBtn);
+        App.getThreadPool().execute(this::authenticateUser);
+    }
+
+    private void authenticateUser() {
+        try {
+            if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
+                App.setRoot("admin_config");
+                isDone = true;
+                return;
             }
-            isDone = true;
-            // clean up UI on failure
-            clearPasswordField();
-        });
+            updateUi("Wrong username or password.");
+        } catch (GenericException | IOException ex) {
+            updateUi(ex.getMessage());
+        }
+        isDone = true;
+        // clean up UI on failure
+        clearPasswordField();
+        enableControls(backBtn, loginBtn);
     }
 
     public void initialize() {
@@ -103,6 +114,18 @@ public class AdminAuthController {
             textField.setText("");
             passwordField.setText("");
         });
+    }
+
+    private void disableControls(Button... buttons) {
+        for (Button button : buttons) {
+            button.setDisable(true);
+        }
+    }
+
+    private void enableControls(Button... buttons) {
+        for (Button button : buttons) {
+            button.setDisable(false);
+        }
     }
 
 

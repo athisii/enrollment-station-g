@@ -55,7 +55,6 @@ public class DeviceStatusController {
     private void checkDevicesStatus() {
         App.getThreadPool().execute(this::checkMafisApi);
         App.getThreadPool().execute(this::checkSlapScanner);
-
         App.getThreadPool().execute(this::checkBarcode);
         checkCamera();
         checkIris();
@@ -144,7 +143,5 @@ public class DeviceStatusController {
             // connected but throws exception on JSON parsing error
             mafisUrlImage.setImage(GREEN_TICK_IMAGE);
         }
-
-
     }
 }

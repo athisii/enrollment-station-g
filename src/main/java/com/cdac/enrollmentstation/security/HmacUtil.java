@@ -47,7 +47,6 @@ public class HmacUtil {
             byte[] bytes = MAC_THREAD_LOCAL.get().doFinal(message.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(bytes);
         } catch (GeneralSecurityException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -65,10 +64,5 @@ public class HmacUtil {
         }
         return new String(hexChars);
     }
-
-    public static void removeCipherFromThreadLocal() {
-        MAC_THREAD_LOCAL.remove();
-    }
-
 }
 

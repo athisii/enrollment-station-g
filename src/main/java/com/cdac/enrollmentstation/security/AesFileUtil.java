@@ -66,7 +66,6 @@ public class AesFileUtil {
             //saves to file
             Files.write(encOutputPath, byteArrayOutputStream.toByteArray());
         } catch (GeneralSecurityException | IOException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -88,7 +87,6 @@ public class AesFileUtil {
             byte[] decryptedBytes = CIPHER_THREAD_LOCAL.get().doFinal(actualData);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException | IOException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -106,10 +104,4 @@ public class AesFileUtil {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
     }
-
-    public static void removeCipherFromThreadLocal() {
-        CIPHER_THREAD_LOCAL.remove();
-    }
-
-
 }

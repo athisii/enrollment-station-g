@@ -61,7 +61,6 @@ public class Aes256Util {
             byteArrayOutputStream.write(encryptedData);
             return byteArrayOutputStream.toByteArray();
         } catch (GeneralSecurityException | IOException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -76,13 +75,8 @@ public class Aes256Util {
             byte[] decryptedData = CIPHER_THREAD_LOCAL.get().doFinal(actualData);
             return new String(decryptedData, StandardCharsets.UTF_8);
         } catch (GeneralSecurityException ex) {
-            removeCipherFromThreadLocal();
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-    }
-
-    public static void removeCipherFromThreadLocal() {
-        CIPHER_THREAD_LOCAL.remove();
     }
 }

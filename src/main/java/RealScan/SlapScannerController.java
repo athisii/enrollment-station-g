@@ -32,7 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -72,6 +71,8 @@ public class SlapScannerController {
     private volatile int rightFpDeviceHandler;
     private volatile int captureMode; // to be used when setting capture mode.
     private volatile int slapType; // to be used during segmentation.
+    private volatile boolean isSequenceCheckFailed;
+
     private final RSDeviceInfo leftFpDeviceInfo = new RSDeviceInfo();
     private final RSDeviceInfo rightFpDeviceInfo = new RSDeviceInfo();
     private final EnumMap<FingerSetType, RSImageInfo> fingerSetTypeToRsImageInfoMap = new EnumMap<>(FingerSetType.class);
@@ -307,6 +308,15 @@ public class SlapScannerController {
     }
 
     private void startLeftScan() {
+        // display the message for 2 seconds.
+        if (isSequenceCheckFailed) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+        isSequenceCheckFailed = false;
         fingerSetTypeToScan = FingerSetType.LEFT;
         if (!isLeftFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
@@ -490,6 +500,10 @@ public class SlapScannerController {
             Thread.sleep(TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS);
         } catch (GenericException ex) {
             updateUI(ex.getMessage());
+            if (isSequenceCheckFailed) {
+                rescanFromStart();
+                return;
+            }
             enableControls(backBtn, button);
             isFromPrevScan = false;
             return;
@@ -704,6 +718,11 @@ public class SlapScannerController {
             LOGGER.log(Level.INFO, () -> "******RS_TakeCurrentImageData returned message: " + jniErrorMsg);
             throw new GenericException("Quality too poor. Please try again.");
         }
+    }
+
+    private void rescanFromStart() {
+        scannedFingerTypeToRsImageInfoMap.clear();
+        leftScanBtnAction();
     }
 
     private void displaySegmentedFpImage(Map<Integer, RSImageInfo> fingerTypeRsImageInfo) {
@@ -1057,7 +1076,8 @@ public class SlapScannerController {
                 jniReturnedCode = RS_SequenceCheck(1, finger, rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, mSlapType, SECURITY_LEVEL_FOR_SEQUENCE_CHECK);
                 if (jniReturnedCode > 0) {
                     LOGGER.log(Level.SEVERE, "Sequence check failed.");
-                    throw new GenericException("Sequence check failed. Please try again..");
+                    isSequenceCheckFailed = true;
+                    throw new GenericException("Sequence check failed. Rescanning from the start....");
                 }
                 if (jniReturnedCode < 0) {
                     LOGGER.log(Level.SEVERE, RS_GetErrString(jniReturnedCode));

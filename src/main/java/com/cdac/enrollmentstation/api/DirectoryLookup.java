@@ -37,6 +37,8 @@ public class DirectoryLookup {
         properties.put(Context.SECURITY_AUTHENTICATION, "simple");
         properties.put(Context.SECURITY_PRINCIPAL, securityPrincipal);
         properties.put(Context.SECURITY_CREDENTIALS, password);
+        properties.put("com.sun.jndi.ldap.connect.timeout", "10000");
+
         try {
             new InitialDirContext(properties);
             return true;

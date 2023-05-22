@@ -468,21 +468,14 @@ public class SlapScannerController {
             enableControls(backBtn, button);
             return;
         }
-        // TODO: unsupported in current sdk version
-//        try {
-//            checkLFD();
-//        } catch (GenericException ex) {
-//            updateUI(ex.getMessage());
-//            enableControls(backBtn, button);
-//            return;
-//        }
-
-        if (liveness < fingerprintLivenessValue) {
-            updateUI("Quality standard not met or captured fake fingerprint. Kindly try again.");
+        try {
+            checkLFD();
+        } catch (GenericException ex) {
+            updateUI(ex.getMessage());
             enableControls(backBtn, button);
             return;
         }
-
+        
         // saves in RSImageInfo for later modification
         RSImageInfo resImageInfo = byteArrayToRSImageInfo(imageData, imageWidth, imageHeight);
 
@@ -540,44 +533,42 @@ public class SlapScannerController {
         }
     }
 
-    // TODO: unsupported in current sdk version
-//    private void checkLFD() {
-//        RSLFDResult rsLfdResult = new RSLFDResult();
-//        /*
-//        RS_SetLFDLevel Error Codes:
-//            RS_SUCCESS - The option is set successfully.
-//            RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
-//         */
-//        jniReturnedCode = RS_GetLFDResult(leftFpDeviceHandler, rsLfdResult);
-//        if (jniReturnedCode != RS_SUCCESS) {
-//            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-//            throw new GenericException(GENERIC_RS_ERR_MSG);
-//        }
-//        Map<String, Integer> mFingersToScanSeqMap;
-//        if (FingerSetType.LEFT == fingerSetTypeToScan) {
-//            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
-//        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
-//            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
-//        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
-//            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
-//        } else {
-//            // for developers
-//            throw new GenericException("Unsupported finger set type: ");
-//        }
-//        if (mFingersToScanSeqMap.size() != rsLfdResult.nNumofFinger) {
-//            LOGGER.log(Level.SEVERE, () -> "Finger counts doesn't matched.");
-//            throw new GenericException("Finger counts doesn't matched.");
-//        }
-//        for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
-//            // exit immediately if fake fingerprint captured.
-//            if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
-//                int j = i; // used in lambda
-//                LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
-//                throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
-//            }
-//        }
-//
-//    }
+    private void checkLFD() {
+        RSLFDResult rsLfdResult = new RSLFDResult();
+        /*
+        RS_SetLFDLevel Error Codes:
+            RS_SUCCESS - The option is set successfully.
+            RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
+         */
+        jniReturnedCode = RS_GetLFDResult(leftFpDeviceHandler, rsLfdResult);
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
+        Map<String, Integer> mFingersToScanSeqMap;
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
+        } else {
+            // for developers
+            throw new GenericException("Unsupported finger set type: ");
+        }
+        if (mFingersToScanSeqMap.size() != rsLfdResult.nNumofFinger) {
+            LOGGER.log(Level.SEVERE, () -> "Finger counts doesn't matched.");
+            throw new GenericException("Finger counts doesn't matched.");
+        }
+        for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
+            // exit immediately if fake fingerprint captured.
+            if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
+                int j = i; // used in lambda
+                LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
+                throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
+            }
+        }
+    }
 
     // set capture mode, register a callback, start capture and return immediately
     private void setModeAndStartCapture() {
@@ -657,13 +648,11 @@ public class SlapScannerController {
             RS_SUCCESS - The option is set successfully.
             RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
          */
-        // TODO: unsupported in current sdk version.
-
-//        jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
-//        if (jniReturnedCode != RS_SUCCESS) {
-//            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-//            throw new GenericException(GENERIC_RS_ERR_MSG);
-//        }
+        jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
+        if (jniReturnedCode != RS_SUCCESS) {
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
+        }
 
         /*
          RS_StartCapture Error Codes:
@@ -1051,7 +1040,7 @@ public class SlapScannerController {
     // throws Generic Exception
     private synchronized void checkSequence(RSImageInfo[] fingerImageArray) {
         // not very useful for now.
-//        int seqCheckResult = 0;
+        int seqCheckResult = 0;
         for (RSImageInfo finger : fingerImageArray)
             fingerSetTypeToRsImageInfoMap.forEach((fingerSetType, rsImageInfo) -> {
                 int mSlapType; // slap type is different for-each flow
@@ -1073,7 +1062,7 @@ public class SlapScannerController {
                         RS_ERR_MEM_FULL - Cannot allocate memory.
                         RS_ERR_CANNOT_SEGMENT - Cannot segment the slap image.
                 */
-                jniReturnedCode = RS_SequenceCheck(1, finger, rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, mSlapType, SECURITY_LEVEL_FOR_SEQUENCE_CHECK);
+                jniReturnedCode = RS_SequenceCheck(1, finger, rsImageInfo.pbyImgBuf, rsImageInfo.imageWidth, rsImageInfo.imageHeight, mSlapType, seqCheckResult, SECURITY_LEVEL_FOR_SEQUENCE_CHECK);
                 if (jniReturnedCode > 0) {
                     LOGGER.log(Level.SEVERE, "Sequence check failed.");
                     isSequenceCheckFailed = true;

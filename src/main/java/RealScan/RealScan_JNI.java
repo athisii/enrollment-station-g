@@ -23,6 +23,15 @@ public class RealScan_JNI {
         public int imageHeight;
     }
 
+    public static class RSISO19794ImageInfo {
+        public byte pbyImgBuf[];
+        public int imageWidth;
+        public int imageHeight;
+        public int bufferLength;
+        public int imageQuality;
+        public int fingerPosition;
+    }
+
     public static class RSLFDInfo {
         public boolean isActivated;
         public float th1;
@@ -132,6 +141,18 @@ public class RealScan_JNI {
         public int iLiveness;
     }
 
+    public static class RSLFDInfo2 {
+        public int nResult;
+        public int nScore;
+    }
+
+    public static class RSLFDResult {
+        public int nNumofFinger;
+        public int nResult[] = new int[RS_LFD_MAX_INFO];
+        public int nScore[] = new int[RS_LFD_MAX_INFO];
+//        public RSLFDInfo2[] sLFDInfo;
+    }
+
     public static final int RS_SUCCESS = 0;
 
     //
@@ -169,6 +190,8 @@ public class RealScan_JNI {
     public static final int RS_ERR_FINGER_EXIST = -116;
     public static final int RS_ERR_TOO_STRONG_LIGHT = -117;
     public static final int RS_ERR_INVALID_DEVICE_CONNECTION = -124;
+    public static final int RS_ERR_LOCKED_DEVICE = -126; // added by JSH - 20201211, locked device by Custom ID
+    public static final int RS_ERR_DEVICE_NOT_INITIALIZED = -127; // added by thkim - 20210618
 
     //
     // Capture related errors
@@ -454,8 +477,17 @@ public class RealScan_JNI {
     public static final int RS_LED_RED = 0x02;
     public static final int RS_LED_YELLOW = 0x03;
 
+    public static final int RS_S60_LED_STATUS_OFF = 0x00;
+    public static final int RS_S60_LED_STATUS_RED = 0x01;
+    public static final int RS_S60_LED_STATUS_GREEN = 0x02;
+    public static final int RS_S60_LED_STATUS_YELLOW = 0x03;
+    public static final int RS_S60_LED_STATUS_BLUE = 0x04;
+    public static final int RS_S60_LED_STATUS_MAGENTA = 0x05;
+    public static final int RS_S60_LED_STATUS_CYAN = 0x06;
+    public static final int RS_S60_LED_STATUS_WHITE = 0x07;
+
     //
-    // LED Status for G1
+    // LED Status for G1 
     //
     public static final int RS_LED_STATUS_OFF = 0x00;
     public static final int RS_LED_STATUS_ON = 0x01;
@@ -503,7 +535,7 @@ public class RealScan_JNI {
     public static final int RS_LCD_DATA_SIZE_MAX = 153600;
 
     //
-    // LFD Level for G1
+    // LFD Level for G1 
     //
     public static final int RS_LFD_OFF = 0;
     public static final int RS_LFD_LEVEL_1 = 1;
@@ -512,6 +544,10 @@ public class RealScan_JNI {
     public static final int RS_LFD_LEVEL_4 = 4;
     public static final int RS_LFD_LEVEL_5 = 5;
     public static final int RS_LFD_LEVEL_6 = 6;
+
+    public static final int RS_LFD_LIVE = 0;
+    public static final int RS_LFD_FAKE = 1;
+    public static final int RS_LFD_MAX_INFO = 4;
 
     //
     // Variables
@@ -523,6 +559,34 @@ public class RealScan_JNI {
     //
     public static final int RS_VAR_MISSING_FINGER_TYPE_NORMAL = 0;
     public static final int RS_VAR_MISSING_FINGER_TYPE_STRICT = 1;
+
+    //
+    // CompressionMode (ISO 19794-4)
+    //
+    public static final int RSE_COMP_NONE = 0;
+    public static final int RSE_COMP_UNCOMPRESSED_BIT_PACKED = 1;
+    public static final int RSE_COMP_WSQ = 2;
+    public static final int RSE_COMP_JPEG = 3;
+    public static final int RSE_COMP_JPEG2000 = 4;
+    public static final int RSE_COMP_PNG = 5;
+
+    public static final int RS_ISO19794_FGP_UNKNOWN = 0;
+    public static final int RS_ISO19794_FGP_RIGHT_THUMB = 1;
+    public static final int RS_ISO19794_FGP_RIGHT_INDEX = 2;
+    public static final int RS_ISO19794_FGP_RIGHT_MIDDLE = 3;
+    public static final int RS_ISO19794_FGP_RIGHT_RING = 4;
+    public static final int RS_ISO19794_FGP_RIGHT_LITTLE = 5;
+    public static final int RS_ISO19794_FGP_LEFT_THUMB = 6;
+    public static final int RS_ISO19794_FGP_LEFT_INDEX = 7;
+    public static final int RS_ISO19794_FGP_LEFT_MIDDLE = 8;
+    public static final int RS_ISO19794_FGP_LEFT_RING = 9;
+    public static final int RS_ISO19794_FGP_LEFT_LITTLE = 10;
+    public static final int RS_ISO19794_FGP_PLAIN_RIGHT_THUMB = 11;
+    public static final int RS_ISO19794_FGP_PLAIN_LEFT_THUMB = 12;
+    public static final int RS_ISO19794_FGP_PLAIN_RIGHT_FOUR = 13;
+    public static final int RS_ISO19794_FGP_PLAIN_LEFT_FOUR = 14;
+    public static final int RS_ISO19794_FGP_PLAIN_TWO_THUMBS = 15;
+    public static final int RS_ISO19794_FGP_EJI_OR_TIP = 16;
 
     //
     //JNI APIs
@@ -537,6 +601,8 @@ public class RealScan_JNI {
     public static native int RS_InitSDK(String configFileName, int option); // return numOfDevice
 
     public static native int RS_InitDevice(int deviceIndex); // return deviceHandle
+
+    public static native int RS_GetDeviceHandle(int deviceIndex, int[] deviceHandle); // return deviceHandle
 
     public static native int RS_ExitDevice(int deviceHandle);
 
@@ -587,7 +653,6 @@ public class RealScan_JNI {
 
     public static native int[] RS_TakeCurrentImageDataSegmentWithSize(int deviceHandle, int timeout, RSImageInfo imageData, int captureResult, int slapType, int numOfFinger, RSSlapInfo[] slapInfo, RSImageInfo[] fingerImageInfo, int nCropWidth, int nCropHeight); // return captureResult, numOfFinger
 
-
     public static native int RS_Segment(RSImageInfo imageInfo, int slapType, int numOfFinger, RSSlapInfo[] slapInfo, RSImageInfo[] segmentImageInfo); // return numOfFinger
 
     public static native int RS_SegmentMask(RSImageInfo imageInfo, int fingerMask, int numOfFinger, RSSlapInfo[] slapInfo, RSImageInfo[] segmentImageInfo); // return numOfFinger
@@ -598,7 +663,7 @@ public class RealScan_JNI {
 
     public static native int RS_GetQualityScore(byte[] imageData, int imageWidth, int imageHeight); // return nistQuality
 
-    public static native int RS_SequenceCheck(int numOfFinger, RSImageInfo fingerImage, byte[] slapImageData, int slapImageWidth, int slapImageHeight, int slapType, int securityLevel); // return fingerSequenceInSlap
+    public static native int RS_SequenceCheck(int numOfFinger, RSImageInfo fingerImage, byte[] slapImageData, int slapImageWidth, int slapImageHeight, int slapType, int fingerSequenceInSlap, int securityLevel); // return fingerSequenceInSlap
 
     public static native int RS_SetSegRotateOption(boolean isRotating);
 
@@ -637,6 +702,8 @@ public class RealScan_JNI {
     public static native int RS_SetLFDStatus(int deviceHandle, boolean isActivated, float th1, float th2, float th3, float th4);
 
     public static native int RS_GetLFDStatus(int deviceHandle, RSLFDInfo LFDInfo);
+
+    public static native int RS_GetLFDResult(int deviceHandle, RSLFDResult sLFDResult);
 
     public static native int RS_SetParamInt(int deviceHandle, int type, int variable);
 
@@ -682,10 +749,12 @@ public class RealScan_JNI {
     //
     public static native int RS_SetActiveKey(int deviceHandle, int keyMask);
 
-    public static native int RS_GetKeyStatus(int deviceHandle); // return keyMask
+    public static native int RS_GetKeyStatus(int deviceHandle, int[] keyCode); // return keyMask
 
     //  REALSCANSDK_API int __stdcall RS_RegisterKeypadCallback( int deviceHandle, RSKeypadCallback callback ); // Using JNI DLL
     public static native int RS_RegisterKeypadCallback(int deviceHandle, boolean setting);
+
+    public static native int RS_RegisterKeypadCallbackEx(int deviceHandle, Object provider, String method);
 
     public static native int RS_Beep(int deviceHandle, int beepPattern);
 
@@ -720,10 +789,24 @@ public class RealScan_JNI {
 
     public static native int RS_SaveBitmapMem(byte[] pixelData, int imageWidth, int imageHeight, byte[] imageBuffer);
 
-    public static native int RS_EncodeWSQ(byte[] rawdata, int width, int height, float ratio, byte[] wsqBuffer);
+    public static native int RS_GetTemplate(int templateType, byte[] imageData, int imageWidth, int imageHeight, byte[] pTemplate, int[] templateLength); // return Result, TemplateSize
+
+    public static native int RS_EncodeWSQ(byte[] rawdata, int width, int height, float ratio, byte[] wsqBuffer, int[] jpegBufferLen);
 
     public static native int RS_DecodeWSQ(byte[] wsqData, int wsqLength, RSImageInfo rawImageInfo);
 
+    public static native int RS_EncodeJpeg2000(byte[] imageData, int imageWidth, int imageHeight, float bitrate, byte[] jpegBuffer, int[] jpegBufferLen);
+
+    public static native byte[] RS_GenerateIso19794(int deviceType, RSImageInfo imageInfo, int imageBufferLength, int fingerPosition, int nCompressionMode);
+
+    public static native byte[] RS_MakeISOImageBuffer(
+            int deviceType,
+            RSImageInfo leftSlapImageInfo, int leftSlapImageLen,
+            RSImageInfo rightSlapImageInfo, int rightSlapImageLen,
+            RSImageInfo twoThumbImageInfo, int twoThumbImageLen,
+            int numOfSingleFinger, RSISO19794ImageInfo[] singleFingerInfos,
+            int numOfRollFinger, RSISO19794ImageInfo[] rollFingerInfos,
+            int compressionMode);
     static {
         if (System.getProperty("os.name").contains("Windows")) {
             System.loadLibrary("RS_JNI");
@@ -731,4 +814,5 @@ public class RealScan_JNI {
             System.loadLibrary("RealScanJni");
         }
     }
+
 }

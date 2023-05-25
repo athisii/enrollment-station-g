@@ -56,7 +56,29 @@ public class SlapScannerController {
     public static final String UNSUPPORTED_FINGER_SET_TYPE = "Unsupported finger set type.";
     private boolean isFpScanCompleted;
     // cannot be static.
-    private final int fingerprintLivenessValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FINGERPRINT_LIVENESS_VALUE).trim());
+    private final int fingerprintLivenessValue;
+
+    private static final int FP_SEGMENT_WIDTH;
+    private static final int FP_SEGMENT_HEIGHT;
+
+    static {
+        try {
+            FP_SEGMENT_WIDTH = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_WIDTH).trim());
+            FP_SEGMENT_HEIGHT = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_HEIGHT).trim());
+        } catch (RuntimeException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException("Not a number or no entry found.");
+        }
+    }
+
+    {
+        try {
+            fingerprintLivenessValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FINGERPRINT_LIVENESS_VALUE).trim());
+        } catch (RuntimeException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException("Not a number or no entry found.");
+        }
+    }
 
 
     /* *********** GLOBAL MEMBER VARIABLES ************* */
@@ -171,7 +193,7 @@ public class SlapScannerController {
             initIEngineLicense();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
-            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+            messageLabel.setText(ex.getMessage());
             scanBtn.setDisable(true);
             return;
         }
@@ -475,7 +497,7 @@ public class SlapScannerController {
             enableControls(backBtn, button);
             return;
         }
-        
+
         // saves in RSImageInfo for later modification
         RSImageInfo resImageInfo = byteArrayToRSImageInfo(imageData, imageWidth, imageHeight);
 
@@ -557,8 +579,8 @@ public class SlapScannerController {
             throw new GenericException("Unsupported finger set type: ");
         }
         if (mFingersToScanSeqMap.size() != rsLfdResult.nNumofFinger) {
-            LOGGER.log(Level.SEVERE, () -> "Finger counts doesn't matched.");
-            throw new GenericException("Finger counts doesn't matched.");
+            LOGGER.log(Level.SEVERE, () -> "The finger count doesn't match.");
+            throw new GenericException("The finger count doesn't match.");
         }
         for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
             // exit immediately if fake fingerprint captured.
@@ -845,10 +867,11 @@ public class SlapScannerController {
             RS_ERR_SEGMENT_FEWER_FINGER - The captured image has fewer fingers than expected.
             RS_ERR_SEGMENT_WRONG_HAND - Left hand is captured for right hand, or vice versa.
          */
-        int returnedNumOfFingers = RS_Segment(rsImageInfo, slapType, 0, slapInfoArray, imageInfoArray); // slap type set during setting capture mode
+//        int returnedNumOfFingers = RS_Segment(rsImageInfo, slapType, 0, slapInfoArray, imageInfoArray); // slap type set during setting capture mode
+        int returnedNumOfFingers = RS_SegmentWithSize(rsImageInfo, slapType, 0, slapInfoArray, imageInfoArray, FP_SEGMENT_WIDTH, FP_SEGMENT_HEIGHT); // slap type set during setting capture mode
         if (numOfFingers != returnedNumOfFingers) {
             LOGGER.log(Level.SEVERE, "Finger counts does not match.");
-            throw new GenericException("Finger counts different than specified. Please try again.");
+            throw new GenericException("Finger count different than specified. Please try again.");
         }
         jniReturnedCode = RS_GetLastError();
         if (jniReturnedCode != RS_SUCCESS) {

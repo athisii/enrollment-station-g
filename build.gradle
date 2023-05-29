@@ -34,7 +34,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
     implementation 'org.scream3r:jssc:2.8.0'
     implementation 'commons-io:commons-io:2.8.0'
     implementation 'net.java.dev.jna:jna:4.2.2'
@@ -67,7 +67,7 @@ dependencies {
 javafx {
 //    version = '13'
     version = '11.0.2'
-    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing', 'javafx.web']
+    modules = ['javafx.controls', 'javafx.fxml']
 }
 
 jar {

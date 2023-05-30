@@ -82,7 +82,7 @@ public class IrisController implements MIDIrisEnrollCallback {
     private AnchorPane confirmPane;
 
     @FXML
-    private Button captureIrisBtn;
+    private Button scanBtn;
 
     @FXML
     private Button backBtn;
@@ -161,7 +161,7 @@ public class IrisController implements MIDIrisEnrollCallback {
             initDevice();
         } catch (GenericException ex) {
             messageLabel.setText(ex.getMessage());
-            captureIrisBtn.setDisable(false);
+            scanBtn.setDisable(false);
             backBtn.setDisable(false);
         }
 
@@ -169,7 +169,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         irisTypeToCapture = getIrisToScan(getArcDetailsHolder().getArcDetails().getIris());
         if (IrisType.NONE == irisTypeToCapture) {
             capturePhotoBtn.setDisable(false);
-            captureIrisBtn.setDisable(true);
+            scanBtn.setDisable(true);
             messageLabel.setText("Iris capturing not required. Kindly proceed to capture photo.");
             return;
         }
@@ -200,17 +200,17 @@ public class IrisController implements MIDIrisEnrollCallback {
     }
 
     @FXML
-    private void captureIrisBtnAction() {
-        captureIrisBtn.setDisable(true);
+    private void scanBtnAction() {
+        scanBtn.setDisable(true);
         backBtn.setDisable(true);
-        captureIrisBtn.setText("RESCAN");
+        scanBtn.setText("RESCAN");
         messageLabel.setText("");
         if (!isDeviceInitialized) {
             try {
                 initDevice();
             } catch (GenericException ex) {
                 messageLabel.setText(ex.getMessage());
-                captureIrisBtn.setDisable(false);
+                scanBtn.setDisable(false);
                 backBtn.setDisable(false);
             }
         }
@@ -219,7 +219,7 @@ public class IrisController implements MIDIrisEnrollCallback {
             LOGGER.log(Level.SEVERE, () -> midIrisEnroll.GetErrorMessage(jniErrorCode));
             messageLabel.setText(GENERIC_IRIS_ERR_MSG);
             backBtn.setDisable(false);
-            captureIrisBtn.setDisable(false);
+            scanBtn.setDisable(false);
         }
     }
 
@@ -233,7 +233,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         if (errorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> midIrisEnroll.GetErrorMessage(errorCode));
             Platform.runLater(() -> {
-                captureIrisBtn.setDisable(false);
+                scanBtn.setDisable(false);
                 backBtn.setDisable(false);
             });
             return;
@@ -313,7 +313,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         }
         // if control reaches here, something went wrong.
         updateUIOnFailureOrSuccess(false, QUALITY_TOO_POOR_MSG);
-        captureIrisBtn.setDisable(false);
+        scanBtn.setDisable(false);
         backBtn.setDisable(false);
         isIrisCompleted = true;
     }
@@ -330,13 +330,13 @@ public class IrisController implements MIDIrisEnrollCallback {
     @FXML
     private void backBtnAction() {
         backBtn.setDisable(true);
-        captureIrisBtn.setDisable(true);
+        scanBtn.setDisable(true);
         capturePhotoBtn.setDisable(true);
         confirmPane.setVisible(true);
     }
 
     @FXML
-    private void cameraCapture() {
+    private void capturePhotBtnAction() {
         ARCDetailsHolder holder = getArcDetailsHolder();
         SaveEnrollmentDetails saveEnrollmentDetails = holder.getSaveEnrollmentDetails();
         if (IrisType.NONE == irisTypeToCapture) {
@@ -345,6 +345,13 @@ public class IrisController implements MIDIrisEnrollCallback {
             //saveEnrollmentDetails.setIRISScannerSerailNo(notAvailable)
         } else {
             saveEnrollmentDetails.setIris(irisSet);
+        }
+
+        if (deviceInfo == null || deviceInfo.SerialNo == null) {
+            messageLabel.setText("Kindly connect Iris scanner and try again.");
+            backBtn.setDisable(false);
+            capturePhotoBtn.setDisable(false);
+            return;
         }
         saveEnrollmentDetails.setIRISScannerSerailNo(deviceInfo.SerialNo);
         saveEnrollmentDetails.setEnrollmentStatus("IrisCompleted");
@@ -402,7 +409,7 @@ public class IrisController implements MIDIrisEnrollCallback {
     @FXML
     private void stayBack() {
         confirmPane.setVisible(false);
-        captureIrisBtn.setDisable(false);
+        scanBtn.setDisable(false);
         backBtn.setDisable(false);
         capturePhotoBtn.setDisable(!isIrisCompleted);
     }
@@ -410,7 +417,7 @@ public class IrisController implements MIDIrisEnrollCallback {
     private void updateUIOnFailureOrSuccess(boolean status, String message) {
         Platform.runLater(() -> {
             messageLabel.setText(message);
-            captureIrisBtn.setDisable(false);
+            scanBtn.setDisable(false);
             backBtn.setDisable(false);
             capturePhotoBtn.setDisable(!status);
             statusImageView.setImage(status ? successImage : failureImage);

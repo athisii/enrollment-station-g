@@ -491,7 +491,7 @@ public class SlapScannerController {
             return;
         }
         try {
-            checkLFD();
+            checkLFD(deviceHandle);
         } catch (GenericException ex) {
             updateUI(ex.getMessage());
             enableControls(backBtn, button);
@@ -555,14 +555,14 @@ public class SlapScannerController {
         }
     }
 
-    private void checkLFD() {
+    private void checkLFD(int deviceHandler) {
         RSLFDResult rsLfdResult = new RSLFDResult();
         /*
         RS_SetLFDLevel Error Codes:
             RS_SUCCESS - The option is set successfully.
             RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
          */
-        jniReturnedCode = RS_GetLFDResult(leftFpDeviceHandler, rsLfdResult);
+        jniReturnedCode = RS_GetLFDResult(deviceHandler, rsLfdResult);
         if (jniReturnedCode != RS_SUCCESS) {
             LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
             throw new GenericException(GENERIC_RS_ERR_MSG);

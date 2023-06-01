@@ -8,9 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -29,12 +27,13 @@ public class Aes256Util {
     private Aes256Util() {
         throw new AssertionError("The AES256Util methods must be accessed statically.");
     }
+
     private static final SecureRandom random = new SecureRandom();
     private static final int IV_SIZE = 16;
     private static final ThreadLocal<Cipher> CIPHER_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         try {
             return Cipher.getInstance("AES/CBC/PKCS5Padding");
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -60,7 +59,7 @@ public class Aes256Util {
             byteArrayOutputStream.write(ivBytes);
             byteArrayOutputStream.write(encryptedData);
             return byteArrayOutputStream.toByteArray();
-        } catch (GeneralSecurityException | IOException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -74,7 +73,7 @@ public class Aes256Util {
             byte[] actualData = Arrays.copyOfRange(ivData, IV_SIZE, ivData.length);
             byte[] decryptedData = CIPHER_THREAD_LOCAL.get().doFinal(actualData);
             return new String(decryptedData, StandardCharsets.UTF_8);
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }

@@ -11,11 +11,9 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
@@ -42,7 +40,7 @@ public class AesFileUtil {
     private static final ThreadLocal<Cipher> CIPHER_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         try {
             return Cipher.getInstance("AES/CBC/PKCS5Padding");
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -65,7 +63,7 @@ public class AesFileUtil {
             byteArrayOutputStream.write(encryptedData);
             //saves to file
             Files.write(encOutputPath, byteArrayOutputStream.toByteArray());
-        } catch (GeneralSecurityException | IOException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -86,7 +84,7 @@ public class AesFileUtil {
 
             byte[] decryptedBytes = CIPHER_THREAD_LOCAL.get().doFinal(actualData);
             return new String(decryptedBytes, StandardCharsets.UTF_8);
-        } catch (GeneralSecurityException | IOException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -99,7 +97,7 @@ public class AesFileUtil {
             SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
             SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
             return new SecretKeySpec(secretKey.getEncoded(), "AES");
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }

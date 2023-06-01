@@ -27,7 +27,8 @@ public class PropertyName {
     public static final String CARD_API_LIST_OF_READERS = "card.api.list.of.readers";
     public static final String JKS_CERT_FILE = "jks.cert.file";
     public static final String JKS_PASSWORD = "jks.password";
-    public static final String JKS_ALIAS = "jks.alias";
+    public static final String JKS_ALIAS_MANTRA = "jks.alias.mantra";
+    public static final String JKS_ALIAS_TECHM = "jks.alias.techm";
     public static final String URL_DATA = "url.data";
     public static final String FP_MATCH_MIN_THRESHOLD = "fp.match.min.threshold";
     public static final String ADMIN_PASSWD = "admin.passwd";

@@ -16,7 +16,6 @@ import com.cdac.enrollmentstation.logging.ApplicationLog;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +33,7 @@ public class HmacUtil {
     private static final ThreadLocal<Mac> MAC_THREAD_LOCAL = ThreadLocal.withInitial(() -> {
         try {
             return Mac.getInstance(ALGORITHM);
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
@@ -46,7 +45,7 @@ public class HmacUtil {
             MAC_THREAD_LOCAL.get().init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), ALGORITHM));
             byte[] bytes = MAC_THREAD_LOCAL.get().doFinal(message.getBytes(StandardCharsets.UTF_8));
             return bytesToHex(bytes);
-        } catch (GeneralSecurityException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }

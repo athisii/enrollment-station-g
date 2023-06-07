@@ -205,6 +205,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         backBtn.setDisable(true);
         scanBtn.setText("RESCAN");
         messageLabel.setText("");
+        statusImageView.setImage(null);
         if (!isDeviceInitialized) {
             try {
                 initDevice();

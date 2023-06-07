@@ -204,7 +204,7 @@ public class BiometricCaptureCompleteController {
         } else {
             // else saved successfully on the server
             // runs on main thread
-            updateUiIconOnServerResponse(true, "Record submitted to server successfully.");
+            updateUiIconOnServerResponse(true, "Applicant's Biometric Captured Successfully.");
         }
 
         // time for cleanup

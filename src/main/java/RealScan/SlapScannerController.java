@@ -965,13 +965,16 @@ public class SlapScannerController {
 
     private void confirmStay() {
         backBtn.setDisable(false);
-        scanBtn.setDisable(false);
         confirmPane.setVisible(false);
         if (isFpScanCompleted) {
             scanBtn.setDisable(false);
             captureIrisBtn.setDisable(false);
         } else {
             captureIrisBtn.setDisable(true);
+            if (leftScanBtn.isDisable() && rightScanBtn.isDisable() && thumbScanBtn.isDisable()) {
+                scanBtn.setDisable(false);
+                return;
+            }
             scanBtn.setDisable(true);
         }
     }

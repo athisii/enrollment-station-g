@@ -52,7 +52,7 @@
                     <ImageView fx:id="leftMiddleFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="252.0" layoutY="9.0" pickOnBounds="true" preserveRatio="true" />
                     <ImageView fx:id="leftRingFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="180.0" layoutY="75.0" pickOnBounds="true" preserveRatio="true" />
                     <ImageView fx:id="leftIndexFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="252.0" layoutY="75.0" pickOnBounds="true" preserveRatio="true" />
-                    <Button fx:id="leftScanBtn" disable="true" layoutX="165.0" layoutY="142.0" maxHeight="28.0" maxWidth="150.0" minHeight="25.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="LEFT SCAN" textFill="WHITE">
+                    <Button fx:id="leftScanBtn" disable="true" layoutX="165.0" layoutY="140.0" maxHeight="28.0" maxWidth="150.0" minHeight="25.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="LEFT SCAN" textFill="WHITE">
                         <font>
                             <Font name="System Bold" size="14.0" />
                         </font>
@@ -117,28 +117,28 @@
                 <Text fill="#04127b" layoutX="424.0" layoutY="513.0" strokeType="OUTSIDE" strokeWidth="0.0" text="RIGHT HAND FINGERS" />
                 <Text fill="#04127b" layoutX="780.0" layoutY="513.0" strokeType="OUTSIDE" strokeWidth="0.0" text="THUMB FINGERS" wrappingWidth="127.85498046875" />
                 <ImageView fx:id="rawFingerprintImageView" fitHeight="181.0" fitWidth="215.0" layoutX="5.0" layoutY="525.0" pickOnBounds="true" preserveRatio="true" />
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="106.0" layoutY="560.0" prefHeight="21.0" prefWidth="740.0" text="Click the SCAN button to start." textAlignment="CENTER">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="106.0" layoutY="544.0" prefHeight="21.0" prefWidth="740.0" text="Click the SCAN button to start." textAlignment="CENTER">
                     <font>
                         <Font name="System Bold" size="17.0" />
                     </font>
                 </Label>
-                <Button fx:id="backBtn" layoutX="232.0" layoutY="621.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
+                <Button fx:id="backBtn" layoutX="236.0" layoutY="664.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <Button fx:id="scanBtn" layoutX="399.0" layoutY="621.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="SCAN" textFill="WHITE">
+                <Button fx:id="scanBtn" layoutX="401.0" layoutY="664.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="SCAN" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <Button fx:id="captureIrisBtn" disable="true" layoutX="564.0" layoutY="621.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE IRIS" textFill="WHITE">
+                <Button fx:id="captureIrisBtn" disable="true" layoutX="568.0" layoutY="664.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE IRIS" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
 
-                <AnchorPane fx:id="confirmPane" layoutX="130.0" layoutY="589.0" prefHeight="67.0" prefWidth="773.0" style="-fx-border-color: #04127b;" visible="false">
+                <AnchorPane fx:id="confirmPane" layoutX="130.0" layoutY="584.0" prefHeight="67.0" prefWidth="773.0" style="-fx-border-color: #04127b;" visible="false">
 
                     <Button fx:id="confirmYesBtn" layoutX="212.0" layoutY="32.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="Yes" textFill="WHITE">
                         <font>

@@ -337,7 +337,7 @@ public class IrisController implements MIDIrisEnrollCallback {
     }
 
     @FXML
-    private void capturePhotBtnAction() {
+    private void capturePhotoBtnAction() {
         ARCDetailsHolder holder = getArcDetailsHolder();
         SaveEnrollmentDetails saveEnrollmentDetails = holder.getSaveEnrollmentDetails();
         if (IrisType.NONE == irisTypeToCapture) {

@@ -1,96 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ServerConfigController">
+
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.ServerConfigController">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>
-            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
+            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
 
                 <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
 
-                    <ImageView fitHeight="91.0" fitWidth="363.0" focusTraversable="true" layoutX="20.0" layoutY="10.0"
-                               pickOnBounds="true"
-                               preserveRatio="true">
+                    <ImageView fitHeight="91.0" fitWidth="363.0" focusTraversable="true" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
 
-                        <Image url="@../img/navy_logo.png"/>
+                        <Image url="@../img/navy_logo.png" />
 
                     </ImageView>
                 </AnchorPane>
-                <AnchorPane layoutX="262.0" layoutY="272.0" prefHeight="200.0" prefWidth="614.0"
-                            style="-fx-border-color: #04127b;"/>
-                <Text fill="#04127b" layoutX="326.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Enrolment Station Unit ID :"/>
-                <Text fill="#04127b" layoutX="326.0" layoutY="340.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Mafis API Server URL :"/>
-                <Text fill="#04127b" layoutX="326.0" layoutY="390.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="Enrolment Station ID :"/>
-                <TextField fx:id="mafisUrlTextField" disable="true" layoutX="517.0" layoutY="322.0" prefHeight="26.0"
-                           prefWidth="205.0"/>
-                <TextField fx:id="enrollmentStationIdTextField" disable="true" layoutX="517.0" layoutY="372.0"
-                           prefHeight="26.0" prefWidth="203.0"/>
-                <Button fx:id="backBtn" layoutX="305.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="140.0" mnemonicParsing="false" onAction="#backBtnAction"
-                        prefHeight="35.0" prefWidth="140.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="BACK"
-                        textFill="WHITE">
+                <AnchorPane layoutX="211.0" layoutY="278.0" prefHeight="200.0" prefWidth="614.0" style="-fx-border-color: #04127b;">
+               <children>
+                      <Button fx:id="fetchUnitsBtn" disable="true" layoutX="510.0" layoutY="138.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="86.0" mnemonicParsing="false" onAction="#fetchBtnAction" prefHeight="35.0" prefWidth="86.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="FETCH" textFill="WHITE">
+                          <font>
+                              <Font name="System Bold" size="14.0" />
+                          </font>
+                      </Button>
+               </children></AnchorPane>
+                <Text fill="#04127b" layoutX="309.0" layoutY="437.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Enrolment Station Unit ID :" />
+                <Text fill="#04127b" layoutX="309.0" layoutY="340.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Mafis API Server URL :" />
+                <Text fill="#04127b" layoutX="309.0" layoutY="390.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Enrolment Station ID :" />
+                <TextField fx:id="mafisUrlTextField" disable="true" layoutX="501.0" layoutY="322.0" prefHeight="26.0" prefWidth="205.0" />
+                <TextField fx:id="enrollmentStationIdTextField" disable="true" layoutX="501.0" layoutY="372.0" prefHeight="26.0" prefWidth="203.0" />
+                <Button fx:id="backBtn" layoutX="282.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="140.0" mnemonicParsing="false" onAction="#backBtnAction" prefHeight="35.0" prefWidth="140.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="14.0"/>
+                        <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <ComboBox fx:id="enrollmentStationUnitIdsComboBox" disable="true" layoutX="518.0" layoutY="419.0"
-                          prefHeight="26.0" prefWidth="201.0"/>
-                <AnchorPane layoutY="735.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
-                <Label layoutX="67.0" layoutY="105.0" prefHeight="45.0" prefWidth="417.0" text="SERVER CONFIGURATION"
-                       textFill="#04127b">
+                <ComboBox fx:id="enrollmentStationUnitIdsComboBox" disable="true" layoutX="502.0" layoutY="419.0" prefHeight="26.0" prefWidth="201.0" />
+                <AnchorPane layoutY="735.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <Label layoutX="67.0" layoutY="105.0" prefHeight="45.0" prefWidth="417.0" text="SERVER CONFIGURATION" textFill="#04127b">
                     <font>
-                        <Font size="22.0"/>
+                        <Font size="22.0" />
                     </font>
                 </Label>
-                <ImageView fitHeight="40.0" fitWidth="42.0" layoutX="14.0" layoutY="106.0" pickOnBounds="true"
-                           preserveRatio="true">
+                <ImageView fitHeight="40.0" fitWidth="42.0" layoutX="14.0" layoutY="106.0" pickOnBounds="true" preserveRatio="true">
 
-                    <Image url="@../img/settings.jpg"/>
+                    <Image url="@../img/settings.jpg" />
 
                 </ImageView>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="326.0" layoutY="485.0" prefHeight="25.0"
-                       prefWidth="451.0">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="326.0" layoutY="485.0" prefHeight="25.0" prefWidth="451.0">
                     <font>
-                        <Font name="System Bold" size="17.0"/>
+                        <Font name="System Bold" size="17.0" />
                     </font>
                 </Label>
-                <Button fx:id="fetchUnitsBtn" disable="true" layoutX="743.0" layoutY="415.0" maxHeight="35.0"
-                        maxWidth="150.0" minHeight="35.0" minWidth="86.0" mnemonicParsing="false"
-                        onAction="#fetchBtnAction" prefHeight="35.0" prefWidth="86.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="FETCH"
-                        textFill="WHITE">
+                <Button fx:id="editBtn" layoutX="456.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="86.0" mnemonicParsing="false" onAction="#editBtnAction" prefHeight="35.0" prefWidth="125.0" style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="EDIT" textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="14.0"/>
+                        <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <Button fx:id="editBtn" layoutX="508.0" layoutY="520.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="86.0" mnemonicParsing="false" onAction="#editBtnAction"
-                        prefHeight="35.0" prefWidth="125.0"
-                        style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="EDIT"
-                        textFill="WHITE">
+                <Button fx:id="homeBtn" layoutX="613.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#homeBtnAction" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="HOME" textFill="WHITE">
                     <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button fx:id="homeBtn" layoutX="677.0" layoutY="519.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#homeBtnAction"
-                        prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="HOME"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
+                        <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
 

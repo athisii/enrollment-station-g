@@ -1,11 +1,14 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.IRIS;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
 import com.mantra.midirisenroll.DeviceInfo;
 import com.mantra.midirisenroll.MIDIrisEnroll;
@@ -86,6 +89,8 @@ public class IrisController implements MIDIrisEnrollCallback {
 
     @FXML
     private Button backBtn;
+    @FXML
+    private Label version;
 
     private boolean isDeviceInitialized;
     private boolean isIrisCompleted;
@@ -138,6 +143,8 @@ public class IrisController implements MIDIrisEnrollCallback {
     }
 
     public void initialize() {
+        //To get the Version Number
+        getVersion();
         // loads failure and success images from FS.
         InputStream inputStream = IrisController.class.getResourceAsStream("/img/red_cross.png");
         if (inputStream == null) {
@@ -187,6 +194,14 @@ public class IrisController implements MIDIrisEnrollCallback {
         }
     }
 
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
+    }
     @Override
     public void OnDeviceDetection(String deviceName, IrisSide irisSide, DeviceDetection detection) {
         if (DeviceDetection.CONNECTED == detection) {

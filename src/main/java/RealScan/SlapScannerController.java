@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -175,11 +176,17 @@ public class SlapScannerController {
     private ImageView rightMiddleFingerImageView;
     @FXML
     private ImageView rightIndexFingerImageView;
+    @FXML
+    private Text confirmText;
+    @FXML
+    private Label version;
 
 
     // calls automatically by JavaFX runtime
 
     public void initialize() {
+        //To get the Version Number
+        getVersion();
         scanBtn.setOnAction(event -> scanBtnAction());
         leftScanBtn.setOnAction(event -> leftScanBtnAction());
         rightScanBtn.setOnAction(event -> rightScanBtnAction());
@@ -212,6 +219,15 @@ public class SlapScannerController {
         if (getArcDetailsHolder().getArcDetails() != null && getArcDetailsHolder().getArcDetails().getArcNo() != null) {
             displayArcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetails().getArcNo());
         }
+    }
+
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
     }
 
     private void initSdkAndScanners() {
@@ -582,12 +598,16 @@ public class SlapScannerController {
             LOGGER.log(Level.SEVERE, () -> "The finger count doesn't match.");
             throw new GenericException("The finger count doesn't match.");
         }
-        for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
-            // exit immediately if fake fingerprint captured.
-            if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
-                int j = i; // used in lambda
-                LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
-                throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
+        if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            LOGGER.log(Level.INFO, () -> "Not Checking LFD For Thumb");
+        }else {
+            for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
+                // exit immediately if fake fingerprint captured.
+                if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
+                    int j = i; // used in lambda
+                    LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
+                    throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
+                }
             }
         }
     }
@@ -733,6 +753,7 @@ public class SlapScannerController {
 
     private void rescanFromStart() {
         scannedFingerTypeToRsImageInfoMap.clear();
+        Platform.runLater(this::clearFingerprintOnUI);
         leftScanBtnAction();
     }
 
@@ -789,6 +810,11 @@ public class SlapScannerController {
             clearImageViews(rightFingers);
             clearImageViews(thumbs);
         } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            clearImageViews(thumbs);
+        }
+        if (isSequenceCheckFailed) {
+            clearImageViews(leftFingers);
+            clearImageViews(rightFingers);
             clearImageViews(thumbs);
         }
     }
@@ -951,7 +977,19 @@ public class SlapScannerController {
     }
 
     private void confirmBack() {
+        App.getThreadPool().execute(this::goBack);
+    }
+
+    private void goBack() {
         try {
+            Platform.runLater(() -> {
+                confirmText.setText("Please Wait....");
+            });
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException("Interrupted while sleeping:"+e);
+            }
             if (isLeftFpDeviceInitialised) {
                 releaseDevice(leftFpDeviceHandler);
                 releaseDevice(rightFpDeviceHandler);

@@ -2,11 +2,14 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ARCDetails;
 import com.cdac.enrollmentstation.model.ARCDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -71,7 +74,12 @@ public class BiometricEnrollmentController {
     @FXML
     private Label txtBiometricOptions;
 
+    @FXML
+    private Label version;
+
     public void initialize() {
+        //To get the Version Number
+        getVersion();
         backBtn.setOnAction(event -> backBtnAction());
         showArcBtn.setOnAction(event -> showArcBtnAction());
         continueBtn.setOnAction(event -> continueBtnAction());
@@ -81,6 +89,15 @@ public class BiometricEnrollmentController {
                 showArcBtnAction();
             }
         });
+    }
+
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
     }
 
     private void continueBtnAction() {

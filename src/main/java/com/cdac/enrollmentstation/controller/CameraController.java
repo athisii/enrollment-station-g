@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
@@ -119,6 +120,8 @@ public class CameraController {
     private Label message;
     @FXML
     private Button startStopCameraBtn;
+    @FXML
+    private Label version;
     private volatile boolean isCameraActive = false;
     private volatile boolean stopLive = false;
     //    private static final int CAMERA_ID = Integer.parseInt(PropertyFile.getProperty(PropertyName.CAMERA_ID))
@@ -133,6 +136,8 @@ public class CameraController {
 
     // automatically called by JavaFx runtime.
     public void initialize() {
+        //To get the Version Number
+        getVersion();
         cameraId = Integer.parseInt(PropertyFile.getProperty(PropertyName.CAMERA_ID).trim());
         // set action for button click
         startStopCameraBtn.setOnAction(this::startCamera);
@@ -147,7 +152,14 @@ public class CameraController {
 //        camSlider.setVisible(true);
 //        brightness.setVisible(true);
     }
-
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
+    }
     private void confirmYes(ActionEvent actionEvent) {
         confirmPane.setVisible(false);
         savePhotoBtn.setDisable(!validImage);

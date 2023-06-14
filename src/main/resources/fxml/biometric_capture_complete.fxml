@@ -22,7 +22,9 @@
                         <Font name="System Bold" size="14.0" />
                     </font>
                 </Button>
-                <AnchorPane layoutY="738.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="738.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" >
+                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
+                </AnchorPane>
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="155.0" layoutY="341.0" pickOnBounds="true" preserveRatio="true">
 
                     <Image url="@../img/thumb_new.png" />

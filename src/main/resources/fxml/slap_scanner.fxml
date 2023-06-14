@@ -145,7 +145,7 @@
                             <Font name="System Bold" size="14.0" />
                         </font>
                     </Button>
-                    <Text fill="#04127b" layoutX="9.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint" textAlignment="JUSTIFY">
+                    <Text fx:id="confirmText" fill="#04127b" layoutX="9.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint" textAlignment="JUSTIFY">
                         <font>
                             <Font size="18.0" />
                         </font>
@@ -157,7 +157,9 @@
                     </Button>
 
                 </AnchorPane>
-                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" >
+                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
+                </AnchorPane>
             </AnchorPane>
         </center>
     </BorderPane>

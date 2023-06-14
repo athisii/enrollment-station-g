@@ -159,8 +159,9 @@
                         <Font name="System Bold" size="15.0"/>
                     </font>
                 </Label>
-                <AnchorPane layoutY="745.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
+                <AnchorPane layoutY="745.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
+                </AnchorPane>
 
             </AnchorPane>
         </center>

@@ -46,7 +46,9 @@
                     <Image url="@../img/no_mask.png" />
                 </ImageView>
                 <ImageView fx:id="msgIcon" fitHeight="120.0" fitWidth="135.0" layoutX="686.0" layoutY="405.0" pickOnBounds="true" preserveRatio="true" />
-                <AnchorPane layoutY="748.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="748.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" >
+                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
+                </AnchorPane>
                 <ImageView fx:id="sunGlassIcon" fitHeight="118.0" fitWidth="117.0" layoutX="697.0" layoutY="322.0" pickOnBounds="true" preserveRatio="true">
 
                     <Image url="@../img/no_goggles.jpg" />

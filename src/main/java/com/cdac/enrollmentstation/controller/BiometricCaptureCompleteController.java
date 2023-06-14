@@ -62,6 +62,9 @@ public class BiometricCaptureCompleteController {
 
     @FXML
     private ProgressIndicator progressIndicator;
+
+    @FXML
+    private Label version;
     // after submitted successfully/failed, go back to main screen after 10 secs
     private static boolean isStillHere = true;
     private static final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
@@ -76,8 +79,19 @@ public class BiometricCaptureCompleteController {
 
     // calls automatically by JavaFx runtime
     public void initialize() {
+        //To get the Version Number
+        getVersion();
         // better sets button actions here
         messageLabel.setText("Please click SUBMIT button and wait....");
+    }
+
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
     }
 
     @FXML

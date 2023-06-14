@@ -63,7 +63,9 @@
                 </ImageView>
                 <ImageView fx:id="statusImageView" fitHeight="116.0" fitWidth="118.0" layoutX="800.0" layoutY="435.0" pickOnBounds="true" preserveRatio="true" />
 
-                <AnchorPane layoutY="742.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" />
+                <AnchorPane layoutY="742.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" >
+                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
+                </AnchorPane>
                 <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
 
                     <Label fx:id="arcLabel" layoutX="21.0" layoutY="19.0" text="ARCNo : " textFill="WHITE">

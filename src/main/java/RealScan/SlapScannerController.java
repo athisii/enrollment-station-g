@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static RealScan.RealScan_JNI.*;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_RS_ERR_MSG;
 import static com.cdac.enrollmentstation.model.ARCDetailsHolder.getArcDetailsHolder;
 
@@ -346,6 +347,8 @@ public class SlapScannerController {
     }
 
     private void startLeftScan() {
+        fingerSetTypeToScan = FingerSetType.LEFT;
+        Platform.runLater(this::clearFingerprintOnUI);
         // display the message for 2 seconds.
         if (isSequenceCheckFailed) {
             try {
@@ -355,7 +358,6 @@ public class SlapScannerController {
             }
         }
         isSequenceCheckFailed = false;
-        fingerSetTypeToScan = FingerSetType.LEFT;
         if (!isLeftFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
             updateUI(GENERIC_RS_ERR_MSG);
@@ -600,7 +602,7 @@ public class SlapScannerController {
         }
         if (FingerSetType.THUMB == fingerSetTypeToScan) {
             LOGGER.log(Level.INFO, () -> "Not Checking LFD For Thumb");
-        }else {
+        } else {
             for (int i = 0; i < mFingersToScanSeqMap.size(); i++) {
                 // exit immediately if fake fingerprint captured.
                 if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
@@ -753,7 +755,6 @@ public class SlapScannerController {
 
     private void rescanFromStart() {
         scannedFingerTypeToRsImageInfoMap.clear();
-        Platform.runLater(this::clearFingerprintOnUI);
         leftScanBtnAction();
     }
 
@@ -810,11 +811,6 @@ public class SlapScannerController {
             clearImageViews(rightFingers);
             clearImageViews(thumbs);
         } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
-            clearImageViews(thumbs);
-        }
-        if (isSequenceCheckFailed) {
-            clearImageViews(leftFingers);
-            clearImageViews(rightFingers);
             clearImageViews(thumbs);
         }
     }
@@ -977,28 +973,26 @@ public class SlapScannerController {
     }
 
     private void confirmBack() {
-        App.getThreadPool().execute(this::goBack);
-    }
-
-    private void goBack() {
-        try {
-            Platform.runLater(() -> {
-                confirmText.setText("Please Wait....");
-            });
+        App.getThreadPool().execute(() -> {
             try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Interrupted while sleeping:"+e);
+                disableControls(confirmNoBtn, confirmYesBtn);
+                Platform.runLater(() -> confirmText.setText("Please Wait...."));
+                if (isLeftFpDeviceInitialised || isRightFpDeviceInitialised) {
+                    Thread.sleep(1000);
+                    releaseDevice(leftFpDeviceHandler);
+                    releaseDevice(rightFpDeviceHandler);
+                }
+                App.setRoot("biometric_enrollment");
+            } catch (IOException | InterruptedException ex) {
+                if (ex instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+                confirmText.setText(GENERIC_ERR_MSG);
+                enableControls(confirmNoBtn, confirmYesBtn);
             }
-            if (isLeftFpDeviceInitialised) {
-                releaseDevice(leftFpDeviceHandler);
-                releaseDevice(rightFpDeviceHandler);
-            }
-            App.setRoot("biometric_enrollment");
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
-        }
+        });
     }
 
     private void confirmStay() {

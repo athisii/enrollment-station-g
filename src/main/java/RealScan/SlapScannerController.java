@@ -96,6 +96,8 @@ public class SlapScannerController {
     private volatile int captureMode; // to be used when setting capture mode.
     private volatile int slapType; // to be used during segmentation.
     private volatile boolean isSequenceCheckFailed;
+    private Button currentEnabledButton;
+
 
     private final RSDeviceInfo leftFpDeviceInfo = new RSDeviceInfo();
     private final RSDeviceInfo rightFpDeviceInfo = new RSDeviceInfo();
@@ -155,6 +157,7 @@ public class SlapScannerController {
     @FXML
     private Button confirmNoBtn;
 
+
     @FXML
     private ImageView rawFingerprintImageView;
     @FXML
@@ -192,7 +195,7 @@ public class SlapScannerController {
         leftScanBtn.setOnAction(event -> leftScanBtnAction());
         rightScanBtn.setOnAction(event -> rightScanBtnAction());
         thumbScanBtn.setOnAction(event -> thumbScanBtnAction());
-        backBtn.setOnAction(event -> back());
+        backBtn.setOnAction(event -> backBtnAction());
         captureIrisBtn.setOnAction(event -> showIris());
         confirmNoBtn.setOnAction(event -> confirmStay());
         confirmYesBtn.setOnAction(event -> confirmBack());
@@ -957,10 +960,21 @@ public class SlapScannerController {
         return mFingerTypeRsImageInfoMap;
     }
 
-    private void back() {
+    private void backBtnAction() {
         confirmPane.setVisible(true);
-        backBtn.setDisable(true);
-        scanBtn.setDisable(true);
+        if (!scanBtn.isDisable()) {
+            currentEnabledButton = scanBtn;
+        } else if (!leftScanBtn.isDisable()) {
+            currentEnabledButton = leftScanBtn;
+        } else if (!rightScanBtn.isDisable()) {
+            currentEnabledButton = rightScanBtn;
+        } else if (!thumbScanBtn.isDisable()) {
+            currentEnabledButton = thumbScanBtn;
+        } else {
+            LOGGER.log(Level.SEVERE, "No button is enabled.");
+            throw new GenericException("At least one button should be enabled.");
+        }
+        disableControls(backBtn, scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, captureIrisBtn);
     }
 
     private void showIris() {
@@ -999,11 +1013,7 @@ public class SlapScannerController {
         backBtn.setDisable(false);
         confirmPane.setVisible(false);
         captureIrisBtn.setDisable(!isFpScanCompleted);
-        if (leftScanBtn.isDisable() && rightScanBtn.isDisable() && thumbScanBtn.isDisable()) {
-            scanBtn.setDisable(false);
-            return;
-        }
-        scanBtn.setDisable(true);
+        currentEnabledButton.setDisable(false);
     }
 
 

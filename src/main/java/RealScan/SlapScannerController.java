@@ -1088,6 +1088,8 @@ public class SlapScannerController {
 
         // check if total fingers to scan is same with already scanned fingers
         if (fingerSet.size() != requiredFingerCount || requiredFingerCount != scannedFingerTypeToRsImageInfoMap.size()) {
+            LOGGER.log(Level.SEVERE, "requiredFingerCount and map size not equal.");
+            Platform.runLater(this::clearFingerprintOnUI);
             updateUI("Finger counts different than specified. Kindly rescan all the required fingers.");
             enableControls(leftScanBtn);
             return;
@@ -1148,6 +1150,7 @@ public class SlapScannerController {
             // also returns null value if exceptions occur
             Map<String, byte[]> imageAndIsoTemplateMap = convertToIsoTemplate(rsImageInfo.imageWidth, rsImageInfo.imageHeight, rsImageInfo.pbyImgBuf);
             if (imageAndIsoTemplateMap == null) {
+                LOGGER.log(Level.SEVERE, "imageAndIsoTemplateMap is null.");
                 Platform.runLater(this::clearFingerprintOnUI);
                 updateUI("Error converting to template. Kindly rescan from start");
                 enableControls(leftScanBtn);
@@ -1158,8 +1161,9 @@ public class SlapScannerController {
             byte[] template = imageAndIsoTemplateMap.get("template");
 
             if (image == null || template == null) {
+                LOGGER.log(Level.SEVERE, "Either image or template is null");
                 Platform.runLater(this::clearFingerprintOnUI);
-                updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+                updateUI("Either image or template is invalid");
                 enableControls(leftScanBtn);
                 return;
             }
@@ -1174,6 +1178,7 @@ public class SlapScannerController {
         }
 
         if (checkDuplicateFp(isoTemplates)) {
+            LOGGER.log(Level.SEVERE, "Sequence check failed.");
             updateUI("Sequence check failed. Rescanning from the start....");
             isSequenceCheckFailed = true;
             rescanFromStart();

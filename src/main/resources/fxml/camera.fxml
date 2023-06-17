@@ -25,7 +25,7 @@
                 </Button>
                 <Pane layoutX="343.0" layoutY="324.0" prefHeight="268.0" prefWidth="312.0" style="-fx-border-color: #000000; -fx-border-width: 2px;">
 
-                    <ImageView fx:id="liveImageView" fitHeight="216.0" fitWidth="229.0" layoutX="48.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                    <ImageView fx:id="liveImageView" fitHeight="216.0" fitWidth="229.0" layoutX="41.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
 
                         <Image url="@../img/webcam.jpg" />
                     </ImageView>
@@ -46,7 +46,7 @@
                     <Image url="@../img/no_mask.png" />
                 </ImageView>
                 <ImageView fx:id="msgIcon" fitHeight="120.0" fitWidth="135.0" layoutX="686.0" layoutY="405.0" pickOnBounds="true" preserveRatio="true" />
-                <AnchorPane layoutY="748.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;" >
+                <AnchorPane layoutY="748.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
                     <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
                 </AnchorPane>
                 <ImageView fx:id="sunGlassIcon" fitHeight="118.0" fitWidth="117.0" layoutX="697.0" layoutY="322.0" pickOnBounds="true" preserveRatio="true">

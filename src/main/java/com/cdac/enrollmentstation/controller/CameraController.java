@@ -48,7 +48,7 @@ public class CameraController {
     private static final int EXECUTOR_SHUTDOWN_WAIT_TIME_IN_MILLIS = 50; // in milliseconds
     private static final int IMAGE_CAPTURE_LIMIT = 30;
     private static final String INPUT_FILE;
-    private static final String WEBCAM_COMMAND;
+    private static final String PYTHON_IMAGE_PROCESSOR_COMMAND;
     private static final String SUB_FILE;
 
     private static final Image OUT_OF_FRAME_IMAGE;
@@ -65,7 +65,7 @@ public class CameraController {
     static {
         try {
             INPUT_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_INPUT_FILE));
-            WEBCAM_COMMAND = requireNonBlank(PropertyFile.getProperty(PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND));
+            PYTHON_IMAGE_PROCESSOR_COMMAND = requireNonBlank(PropertyFile.getProperty(PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND));
             SUB_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_SUB_FILE));
             // loads --> /img/
             NO_MASK_IMAGE = loadFileFromImgDirectory("no_mask.png");
@@ -339,8 +339,7 @@ public class CameraController {
             return;
         }
         try {
-            //WEBCAM_COMMAND = "python3 /usr/share/enrollment/python/webcam.py"
-            Process pr = Runtime.getRuntime().exec(WEBCAM_COMMAND);
+            Process pr = Runtime.getRuntime().exec(PYTHON_IMAGE_PROCESSOR_COMMAND);
             BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
             BufferedReader error = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
             String eline;

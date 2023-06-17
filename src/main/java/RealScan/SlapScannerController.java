@@ -95,7 +95,7 @@ public class SlapScannerController {
     private volatile int rightFpDeviceHandler;
     private volatile int captureMode; // to be used when setting capture mode.
     private volatile int slapType; // to be used during segmentation.
-    private volatile boolean isSequenceCheckFailed;
+    private volatile boolean duplicateFpFound;
     private Button currentEnabledButton;
 
 
@@ -352,14 +352,14 @@ public class SlapScannerController {
         fingerSetTypeToScan = FingerSetType.LEFT;
         Platform.runLater(this::clearFingerprintOnUI);
         // display the message for 2 seconds.
-        if (isSequenceCheckFailed) {
+        if (duplicateFpFound) {
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-        isSequenceCheckFailed = false;
+        duplicateFpFound = false;
         if (!isLeftFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
             updateUI(GENERIC_RS_ERR_MSG);
@@ -1178,9 +1178,9 @@ public class SlapScannerController {
         }
 
         if (checkDuplicateFp(isoTemplates)) {
-            LOGGER.log(Level.SEVERE, "Sequence check failed.");
-            updateUI("Sequence check failed. Rescanning from the start....");
-            isSequenceCheckFailed = true;
+            LOGGER.log(Level.SEVERE, "Scanned duplicate fingerprints.");
+            updateUI("Duplicate fingerprints found. Rescanning from the start....");
+            duplicateFpFound = true;
             rescanFromStart();
             return;
         }

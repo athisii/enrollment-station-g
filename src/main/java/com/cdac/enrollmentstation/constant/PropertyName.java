@@ -34,7 +34,7 @@ public class PropertyName {
     public static final String ADMIN_PASSWD = "admin.passwd";
     public static final String IMG_INPUT_FILE = "img.input.file";
     public static final String PYTHON_CAP_COMMAND = "python.cap.command";
-    public static final String PYTHON_WEBCAM_COMMAND = "python.webcam.command";
+    public static final String PYTHON_IMAGE_PROCESSOR_COMMAND = "python.image.processor.command";
     public static final String IMG_OUTPUT_FILE = "img.output.file";
     public static final String IMG_COMPRESS_FILE = "img.compress.file";
     public static final String IMPORT_JSON_FILE = "import.json.file";

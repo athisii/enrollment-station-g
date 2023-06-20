@@ -63,10 +63,13 @@ public class SlapScannerController {
     private static final int FP_SEGMENT_WIDTH;
     private static final int FP_SEGMENT_HEIGHT;
 
+    private static final int FP_NIST_VALUE;
+
     static {
         try {
             FP_SEGMENT_WIDTH = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_WIDTH).trim());
             FP_SEGMENT_HEIGHT = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_HEIGHT).trim());
+            FP_NIST_VALUE = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_NIST_VALUE).trim());
         } catch (RuntimeException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException("Not a number or no entry found.");
@@ -509,6 +512,15 @@ public class SlapScannerController {
             enableControls(backBtn, button);
             return;
         }
+
+        int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
+        if (nistQuality > FP_NIST_VALUE) {
+            LOGGER.log(Level.INFO, "Quality too poor (NIST): " + nistQuality);
+            updateUI("Quality too poor. Please try again.");
+            enableControls(backBtn, button);
+            return;
+        }
+
         try {
             checkLFD(deviceHandle);
         } catch (GenericException ex) {

@@ -68,5 +68,6 @@ public class PropertyName {
     public static final String CARD_HOTLISTED_FILE = "card.hotlisted.file";
     public static final String FP_SEGMENT_WIDTH = "fp.segment.width";
     public static final String FP_SEGMENT_HEIGHT = "fp.segment.height";
+    public static final String FP_NIST_VALUE = "fp.nist.value";
 
 }

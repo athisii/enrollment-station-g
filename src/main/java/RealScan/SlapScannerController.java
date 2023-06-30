@@ -993,8 +993,7 @@ public class SlapScannerController {
                     Thread.currentThread().interrupt();
                 }
                 LOGGER.log(Level.SEVERE, ex.getMessage());
-                messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
-                confirmText.setText(GENERIC_ERR_MSG);
+                Platform.runLater(() -> confirmText.setText(GENERIC_ERR_MSG));
                 enableControls(confirmNoBtn, confirmYesBtn);
             }
         });

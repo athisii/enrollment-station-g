@@ -13,6 +13,7 @@ import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 
@@ -87,16 +88,19 @@ public class TokenIssuanceController {
             asn1EncodedHexByteArrayMap = startProcedureCall();
         } catch (GenericException ex) {
             updateUI(ex.getMessage());
+            enableControls(backBtn, showContractBtn);
             return;
         }
         if (asn1EncodedHexByteArrayMap == null) {
             LOGGER.log(Level.SEVERE, "Connection timeout. Card API service is not available.");
             updateUI("Something went wrong. Contact the system admin.");
+            enableControls(backBtn, showContractBtn);
             return;
         }
         byte[] asn1EncodedHexByteArray = asn1EncodedHexByteArrayMap.get(DataType.STATIC);
         if (asn1EncodedHexByteArray == null) {
             updateUI("No contractor details available in the card.");
+            enableControls(backBtn, showContractBtn);
             return;
         }
         String contractorName;
@@ -106,10 +110,12 @@ public class TokenIssuanceController {
             contractorId = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.UNIQUE_ID);
         } catch (GenericException ex) {
             updateUI("Both contractor name and id are required.");
+            enableControls(backBtn, showContractBtn);
             return;
         }
         if (contractorName.isEmpty() || contractorId.isEmpty()) {
             updateUI("No contractor details available in the card.");
+            enableControls(backBtn, showContractBtn);
             return;
         }
         contractorInfo.setContractorName(contractorName);
@@ -121,13 +127,27 @@ public class TokenIssuanceController {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             updateUI("Something went wrong. Contact the system admin.");
+            enableControls(backBtn, showContractBtn);
         }
     }
 
     @FXML
     private void showContractsAction() {
         messageLabel.setText("Please wait...");
+        disableControls(backBtn, showContractBtn);
         App.getThreadPool().execute(this::readCardDetails);
+    }
+
+    private void disableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(true);
+        }
+    }
+
+    private void enableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(false);
+        }
     }
 
 

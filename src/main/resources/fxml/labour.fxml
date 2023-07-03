@@ -31,7 +31,7 @@
                         <Font size="22.0" />
                     </font>
                 </Text>
-                <Button layoutX="288.0" layoutY="634.0" maxHeight="35.0" maxWidth="236.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="236.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SELECT NEXT CONTRACT" textFill="WHITE">
+                <Button layoutX="288.0" layoutY="634.0" maxHeight="35.0" maxWidth="236.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showContractBtnAction" prefHeight="35.0" prefWidth="236.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SELECT NEXT CONTRACT" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>

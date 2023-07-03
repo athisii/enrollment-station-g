@@ -245,7 +245,7 @@ public class LabourController implements MIDFingerAuth_Callback {
     }
 
     @FXML
-    private void showHome() throws IOException {
+    private void showContractBtnAction() throws IOException {
         App.setRoot("contract");
     }
 

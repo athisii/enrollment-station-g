@@ -354,15 +354,15 @@ public class MafisServerApi {
     }
 
     public static String getContractListUrl() {
-        return getMafisApiUrl() + "/api/EnrollmentStation/GetContractList";
+        return getMafisApiUrl() + "/GetContractList";
     }
 
     public static String getLabourListUrl() {
-        return getMafisApiUrl() + "/api/EnrollmentStation/GetLabourList";
+        return getMafisApiUrl() + "/GetLabourList";
     }
 
     public static String getTokenUpdateUrl() {
-        return getMafisApiUrl() + "/api/EnrollmentStation/UpdateTokenStatus";
+        return getMafisApiUrl() + "/UpdateTokenStatus";
     }
 
 }

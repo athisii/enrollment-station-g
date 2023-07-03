@@ -95,13 +95,13 @@ public class HttpUtil {
                 }
             } catch (IOException ignored) {
                 LOGGER.log(Level.SEVERE, String.format("%s", (NO_OF_RETRIES + 1 - noOfRetries) + " Retrying connection."));
-                noOfRetries--;
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             } catch (RuntimeException ex) {
                 LOGGER.log(Level.SEVERE, ex.getMessage());
                 throw new GenericException("Invalid url or ip address. Kindly try again.");
             }
+            noOfRetries--;
         }
         // connection timeout - very important
         // based on null value, connection status is determined is some APIs

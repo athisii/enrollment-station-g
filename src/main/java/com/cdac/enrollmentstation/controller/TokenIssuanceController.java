@@ -11,6 +11,7 @@ import com.cdac.enrollmentstation.security.Asn1EncodedHexUtil;
 import com.cdac.enrollmentstation.util.LocalCardReaderErrMsgUtil;
 import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -61,7 +62,7 @@ public class TokenIssuanceController {
     private ContractorInfo contractorInfo;
 
     public
-    @FXML Button showContractDetails;
+    @FXML Button showContractBtn;
 
     public
     @FXML Button backBtn;
@@ -75,23 +76,27 @@ public class TokenIssuanceController {
         App.setRoot("main_screen");
     }
 
-    @FXML
+
+    private void updateUI(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
+    }
+
     private void readCardDetails() {
         contractorInfo = new ContractorInfo();
         try {
             asn1EncodedHexByteArrayMap = startProcedureCall();
         } catch (GenericException ex) {
-            messageLabel.setText(ex.getMessage());
+            updateUI(ex.getMessage());
             return;
         }
         if (asn1EncodedHexByteArrayMap == null) {
             LOGGER.log(Level.SEVERE, "Connection timeout. Card API service is not available.");
-            messageLabel.setText("Something went wrong. Contact the system admin.");
+            updateUI("Something went wrong. Contact the system admin.");
             return;
         }
         byte[] asn1EncodedHexByteArray = asn1EncodedHexByteArrayMap.get(DataType.STATIC);
         if (asn1EncodedHexByteArray == null) {
-            messageLabel.setText("No contractor details available in the card.");
+            updateUI("No contractor details available in the card.");
             return;
         }
         String contractorName;
@@ -100,11 +105,11 @@ public class TokenIssuanceController {
             contractorName = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.NAME);
             contractorId = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.UNIQUE_ID);
         } catch (GenericException ex) {
-            messageLabel.setText("Both contractor name and id are required.");
+            updateUI("Both contractor name and id are required.");
             return;
         }
         if (contractorName.isEmpty() || contractorId.isEmpty()) {
-            messageLabel.setText("No contractor details available in the card.");
+            updateUI("No contractor details available in the card.");
             return;
         }
         contractorInfo.setContractorName(contractorName);
@@ -115,9 +120,14 @@ public class TokenIssuanceController {
             App.setRoot("contract");
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
-            messageLabel.setText("Something went wrong. Contact the system admin.");
+            updateUI("Something went wrong. Contact the system admin.");
         }
+    }
 
+    @FXML
+    private void showContractsAction() {
+        messageLabel.setText("Please wait...");
+        App.getThreadPool().execute(this::readCardDetails);
     }
 
 

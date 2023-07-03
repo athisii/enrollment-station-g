@@ -59,7 +59,7 @@ public class ContractController {
 
     @FXML
     private void showHome() throws IOException {
-        App.setRoot("first_screen");
+        App.setRoot("main_screen");
     }
 
     private void fetchDetails() {

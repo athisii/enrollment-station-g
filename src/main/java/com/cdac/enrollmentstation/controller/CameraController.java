@@ -283,8 +283,8 @@ public class CameraController {
                 return;
             }
             Imgproc.rectangle(matrix,                   //Matrix obj of the image
-                    new Point(100, 30),           //p1
-                    new Point(530, 450),           //p2
+                    new Point(100, 50),           //p1
+                    new Point(530, 475),           //p2
                     new Scalar(0, 0, 255),              //Scalar object for color
                     5                                   //Thickness of the line
             );

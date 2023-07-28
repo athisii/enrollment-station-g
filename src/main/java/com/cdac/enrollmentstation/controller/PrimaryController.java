@@ -6,20 +6,14 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.util.Duration;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PrimaryController implements Initializable {
+public class PrimaryController {
     private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
 
     @FXML
@@ -50,8 +44,7 @@ public class PrimaryController implements Initializable {
         App.setRoot("admin_auth");
     }
 
-    @Override
-    public void initialize(URL arg0, ResourceBundle arg1) {
+    public void initialize() {
         String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
         if (appVersionNumber == null || appVersionNumber.isEmpty()) {
             LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);

@@ -1,22 +1,20 @@
 package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 /**
  * @author athisii, CDAC
- * Created on 29/03/23
  */
 @Getter
 @Setter
+@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
-@AllArgsConstructor
-public class CRSelectAppReqDto {
-    @JsonProperty("cardtype")
-    int cardType;
-    @JsonProperty("handle")
-    int handle;
+public class CRApiResDto {
+    @JsonProperty("retval")
+    int retVal;
 }
-

@@ -4,10 +4,11 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ARCDetails;
-import com.cdac.enrollmentstation.model.ARCDetailsHolder;
+import com.cdac.enrollmentstation.dto.ArcDetails;
+import com.cdac.enrollmentstation.model.ArcDetailsHolder;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
@@ -101,7 +102,7 @@ public class BiometricEnrollmentController {
     }
 
     private void continueBtnAction() {
-        ARCDetails arcDetails = ARCDetailsHolder.getArcDetailsHolder().getArcDetails();
+        ArcDetails arcDetails = ArcDetailsHolder.getArcDetailsHolder().getArcDetails();
         if (arcDetails.getBiometricOptions().trim().equalsIgnoreCase("photo")) {
             try {
                 App.setRoot("camera");
@@ -128,7 +129,7 @@ public class BiometricEnrollmentController {
         }
 
         // different e-ARC number is entered.
-        if (saveEnrollmentDetails.getArcNo() == null || !ARCDetailsHolder.getArcDetailsHolder().getArcDetails().getArcNo().equals(saveEnrollmentDetails.getArcNo())) {
+        if (saveEnrollmentDetails.getArcNo() == null || !ArcDetailsHolder.getArcDetailsHolder().getArcDetails().getArcNo().equals(saveEnrollmentDetails.getArcNo())) {
             try {
                 App.setRoot("slap_scanner");
             } catch (IOException ex) {
@@ -136,14 +137,14 @@ public class BiometricEnrollmentController {
             }
         } else {
             // same e-ARC number is entered as the one saved in saveEnrollment.txt file.
-            ARCDetailsHolder.getArcDetailsHolder().setSaveEnrollmentDetails(saveEnrollmentDetails);
+            ArcDetailsHolder.getArcDetailsHolder().setSaveEnrollmentDetails(saveEnrollmentDetails);
             changeScreenBasedOnEnrollmentStatus();
         }
 
     }
 
     private void changeScreenBasedOnEnrollmentStatus() {
-        switch (ARCDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetails().getEnrollmentStatus()) {
+        switch (ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetails().getEnrollmentStatus()) {
             case "FingerPrintCompleted":
                 try {
                     App.setRoot("iris");
@@ -193,7 +194,7 @@ public class BiometricEnrollmentController {
     }
 
     private void showArcDetails() {
-        ARCDetails arcDetails;
+        ArcDetails arcDetails;
         try {
             disableControls(backBtn, showArcBtn);
             arcDetails = MafisServerApi.fetchARCDetails(tempArc);
@@ -202,10 +203,7 @@ public class BiometricEnrollmentController {
             updateUiDynamicLabelText(null);
             updateUi(GENERIC_ERR_MSG);
             return;
-        }
-
-        // connection timeout
-        if (arcDetails == null) {
+        } catch (ConnectionTimeoutException ex) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.INFO, "Connection timeout");
             updateUiDynamicLabelText(null);
@@ -238,7 +236,7 @@ public class BiometricEnrollmentController {
         updateUiDynamicLabelText(arcDetails);
         updateUi("Details fetched successfully for e-ARC: " + tempArc);
 
-        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
+        ArcDetailsHolder holder = ArcDetailsHolder.getArcDetailsHolder();
         holder.setArcDetails(arcDetails);
         SaveEnrollmentDetails saveEnrollmentDetails = new SaveEnrollmentDetails();
 
@@ -270,7 +268,7 @@ public class BiometricEnrollmentController {
         messageLabel.setText("Fetching details for e-ARC: " + tempArc + ". Kindly wait...");
     }
 
-    private void updateUiDynamicLabelText(ARCDetails arcDetails) {
+    private void updateUiDynamicLabelText(ArcDetails arcDetails) {
         Platform.runLater(() -> {
             if (arcDetails == null) {
                 clearLabelText(txtName, txtRank, txtApp, txtUnit, txtFinger, txtIris, txtBiometricOptions, txtArcStatus);

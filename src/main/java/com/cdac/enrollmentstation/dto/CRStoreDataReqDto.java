@@ -13,13 +13,15 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CRReadDataReqDto {
+public class CRStoreDataReqDto {
     @JsonProperty("handle")
     int handle;
     @JsonProperty("whichdata")
     int whichData;
     @JsonProperty("offset")
     int offset;
-    @JsonProperty("reqlen")
-    int reqLen;
+    @JsonProperty("data")
+    String data;
+    @JsonProperty("datalen")
+    int dataLength;
 }

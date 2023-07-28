@@ -1,75 +1,46 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.api.LocalCardReaderApi;
-import com.cdac.enrollmentstation.dto.*;
+import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.exception.NoReaderException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ContractorInfo;
-import com.cdac.enrollmentstation.model.DetailsHolder;
-import com.cdac.enrollmentstation.security.Asn1EncodedHexUtil;
-import com.cdac.enrollmentstation.util.LocalCardReaderErrMsgUtil;
-import com.cdac.enrollmentstation.util.Singleton;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.cdac.enrollmentstation.model.ContractorCardInfo;
+import com.cdac.enrollmentstation.model.TokenDetailsHolder;
+import com.cdac.enrollmentstation.util.Asn1CardTokenUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import org.bouncycastle.util.Strings;
+import org.bouncycastle.util.encoders.Hex;
 
-import javax.xml.bind.DatatypeConverter;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.EnumMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
-
-/**
- * FXML Controller class
- *
- * @author root
- */
 public class TokenIssuanceController {
     private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
-    private static final String MANTRA_CARD_READER_NAME = "Mantra Reader (1.00) 00 00";
-    private static final byte CARD_TYPE = 4; // Naval ID/Contractor Card value is 4
-    private static final byte STATIC_TYPE = 21; // Static file -> 21
-    private static final byte FINGERPRINT_TYPE = 25; // Fingerprint file -> 25
-    private static final int CARD_READER_MAX_BUFFER_SIZE = 1024; // Max bytes card can handle
 
-    private int jniErrorCode;
-    private static final String ERROR_MESSAGE = "Place a valid card type and try again.";
+    private ContractorCardInfo contractorCardInfo;
 
-    private EnumMap<DataType, byte[]> asn1EncodedHexByteArrayMap; // GLOBAL data store.
 
-    private enum DataType {
-        STATIC(STATIC_TYPE),
-        FINGERPRINT(FINGERPRINT_TYPE);
-        private final byte value;
+    @FXML
+    private Button showContractBtn;
 
-        DataType(byte val) {
-            value = val;
-        }
 
-        private byte getValue() {
-            return value;
-        }
-    }
+    @FXML
+    private Button backBtn;
 
-    private ContractorInfo contractorInfo;
-
-    public
-    @FXML Button showContractBtn;
-
-    public
-    @FXML Button backBtn;
-
-    public
-    @FXML Label messageLabel;
+    @FXML
+    private Label messageLabel;
 
 
     @FXML
@@ -77,37 +48,29 @@ public class TokenIssuanceController {
         App.setRoot("main_screen");
     }
 
-
     private void updateUI(String message) {
         Platform.runLater(() -> messageLabel.setText(message));
     }
 
     private void readCardDetails() {
-        contractorInfo = new ContractorInfo();
+        contractorCardInfo = new ContractorCardInfo();
+        byte[] asn1EncodedData;
         try {
-            asn1EncodedHexByteArrayMap = startProcedureCall();
-        } catch (GenericException ex) {
+            asn1EncodedData = startProcedureCall();
+        } catch (NoReaderException | GenericException ex) {
             updateUI(ex.getMessage());
             enableControls(backBtn, showContractBtn);
             return;
-        }
-        if (asn1EncodedHexByteArrayMap == null) {
-            LOGGER.log(Level.SEVERE, "Connection timeout. Card API service is not available.");
-            updateUI("Something went wrong. Contact the system admin.");
-            enableControls(backBtn, showContractBtn);
-            return;
-        }
-        byte[] asn1EncodedHexByteArray = asn1EncodedHexByteArrayMap.get(DataType.STATIC);
-        if (asn1EncodedHexByteArray == null) {
-            updateUI("No contractor details available in the card.");
+        } catch (ConnectionTimeoutException ex) {
+            updateUI("Something went wrong. Kindly check Card API service.");
             enableControls(backBtn, showContractBtn);
             return;
         }
         String contractorName;
         String contractorId;
         try {
-            contractorName = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.NAME);
-            contractorId = Asn1EncodedHexUtil.extractFromStaticAns1EncodedHex(asn1EncodedHexByteArray, Asn1EncodedHexUtil.CardDataIndex.UNIQUE_ID);
+            contractorName = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.NAME.getValue()), StandardCharsets.UTF_8);
+            contractorId = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.UNIQUE_ID.getValue()), StandardCharsets.UTF_8);
         } catch (GenericException ex) {
             updateUI("Both contractor name and id are required.");
             enableControls(backBtn, showContractBtn);
@@ -118,10 +81,10 @@ public class TokenIssuanceController {
             enableControls(backBtn, showContractBtn);
             return;
         }
-        contractorInfo.setContractorName(contractorName);
-        contractorInfo.setContractorId(contractorId);
+        contractorCardInfo.setContractorName(contractorName);
+        contractorCardInfo.setContractorId(contractorId);
 
-        DetailsHolder.getDetailsHolder().setContractorInfo(contractorInfo);
+        TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
         try {
             App.setRoot("contract");
         } catch (IOException ex) {
@@ -151,140 +114,70 @@ public class TokenIssuanceController {
     }
 
 
-    private EnumMap<DataType, byte[]> startProcedureCall() {
+    private byte[] startProcedureCall() {
         // required to follow the procedure calls
         // deInitialize -> initialize ->[waitForConnect -> selectApp] -> readData
-        CRDeInitializeResDto crDeInitializeResDto = LocalCardReaderApi.getDeInitialize();
-        // api not configured properly timeout
-        if (crDeInitializeResDto == null) {
-            return null;
-        }
-        jniErrorCode = crDeInitializeResDto.getRetVal();
-        // -1409286131 -> prerequisites failed error
-        if (jniErrorCode != 0 && jniErrorCode != -1409286131) {
-            LOGGER.log(Level.SEVERE, () -> "DeInitializeError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException(GENERIC_ERR_MSG);
-        }
-        CRInitializeResDto crInitializeResDto = LocalCardReaderApi.getInitialize();
-        // api not configured properly
-        if (crInitializeResDto == null) {
-            return null;
-        }
-        jniErrorCode = crInitializeResDto.getRetVal();
-        if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "InitializeError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException(GENERIC_ERR_MSG);
-        }
-        String reqData;
-        try {
-            reqData = Singleton.getObjectMapper().writeValueAsString(new CRWaitForConnectReqDto(MANTRA_CARD_READER_NAME));
-        } catch (JsonProcessingException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
-            throw new GenericException(GENERIC_ERR_MSG);
-        }
-
-        CRWaitForConnectResDto crWaitForConnectResDto = LocalCardReaderApi.postWaitForConnect(reqData);
-        // api not configured properly
-        if (crWaitForConnectResDto == null) {
-            return null;
-        }
-        jniErrorCode = crWaitForConnectResDto.getRetVal();
-        if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "WaitForConnectError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException(ERROR_MESSAGE);
-        }
-
-        // get csn
-        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
-        String csn = DatatypeConverter.printHexBinary(decodedHexCsn);
-        if (crWaitForConnectResDto.getCsnLength() != decodedHexCsn.length || csn == null || csn.isEmpty()) {
-            LOGGER.log(Level.SEVERE, "WaitForConnectError: Decoded csn length not same with returned length or null or empty csn.");
-            throw new GenericException(GENERIC_ERR_MSG);
-        }
-        // required for next page
-        contractorInfo.setSerialNo(csn);
-        contractorInfo.setCardReaderHandle(crWaitForConnectResDto.getHandle());
-
-        try {
-            reqData = Singleton.getObjectMapper().writeValueAsString(new CRSelectAppReqDto(CARD_TYPE, crWaitForConnectResDto.getHandle()));
-        } catch (JsonProcessingException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
-            throw new GenericException(GENERIC_ERR_MSG);
-        }
-        CRSelectAppResDto crSelectAppResDto = LocalCardReaderApi.postSelectApp(reqData);
-        // api not configured properly
-        if (crSelectAppResDto == null) {
-            return null;
-        }
-        jniErrorCode = crSelectAppResDto.getRetVal();
-        if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "SelectAppError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-            throw new GenericException(ERROR_MESSAGE);
-        }
-        EnumMap<DataType, byte[]> ans1EncodedHexByteArrayMap = new EnumMap<>(DataType.class);
-        ans1EncodedHexByteArrayMap.put(DataType.STATIC, readDataFromCard(crWaitForConnectResDto.getHandle(), DataType.STATIC));
-        return ans1EncodedHexByteArrayMap;
-    }
-
-    // throws GenericException
-    // Caller must handle the exception
-    private byte[] readDataFromCard(int handle, DataType dataType) {
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            // for reading multiple times
-            boolean repeat = true;
-            int offset = 0;
-            while (repeat) {
-                CRReadDataResDto crReadDataResDto = readBufferedDataFromCard(handle, dataType, offset, CARD_READER_MAX_BUFFER_SIZE);
-                // api not configured properly
-                if (crReadDataResDto == null) {
-                    return null;
-                }
-                jniErrorCode = crReadDataResDto.getRetVal();
-                // if first request failed throw exception
-                if (offset == 0 && jniErrorCode != 0) {
-                    LOGGER.log(Level.SEVERE, () -> "ReadDataError: " + LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
-                    throw new GenericException(ERROR_MESSAGE);
-                }
-                // consider 1st request responseLen  = 1024 bytes
-                // therefore, we assumed more data is left to be read,
-                // so we make a 2nd request, but all data are already read.
-                // in that case we get non-zero return value.
-                if (offset != 0 && jniErrorCode != 0) {
-                    break;
-                }
-
-                byte[] base64DecodedBytes = Base64.getDecoder().decode(crReadDataResDto.getResponse());
-                // responseLen(in bytes)
-                if (base64DecodedBytes.length != crReadDataResDto.getResponseLen()) {
-                    LOGGER.log(Level.SEVERE, "ReadDataError: Number of decoded bytes and response length not equal.");
-                    throw new GenericException(GENERIC_ERR_MSG);
-                }
-                // end the read request
-                if (crReadDataResDto.getResponseLen() < CARD_READER_MAX_BUFFER_SIZE) {
-                    repeat = false;
-                }
-                offset += CARD_READER_MAX_BUFFER_SIZE;
-                byteArrayOutputStream.write(base64DecodedBytes);
+        CRWaitForConnectResDto crWaitForConnectResDto;
+        int counter = 1;
+        // restart Naval_WebServices if failed on the first WaitForConnect call.
+        while (true) {
+            counter--;
+            Asn1CardTokenUtil.deInitialize();
+            Asn1CardTokenUtil.initialize();
+            try {
+                Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
+            } catch (InterruptedException e) {
+                LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
+                Thread.currentThread().interrupt();
             }
-            return byteArrayOutputStream.toByteArray();
-        } catch (Exception ex) {
-            // throws if exception occurs while writing to byteOutputStream
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new GenericException(GENERIC_ERR_MSG);
+
+            try {
+                crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+                byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+                if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
+                    LOGGER.log(Level.INFO, () -> "****Decoded bytes size not matched with response length.");
+                    throw new GenericException("Decoded bytes size not matched with response length.");
+                }
+                contractorCardInfo.setCardChipSerialNo(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase()); // hexadecimal bytes to hex string.
+                contractorCardInfo.setCardHandle(crWaitForConnectResDto.getHandle());
+                break;
+            } catch (GenericException ex) {
+                if (counter == 0) {
+                    LOGGER.log(Level.INFO, () -> "****Communication error occurred. Restarting Naval_WebServices.");
+                    if (restartApiService()) {
+                        try {
+                            Thread.sleep(2000); // needed to sleep after restarting
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                        continue; // starts from DeInitialize again.
+                    } // else exit code is not zero
+                }
+                LOGGER.log(Level.INFO, () -> "****Communication error occurred. Unable to restart Naval_WebServices.");
+                throw new GenericException("Something went wrong. Please try again.");
+            }
         }
+        if (crWaitForConnectResDto.getRetVal() != 0) {
+            throw new GenericException("Kindly reconnect the reader and place card correctly.");
+        }
+        Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, crWaitForConnectResDto.getHandle());
+        return readBufferedData(crWaitForConnectResDto.getHandle(), CardTokenFileType.STATIC);
     }
 
-    // throws GenericException
-    // Caller must handle the exception
-    private CRReadDataResDto readBufferedDataFromCard(int handle, DataType whichData, int offset, int requestLength) {
-        String reqData;
+
+    private boolean restartApiService() {
         try {
-            reqData = Singleton.getObjectMapper().writeValueAsString(new CRReadDataReqDto(handle, whichData.getValue(), offset, requestLength));
-        } catch (JsonProcessingException ex) {
+            Process pr = Runtime.getRuntime().exec(Asn1CardTokenUtil.CARD_API_SERVICE_RESTART_COMMAND);
+            int exitCode = pr.waitFor();
+            LOGGER.log(Level.INFO, () -> "****Naval_WebServices restart exit code: " + exitCode);
+            return exitCode == 0;
+        } catch (IOException | InterruptedException ex) {
             LOGGER.log(Level.SEVERE, ex::getMessage);
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             throw new GenericException(GENERIC_ERR_MSG);
         }
-        return LocalCardReaderApi.postReadData(reqData);
-    }
 
+    }
 }

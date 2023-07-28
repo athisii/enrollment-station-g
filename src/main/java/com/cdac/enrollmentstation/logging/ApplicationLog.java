@@ -43,7 +43,7 @@ public class ApplicationLog {
             LOGGER.log(Level.SEVERE, "Exception in Application Log. Security Exception. Shutting down.......");
             System.exit(-1);
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Errored occurred in creating Application Log. Shutting down.......");
+            LOGGER.log(Level.SEVERE, "Error occurred in creating Application Log. Shutting down.......");
             System.exit(-1);
         }
     }

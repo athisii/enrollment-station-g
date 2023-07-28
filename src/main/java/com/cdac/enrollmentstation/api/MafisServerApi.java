@@ -4,9 +4,13 @@ package com.cdac.enrollmentstation.api;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.*;
+import com.cdac.enrollmentstation.dto.ArcDetails;
+import com.cdac.enrollmentstation.dto.ArcDetailsList;
+import com.cdac.enrollmentstation.model.Unit;
+import com.cdac.enrollmentstation.dto.UnitListDetails;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.HmacUtil;
 import com.cdac.enrollmentstation.security.PkiUtil;
@@ -38,15 +42,16 @@ public class MafisServerApi {
     }
 
     /**
-     * Fetches single ARCDetails based on e-ARC number.
+     * Fetches single ArcDetails based on e-ARC number.
      * Caller must handle the exception.
      *
      * @param arcNo unique id whose details are to be fetched
-     * @return ARCDetails or null on connection timeout
-     * @throws GenericException exception on connection timeout, error, json parsing exception etc.
+     * @return ArcDetails or null on connection timeout
+     * @throws GenericException           exception on connection timeout, error, json parsing exception etc.
+     * @throws ConnectionTimeoutException on connection timeout
      */
 
-    public static ARCDetails fetchARCDetails(String arcNo) {
+    public static ArcDetails fetchARCDetails(String arcNo) {
         String jsonRequestData;
         try {
             jsonRequestData = Singleton.getObjectMapper().writeValueAsString(new ArcNoReqDto(arcNo));
@@ -55,12 +60,9 @@ public class MafisServerApi {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getArcUrl(), jsonRequestData));
-        if (response == null) {
-            return null;
-        }
-        ARCDetails arcDetail;
+        ArcDetails arcDetail;
         try {
-            arcDetail = Singleton.getObjectMapper().readValue(response.body(), ARCDetails.class);
+            arcDetail = Singleton.getObjectMapper().readValue(response.body(), ArcDetails.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
@@ -80,12 +82,6 @@ public class MafisServerApi {
         // to avoid encrypt/decrypt problems
         data = data.replace("\n", "");
         String receivedData = encryptAndSendToServer(data, getSaveEnrollmentUrl());
-
-        // connection timeout
-        if (receivedData == null) {
-            return null;
-        }
-
         // response data from server
         SaveEnrollmentResDto saveEnrollmentResDto;
         try {
@@ -102,7 +98,8 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @return ContractResDto or null on connection timeout
-     * @throws GenericException exception on error, json parsing exception etc.
+     * @throws GenericException           exception on error, json parsing exception etc.
+     * @throws ConnectionTimeoutException on connection timeout
      */
     public static ContractResDto fetchContractList(String contractorId, String cardSerialNumber) {
         String jsonRequestData;
@@ -118,10 +115,6 @@ public class MafisServerApi {
         HashMap<String, String> headers = new HashMap<>();
         headers.put(UNIQUE_KEY_HEADER, uuid);
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getContractListUrl(), jsonRequestData, headers));
-        // connection timeout
-        if (response == null) {
-            return null;
-        }
         ContractResDto contractResDto;
         try {
             contractResDto = Singleton.getObjectMapper().readValue(response.body(), ContractResDto.class);
@@ -138,7 +131,8 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @return LabourResDto or null on connection timeout
-     * @throws GenericException exception on error, json parsing exception etc.
+     * @throws ConnectionTimeoutException - on timeout or response status code not 200
+     * @throws GenericException           exception on error, json parsing exception etc.
      */
     public static LabourResDto fetchLabourList(String contractorId, String contractId) {
         String data;
@@ -151,11 +145,6 @@ public class MafisServerApi {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
         String receivedData = encryptAndSendToServer(data, getLabourListUrl());
-
-        // connection timeout
-        if (receivedData == null) {
-            return null;
-        }
         // response data from server
         LabourResDto labourResDto;
         try {
@@ -173,30 +162,27 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @return UpdateTokenResponse or null on connection timeout
-     * @throws GenericException exception on error, json parsing exception etc.
+     * @throws GenericException           exception on error, json parsing exception etc.
+     * @throws ConnectionTimeoutException on connection timeout
      */
-    public static UpdateTokenResponse updateTokenStatus(UpdateToken updateToken) {
+    public static TokenResDto updateTokenStatus(TokenResDto.TokenReqDto tokenReqDto) {
         String data;
         try {
-            data = Singleton.getObjectMapper().writeValueAsString(updateToken);
+            data = Singleton.getObjectMapper().writeValueAsString(tokenReqDto);
         } catch (JsonProcessingException e) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
 
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getTokenUpdateUrl(), data));
-        // connection timeout
-        if (response == null) {
-            return null;
-        }
-        UpdateTokenResponse updateTokenResponse;
+        TokenResDto tokenResDto;
         try {
-            updateTokenResponse = Singleton.getObjectMapper().readValue(response.body(), UpdateTokenResponse.class);
+            tokenResDto = Singleton.getObjectMapper().readValue(response.body(), TokenResDto.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        return updateTokenResponse;
+        return tokenResDto;
     }
 
     private static String encryptAndSendToServer(String data, String url) {
@@ -221,10 +207,6 @@ public class MafisServerApi {
 
         HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(url, base64EncodedEncryptedData, headersMap);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
-        // connection timeout
-        if (httpResponse == null) {
-            return null;
-        }
         Optional<String> base64EncodedUniqueKeyOptional = httpResponse.headers().firstValue(UNIQUE_KEY_HEADER);
 
         if (base64EncodedUniqueKeyOptional.isEmpty()) {
@@ -246,14 +228,11 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @return List<Units> or null on connection timeout
-     * @throws GenericException exception on error, json parsing exception etc.
+     * @throws GenericException           exception on error, json parsing exception etc.
+     * @throws ConnectionTimeoutException - on timeout or response status code not 200
      */
     public static List<Unit> fetchAllUnits() {
-        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createGetHttpRequest(getUnitListURL()));
-        if (response == null) {
-            return null;
-        }
-        // if this line is reached, response received with status code 200
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createGetHttpRequest(getUnitListURL()));// if this line is reached, response received with status code 200
         UnitListDetails unitListDetails;
         try {
             unitListDetails = Singleton.getObjectMapper().readValue(response.body(), UnitListDetails.class);
@@ -273,11 +252,12 @@ public class MafisServerApi {
      * Fetches list of e-ARC based on unitCode.
      * Caller must handle the exception.
      *
-     * @return List<ARCDetails> or null on connection timeout
-     * @throws GenericException exception on error, json parsing exception etc.
+     * @return List<ArcDetails> or null on connection timeout
+     * @throws GenericException           exception on error, json parsing exception etc.
+     * @throws ConnectionTimeoutException - on timeout or response status code not 200
      */
 
-    public static List<ARCDetails> fetchArcListByUnitCode(String unitCode) {
+    public static List<ArcDetails> fetchArcListByUnitCode(String unitCode) {
         String jsonRequestData;
         try {
             jsonRequestData = Singleton.getObjectMapper().writeValueAsString(new UnitCodeReqDto(unitCode));
@@ -287,12 +267,9 @@ public class MafisServerApi {
         }
         HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(getDemographicURL(), jsonRequestData);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
-        if (httpResponse == null) {
-            return null;
-        }
-        ARCDetailsList arcDetailsList;
+        ArcDetailsList arcDetailsList;
         try {
-            arcDetailsList = Singleton.getObjectMapper().readValue(httpResponse.body(), ARCDetailsList.class);
+            arcDetailsList = Singleton.getObjectMapper().readValue(httpResponse.body(), ArcDetailsList.class);
         } catch (JsonProcessingException e) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
@@ -324,7 +301,7 @@ public class MafisServerApi {
         }
 
         if (mafisServerApi.endsWith("/")) {
-            mafisServerApi = mafisServerApi.substring(0, mafisServerApi.lastIndexOf("/"));
+            return mafisServerApi + "api/EnrollmentStation";
         }
         return mafisServerApi + "/api/EnrollmentStation";
     }

@@ -4,12 +4,14 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
 import com.cdac.enrollmentstation.dto.LabourResDto;
-import com.cdac.enrollmentstation.dto.UpdateTokenResponse;
+import com.cdac.enrollmentstation.dto.TokenResDto;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.*;
-import com.cdac.enrollmentstation.util.CardWrite;
+import com.cdac.enrollmentstation.util.Asn1CardTokenUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.TokenDispenserUtil;
 import com.mantra.midfingerauth.DeviceInfo;
@@ -27,10 +29,13 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
+import org.bouncycastle.util.Strings;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -39,6 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 
 public class LabourController implements MIDFingerAuth_Callback {
@@ -53,14 +59,12 @@ public class LabourController implements MIDFingerAuth_Callback {
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 5;
 
     //***********************Fingerprint***************************//
 
-    private List<LabourDetails> labourListForTable;
-
+    private List<LabourDetailsTableRow> labourDetailsTableRows;
     private Map<String, Labour> labourMap;
-    private LabourFP matchedLabourFp;
-
     @FXML
     private Label lblContractName;
 
@@ -75,19 +79,19 @@ public class LabourController implements MIDFingerAuth_Callback {
 
 
     @FXML
-    private TableView<LabourDetails> tableview;
+    private TableView<LabourDetailsTableRow> tableview;
 
     @FXML
-    private TableColumn<LabourDetails, String> labourName;
+    private TableColumn<LabourDetailsTableRow, String> labourName;
 
     @FXML
-    private TableColumn<LabourDetails, String> labourID;
+    private TableColumn<LabourDetailsTableRow, String> labourID;
 
     @FXML
-    public TableColumn<LabourDetails, String> dateOfBirth;
+    public TableColumn<LabourDetailsTableRow, String> dateOfBirth;
 
     @FXML
-    private TableColumn<LabourDetails, String> strStatus;
+    private TableColumn<LabourDetailsTableRow, String> strStatus;
 
     @FXML
     private TextField searchBox;
@@ -139,20 +143,18 @@ public class LabourController implements MIDFingerAuth_Callback {
     }
 
     public void fetchLabourList() {
-        DetailsHolder detailsHolder = DetailsHolder.getDetailsHolder();
-        lblContractorName.setText(detailsHolder.getContractorInfo().getContractorName());
-        lblContractName.setText(detailsHolder.getContractorInfo().getContractId());
+        TokenDetailsHolder tokenDetailsHolder = TokenDetailsHolder.getDetailsHolder();
+        lblContractorName.setText(tokenDetailsHolder.getContractorCardInfo().getContractorName());
+        lblContractName.setText(tokenDetailsHolder.getContractorCardInfo().getContractId());
 
-        ContractorInfo contractDetails = detailsHolder.getContractorInfo();
+        ContractorCardInfo contractDetails = tokenDetailsHolder.getContractorCardInfo();
         LabourResDto labourResDto;
         try {
             labourResDto = MafisServerApi.fetchLabourList(contractDetails.getContractorId(), contractDetails.getContractId());
         } catch (GenericException ex) {
             messageLabel.setText(ex.getMessage());
             return;
-        }
-
-        if (labourResDto == null) {
+        } catch (ConnectionTimeoutException ex) {
             messageLabel.setText("Connection timeout. Please try again.");
             return;
         }
@@ -166,38 +168,37 @@ public class LabourController implements MIDFingerAuth_Callback {
             return;
         }
 
-        labourListForTable = new ArrayList<>();
+        labourDetailsTableRows = new ArrayList<>();
         labourMap = new HashMap<>();
 
         for (Labour labour : labourResDto.getLabours()) {
-            if (labour.getDynamicFileList() == null || labour.getDynamicFileList().isEmpty()) {
+            if (labour.getDynamicFile() == null) {
                 // for debugging purposes
-                LOGGER.log(Level.INFO, "Labour dynamicFileList is null or empty.");
+                LOGGER.log(Level.INFO, "Labour dynamicFileList is null.");
             } else {
-                for (DynamicFileList dynamicFileList : labour.getDynamicFileList()) {
-                    LabourDetails labourDetails = new LabourDetails();
-                    labourDetails.setDateOfBirth(dynamicFileList.getLabourDateOfBirth());
-                    labourDetails.setLabourID(dynamicFileList.getLabourId());
-                    labourDetails.setLabourName(dynamicFileList.getLabourName());
-                    labourDetails.setStrStatus("Not verified"); //not sure why?
-                    labourListForTable.add(labourDetails);
-                    labourMap.put(dynamicFileList.getLabourId(), labour);
-                }
+                DynamicFile dynamicFile = labour.getDynamicFile();
+                LabourDetailsTableRow labourDetailsTableRow = new LabourDetailsTableRow();
+                labourDetailsTableRow.setDateOfBirth(dynamicFile.getLabourDateOfBirth());
+                labourDetailsTableRow.setLabourID(dynamicFile.getLabourId());
+                labourDetailsTableRow.setLabourName(dynamicFile.getLabourName());
+                //for differentiating table row for token issued labour, if required but now removed from the list if issued
+                labourDetailsTableRow.setStrStatus("token not issued");
+                labourDetailsTableRows.add(labourDetailsTableRow);
+                labourMap.put(dynamicFile.getLabourId(), labour);
             }
 
         }
-        DetailsHolder.getDetailsHolder().setLabours(labourResDto.getLabours());
-        updateLabourDetailsInTable(labourListForTable);
+        updateLabourDetailsInTable(labourDetailsTableRows);
     }
 
-    public void updateLabourDetailsInTable(List<LabourDetails> labourList) {
+    public void updateLabourDetailsInTable(List<LabourDetailsTableRow> labourDetailsTableRows) {
         int extraPage;
-        if (labourList.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+        if (labourDetailsTableRows.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
             extraPage = 0;
         } else {
             extraPage = 1;
         }
-        int pageCount = labourList.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
+        int pageCount = labourDetailsTableRows.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
 
         pagination.setPageCount(pageCount);
         pagination.setCurrentPageIndex(0);
@@ -208,9 +209,9 @@ public class LabourController implements MIDFingerAuth_Callback {
             return createPage(pageIndex);
         });
 
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableview.setItems(filterList(labourList, newValue)));
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableview.setItems(filterList(labourDetailsTableRows, newValue)));
 
-        ObservableList<LabourDetails> observablelist = FXCollections.observableArrayList(labourList);
+        ObservableList<LabourDetailsTableRow> observablelist = FXCollections.observableArrayList(labourDetailsTableRows);
 
         labourName.setCellValueFactory(new PropertyValueFactory<>("labourName"));
         labourID.setCellValueFactory(new PropertyValueFactory<>("labourID"));
@@ -223,11 +224,11 @@ public class LabourController implements MIDFingerAuth_Callback {
         tableview.refresh();
 
         tableview.setRowFactory(tv -> {
-            TableRow<LabourDetails> row = new TableRow<>() {
+            TableRow<LabourDetailsTableRow> row = new TableRow<>() {
                 @Override
-                public void updateItem(LabourDetails item, boolean empty) {
+                public void updateItem(LabourDetailsTableRow item, boolean empty) {
                     super.updateItem(item, empty);
-                    if (item.getStrStatus().equalsIgnoreCase("verified")) {
+                    if (item.getStrStatus().equalsIgnoreCase("token issued")) {
                         setStyle("-fx-background-color: green;");
                     } else {
                         setStyle("");
@@ -245,7 +246,7 @@ public class LabourController implements MIDFingerAuth_Callback {
     }
 
     @FXML
-    private void showContractBtnAction() throws IOException {
+    private void showHome() throws IOException {
         App.setRoot("contract");
     }
 
@@ -272,20 +273,20 @@ public class LabourController implements MIDFingerAuth_Callback {
 
     // runs in worker thread spawned by OnComplete() callback
     private void matchFingerprintTemplate(byte[] fingerData) {
-        LabourDetails labourDetailsRow = tableview.getSelectionModel().getSelectedItem();
-        if (labourDetailsRow == null) {
+        LabourDetailsTableRow labourDetailsTableRowRow = tableview.getSelectionModel().getSelectedItem();
+        if (labourDetailsTableRowRow == null) {
             updateUi("Kindly select a labour.");
             return;
         }
 
-        Labour labour = labourMap.get(labourDetailsRow.getLabourID());
+        Labour labour = labourMap.get(labourDetailsTableRowRow.getLabourID());
         if (labour == null) {
-            updateUi("No labour details found for selected labour id: " + labourDetailsRow.getLabourID());
+            updateUi("No labour details found for selected labour id: " + labourDetailsTableRowRow.getLabourID());
             return;
         }
 
         if (labour.getFps().isEmpty()) {
-            updateUi("No fingerprint data for selected labour id: " + labourDetailsRow.getLabourID());
+            updateUi("No fingerprint data for selected labour id: " + labourDetailsTableRowRow.getLabourID());
             return;
         }
         int[] matchScore = new int[1];
@@ -307,102 +308,64 @@ public class LabourController implements MIDFingerAuth_Callback {
             }
             if (matchScore[0] >= fpMatchMinThreshold) {
                 matchFound = true;
-                matchedLabourFp = labour.getFps().get(i);
                 break;
             }
         }
 
         if (!matchFound) {
-            updateUi("Fingerprint not matched for labour id: " + labourDetailsRow.getLabourID());
+            updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourID());
             return;
         }
-        updateUi("Fingerprint matched for labour id: " + labourDetailsRow.getLabourID());
+        updateUi("Fingerprint matched for labour id: " + labourDetailsTableRowRow.getLabourID());
         //now match found.
-        dispenseToken(labourDetailsRow, labour);
+        dispenseToken(labour);
     }
 
-    private void dispenseToken(LabourDetails labourDetailsRow, Labour labour) {
+    private void dispenseToken(Labour labour) {
         //dispenses token on card writer
         if (!TokenDispenserUtil.dispenseToken()) {
             updateUi("Kindly connect the Token Dispenser And Try Again");
             return;
         }
-
-        ContractorDetailsFile contractorDetailsFile = new ContractorDetailsFile();
-        // already checked for nullity and emptiness
-        // need to confirm why it comes in list.
-        DynamicFileList dynamicFileListAtIndex0 = labour.getDynamicFileList().get(0);
-        contractorDetailsFile.setDynamicContractorId(dynamicFileListAtIndex0.getContractorId());
-        contractorDetailsFile.setDynamicIssuanceUnit(dynamicFileListAtIndex0.getIssuanceUnit());
-        contractorDetailsFile.setDynamicUserCategoryId(dynamicFileListAtIndex0.getUserCategoryId());
-
-        if (labour.getAccessFileList() == null || labour.getAccessFileList().isEmpty()) {
-            LOGGER.log(Level.INFO, "Access file list is null or empty");
-        } else {
-            AccessFileList accessFileListAtIndex0 = labour.getAccessFileList().get(0);
-            contractorDetailsFile.setAccessUnitCode(accessFileListAtIndex0.getUnitCode());
-            contractorDetailsFile.setAccessZoneId(accessFileListAtIndex0.getZoneId());
-            contractorDetailsFile.setAccessWorkingHourCode(accessFileListAtIndex0.getWorkingHourCode());
-            contractorDetailsFile.setAccessFromDate(accessFileListAtIndex0.getFromDate());
-            contractorDetailsFile.setAccessToDate(accessFileListAtIndex0.getToDate());
-        }
-
-        contractorDetailsFile.setSignatureFile1(labour.getSignFile1());
-        contractorDetailsFile.setSignatureFile3(labour.getSignFile3());
-        contractorDetailsFile.setLabourPhoto(labour.getPhoto());
-        contractorDetailsFile.setLabourFpPos(matchedLabourFp.getFpPos());
-        contractorDetailsFile.setLabourFpData(matchedLabourFp.getFpData());
-
-        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-        holder.setLabourDetails(labour);
-        holder.setContractorDynamicDetails(contractorDetailsFile);
-
-        CardWrite cardwrite = new CardWrite();
-        String returnedCardWriteMessage = cardwrite.cardWriteDeatils();
-        if (returnedCardWriteMessage.toLowerCase().contains("failure")) {
-            updateUi(returnedCardWriteMessage);
-            return;
-        }
-        //Token update Details to Mafis API
-        UpdateToken updateToken = new UpdateToken();
-        DetailsHolder detail = DetailsHolder.getDetailsHolder();
-        ContractorInfo contractorInfo = detail.getContractorInfo();
-        updateToken.setCardCSN(contractorInfo.getSerialNo());    // Need to be changed later
-        updateToken.setContractorCSN(contractorInfo.getSerialNo());
-        updateToken.setContractorID(contractorInfo.getContractorId());
-        updateToken.setContractID(contractorInfo.getContractId());
-        updateToken.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
-        updateToken.setUniqueNo(labourDetailsRow.getLabourID());
-        updateToken.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
-        updateToken.setTokenID(contractorInfo.getSerialNo());   // Need to be changed later
-        updateToken.setVerifyFPSerialNo(deviceInfo.SerialNo);
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        updateToken.setTokenIssuanceDate(dtf.format(LocalDateTime.now()));
-
-        UpdateTokenResponse updateTokenResponse;
+        TokenResDto.TokenReqDto tokenReqDto;
         try {
-            updateTokenResponse = MafisServerApi.updateTokenStatus(updateToken);
+            tokenReqDto = startProcedureCall(labour);
         } catch (GenericException ex) {
             updateUi(ex.getMessage());
             return;
+        } catch (ConnectionTimeoutException ex) {
+            updateUi("Something went wrong. Kindly check Card API service.");
+            return;
         }
-        // connection timeout
-        if (updateTokenResponse == null) {
-            LOGGER.log(Level.INFO, "Connection timeout. Failed to update token status to server.");
+
+        TokenResDto tokenResDto;
+        //Update token details to MAFIS
+        try {
+            tokenResDto = MafisServerApi.updateTokenStatus(tokenReqDto);
+        } catch (GenericException ex) {
+            updateUi(ex.getMessage());
+            return;
+        } catch (ConnectionTimeoutException ex) {
             updateUi("Connection timeout. Failed to update token status to server. Please try again.");
             return;
         }
 
-        if (!"0".equals(updateTokenResponse.getErrorCode())) {
-            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + updateTokenResponse.getDesc());
-            updateUi(updateTokenResponse.getDesc());
+        if (!"0".equals(tokenResDto.getErrorCode())) {
+            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + tokenResDto.getDesc());
+            updateUi(tokenResDto.getDesc());
             return;
         }
-        updateUi("Kindly collect the token");
+        updateUi("Kindly collect the token.");
         LOGGER.log(Level.INFO, "Token dispensed successfully.");
-        labourDetailsRow.setStrStatus("verified");
-        tableview.getItems().remove(labourDetailsRow);
+        Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableview.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourID().equals(labour.getDynamicFile().getLabourId())).findFirst();
+
+        LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
+
+        labourDetailsTableRow.setStrStatus("token issued"); // not really import now
+
+        tableview.getItems().remove(labourDetailsTableRow); // remove for now
         tableview.refresh();
+
         if (tableview.getItems().isEmpty()) {
             try {
                 App.setRoot("contract");
@@ -414,17 +377,122 @@ public class LabourController implements MIDFingerAuth_Callback {
 
     }
 
+    private TokenResDto.TokenReqDto startProcedureCall(Labour labour) {
+        // If user removes the contractor card, the handle will change, so to be on the safe, lets
+        // DeInitialize and start over again.
+
+        /*
+            DeInitialize
+            Initialize
+            waitForConnect - card
+            selectApp - card
+            waitForConnect - token
+            selectApp - token
+            read data(static) - token
+            read cert - card
+            verify cert - token handle
+            pki auth - (token handle, card handle)
+            token write:
+                  1. dynamic data
+                  2. default access validity
+                  3. special access permission
+                  4. photo
+                  5. fingerprint
+                  6. signature 1
+                  7. signature 3
+         */
+        Asn1CardTokenUtil.deInitialize();
+        Asn1CardTokenUtil.initialize();
+        // setup reader; need to add a delay for some milliseconds
+        try {
+            Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
+            Thread.currentThread().interrupt();
+        }
+        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
+            LOGGER.log(Level.INFO, () -> "****CSNError: Decoded bytes size not matched with response length.");
+            throw new GenericException("Decoded bytes size not matched with response length.");
+        }
+        if (!TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardChipSerialNo().equals(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase())) {
+            LOGGER.log(Level.INFO, () -> "****Current CSN not matched with the saved CSN.");
+            throw new GenericException("No game. Please use the previous contractor card.");
+        }
+        int cardHandle = crWaitForConnectResDto.getHandle();
+        Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, cardHandle);
+
+        // setup writer; need to add a delay for some milliseconds
+        try {
+            Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
+            Thread.currentThread().interrupt();
+        }
+        updateUi("Preparing the token for data writing. Please wait.");
+
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(TOKEN_DROP_SLEEP_TIME_IN_SEC));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
+        decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
+            LOGGER.log(Level.INFO, () -> "CSNError: Decoded bytes size not matched with response length.");
+            throw new GenericException("Decoded bytes size not matched with response length.");
+        }
+        String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn));
+        int tokenHandle = crWaitForConnectResDto.getHandle();
+        Asn1CardTokenUtil.selectApp(TOKEN_TYPE_NUMBER, tokenHandle);
+        byte[] asn1EncodedTokenStaticData = Asn1CardTokenUtil.readBufferedData(tokenHandle, CardTokenFileType.STATIC);
+        String tokenNumber = new String(extractFromAsn1EncodedStaticData(asn1EncodedTokenStaticData, 1), StandardCharsets.UTF_8);
+
+        // read cert now
+        byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(cardHandle, CardTokenFileType.SYSTEM_CERTIFICATE);
+        Asn1CardTokenUtil.verifyCertificate(tokenHandle, WHICH_TRUST, WHICH_CERTIFICATE, systemCertificate);
+        Asn1CardTokenUtil.pkiAuth(tokenHandle, cardHandle);
+
+        Asn1CardTokenUtil.encodeAndStoreDynamicFile(tokenHandle, labour.getDynamicFile());
+        Asn1CardTokenUtil.encodeAndStoreDefaultValidityFile(tokenHandle, labour.getDefaultValidityFile());
+        Asn1CardTokenUtil.encodeAndStoreSpecialAccessFile(tokenHandle, labour.getSpecialAccessFile());
+        Asn1CardTokenUtil.encodeAndStorePhotoFile(tokenHandle, labour.getPhoto());
+        Asn1CardTokenUtil.encodeAndStoreFingerprintFile(tokenHandle, labour.getFps());
+        Asn1CardTokenUtil.encodeAndStoreSignFile1(tokenHandle, labour.getSignFile1());
+        Asn1CardTokenUtil.encodeAndStoreSignFile3(tokenHandle, labour.getSignFile3());
+        return createTokenReqDto(labour.getDynamicFile().getLabourId(), tokenCsn, tokenNumber);
+    }
+
+    private TokenResDto.TokenReqDto createTokenReqDto(String labourId, String tokenCsn, String tokenNumber) {
+        TokenResDto.TokenReqDto tokenReqDto = new TokenResDto.TokenReqDto();
+        ContractorCardInfo contractorCardInfo = TokenDetailsHolder.getDetailsHolder().getContractorCardInfo();
+        tokenReqDto.setCardCSN(tokenCsn);
+        tokenReqDto.setContractorCSN(contractorCardInfo.getCardChipSerialNo());
+        tokenReqDto.setContractorID(contractorCardInfo.getContractorId());
+        tokenReqDto.setContractID(contractorCardInfo.getContractId());
+        tokenReqDto.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
+        tokenReqDto.setUniqueNo(labourId);
+        tokenReqDto.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
+        tokenReqDto.setTokenID(tokenNumber);
+        tokenReqDto.setVerifyFPSerialNo(deviceInfo.SerialNo);
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        tokenReqDto.setTokenIssuanceDate(dtf.format(LocalDateTime.now()));
+        return tokenReqDto;
+    }
+
     private Node createPage(int pageIndex) {
         int fromIndex = pageIndex * 8;
-        int toIndex = Math.min(fromIndex + 8, labourListForTable.size());
+        int toIndex = Math.min(fromIndex + 8, labourDetailsTableRows.size());
         tableview.setFixedCellSize(30.0);
-        tableview.setItems(FXCollections.observableArrayList(labourListForTable.subList(fromIndex, toIndex)));
+        tableview.setItems(FXCollections.observableArrayList(labourDetailsTableRows.subList(fromIndex, toIndex)));
         return tableview;
     }
 
-    private ObservableList<LabourDetails> filterList(List<LabourDetails> labourDetailsList, String searchText) {
-        List<LabourDetails> filteredList = new ArrayList<>();
-        for (LabourDetails labourData : labourDetailsList) {
+    private ObservableList<LabourDetailsTableRow> filterList(List<LabourDetailsTableRow> labourDetailsTableRowList, String searchText) {
+        List<LabourDetailsTableRow> filteredList = new ArrayList<>();
+        for (LabourDetailsTableRow labourData : labourDetailsTableRowList) {
             if (labourData.getLabourID().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
                 filteredList.add(labourData);
             }
@@ -457,7 +525,7 @@ public class LabourController implements MIDFingerAuth_Callback {
 
 
     @Override
-    public void OnComplete(int errorCode, int Quality, int NFIQ) {
+    public void OnComplete(int errorCode, int quality, int nfiq) {
         if (errorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
             updateUi("Fingerprint quality too poor. Please try again.");
@@ -479,5 +547,3 @@ public class LabourController implements MIDFingerAuth_Callback {
         matchFingerprintTemplate(template);
     }
 }
-
-

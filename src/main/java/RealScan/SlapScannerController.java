@@ -5,8 +5,8 @@ import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ARCDetailsHolder;
-import com.cdac.enrollmentstation.model.FP;
+import com.cdac.enrollmentstation.model.ArcDetailsHolder;
+import com.cdac.enrollmentstation.model.Fp;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 import static RealScan.RealScan_JNI.*;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_RS_ERR_MSG;
-import static com.cdac.enrollmentstation.model.ARCDetailsHolder.getArcDetailsHolder;
+import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
 /**
  * @author athisii, CDAC
@@ -1108,7 +1108,7 @@ public class SlapScannerController {
 
         List<byte[]> isoTemplates = new ArrayList<>();
 
-        Set<FP> fps = new HashSet<>();
+        Set<Fp> fps = new HashSet<>();
         String fingerPositionString;
 
         for (Integer finger : fingerSet) {
@@ -1181,7 +1181,7 @@ public class SlapScannerController {
 
             isoTemplates.add(template);
 
-            FP fp = new FP();
+            Fp fp = new Fp();
             fp.setPosition(fingerPositionString);
             fp.setImage(Base64.getEncoder().encodeToString(image));
             fp.setTemplate(Base64.getEncoder().encodeToString(template));
@@ -1203,7 +1203,7 @@ public class SlapScannerController {
             releaseDevice(rightFpDeviceHandler);
         }
 
-        ARCDetailsHolder arcDetailsHolder = ARCDetailsHolder.getArcDetailsHolder();
+        ArcDetailsHolder arcDetailsHolder = ArcDetailsHolder.getArcDetailsHolder();
         SaveEnrollmentDetails saveEnrollmentDetails = arcDetailsHolder.getSaveEnrollmentDetails();
         saveEnrollmentDetails.setLeftFPScannerSerailNo(leftFpDeviceInfo.deviceID);
         saveEnrollmentDetails.setRightFPScannerSerailNo(rightFpDeviceInfo.deviceID);
@@ -1223,7 +1223,7 @@ public class SlapScannerController {
         Platform.runLater(() -> {
             scanBtn.setText("RESCAN");
             scanBtn.setDisable(false);
-            messageLabel.setText("Please click 'CAPTURE IRIS' button to continue. ");
+            messageLabel.setText("Please click 'CAPTURE Iris' button to continue. ");
             backBtn.setDisable(false);
             captureIrisBtn.setDisable(false);
             isFpScanCompleted = true;

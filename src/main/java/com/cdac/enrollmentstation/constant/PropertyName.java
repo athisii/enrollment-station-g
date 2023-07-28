@@ -70,6 +70,7 @@ public class PropertyName {
     public static final String FP_SEGMENT_HEIGHT = "fp.segment.height";
     public static final String FP_NIST_VALUE = "fp.nist.value";
     public static final String CARD_API_CARD_READER_NAME = "card.api.card.reader.name";
+    public static final String CARD_API_CARD_WRITER_NAME = "card.api.card.writer.name";
     public static final String CARD_API_SERVICE_RESTART_COMMAND = "card.api.service.restart.command";
 
 }

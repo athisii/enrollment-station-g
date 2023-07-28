@@ -1,7 +1,6 @@
 module com.cdac.enrollmentstation {
     //core java
     requires java.net.http;
-    requires java.base;
     requires java.logging;
     requires java.naming;
     //javafx
@@ -19,20 +18,13 @@ module com.cdac.enrollmentstation {
     requires MIDIris.Enroll;
     requires MIDFingerAuth;
 
-    requires asn1.converter;
     requires org.bouncycastle.provider;
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
 
-    requires org.apache.commons.io;
-    requires json.io;
     requires jssc;
-
-    requires java.xml.bind;
-    requires org.json;
-
 
     // exports
     opens com.cdac.enrollmentstation to javafx.fxml;
@@ -53,7 +45,6 @@ module com.cdac.enrollmentstation {
     opens com.cdac.enrollmentstation.util to javafx.fxml;
     exports com.cdac.enrollmentstation.dto;
     opens com.cdac.enrollmentstation.dto to javafx.fxml;
-
 
     requires static lombok;
 

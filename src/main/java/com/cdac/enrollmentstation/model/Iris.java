@@ -13,9 +13,13 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Unit {
-    @JsonProperty("Caption")
-    String caption;
-    @JsonProperty("Value")
-    String value;
+public class Iris {
+    @JsonProperty("Position")
+    String position;
+
+    @JsonProperty("Image")
+    String image;
+
+    @JsonProperty("Template")
+    String template;
 }

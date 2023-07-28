@@ -15,13 +15,13 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Labour {
     @JsonProperty("DynamicFile")
-    List<DynamicFileList> dynamicFileList;
+    DynamicFile dynamicFile;
 
     @JsonProperty("DefaultValidityFile")
-    List<DefaultValidityFileList> defaultValidityFileList;
+    DefaultValidityFile defaultValidityFile;
 
     @JsonProperty("AccessFile")
-    List<AccessFileList> accessFileList;
+    SpecialAccessFile specialAccessFile;
 
     @JsonProperty("SignFile1")
     String signFile1;
@@ -30,7 +30,7 @@ public class Labour {
     String signFile3;
 
     @JsonProperty("FPs")
-    List<LabourFP> fps;
+    List<LabourFp> fps;
 
     @JsonProperty("IRIS1")
     String iris1;

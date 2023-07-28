@@ -39,11 +39,11 @@ public class SaveEnrollmentDetails {
     @JsonProperty("EnrollmentDate")
     String enrollmentDate;
 
-    @JsonProperty("FP")
-    Set<FP> fp = new HashSet<>();
+    @JsonProperty("Fp")
+    Set<Fp> fp = new HashSet<>();
 
-    @JsonProperty("IRIS")
-    Set<IRIS> iris = new HashSet<>();
+    @JsonProperty("Iris")
+    Set<Iris> iris = new HashSet<>();
 
     @JsonProperty("IRISScannerSerailNo")
     String iRISScannerSerailNo;

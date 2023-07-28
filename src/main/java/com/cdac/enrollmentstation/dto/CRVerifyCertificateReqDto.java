@@ -13,13 +13,15 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CRReadDataReqDto {
+public class CRVerifyCertificateReqDto {
     @JsonProperty("handle")
     int handle;
-    @JsonProperty("whichdata")
-    int whichData;
-    @JsonProperty("offset")
-    int offset;
-    @JsonProperty("reqlen")
-    int reqLen;
+    @JsonProperty("whichtrust")
+    int whichTrust;
+    @JsonProperty("whichcertificate")
+    int whichCertificate;
+    @JsonProperty("CertificateChain")
+    String certificateChain;
+    @JsonProperty("CertificateChain_len")
+    int certificateChainLength;
 }

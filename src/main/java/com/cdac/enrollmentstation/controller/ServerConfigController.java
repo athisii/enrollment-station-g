@@ -4,6 +4,7 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.Unit;
@@ -116,9 +117,7 @@ public class ServerConfigController {
             updateUI(ex.getMessage());
             enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
             return;
-        }
-
-        if (units == null) {
+        } catch (ConnectionTimeoutException ex) {
             Platform.runLater(() -> {
                 messageLabel.setText("Connection timeout. Please try again.");
                 enrollmentStationUnitIdsComboBox.getItems().clear();

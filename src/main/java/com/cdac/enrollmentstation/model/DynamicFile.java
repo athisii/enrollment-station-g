@@ -1,5 +1,6 @@
 package com.cdac.enrollmentstation.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,16 +12,30 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DynamicFile {
+    @JsonProperty("userCategoryID")
     String userCategoryId;
+
+    @JsonProperty("labourName")
     String labourName;
-    String labourGenderId;
+
+    @JsonProperty("dateOfBirth")
     String labourDateOfBirth;
 
+    @JsonProperty("genderId")
+    String labourGenderId;
+
+    @JsonProperty("bloodGroupId")
     String labourBloodGroupId;
 
+    @JsonProperty("nationalityId")
     String labourNationalityId;
-    String issuanceUnit;
-    String labourId;
-    String contractorId;
 
+    @JsonProperty("issuanceUnit")
+    String issuanceUnit;
+
+    @JsonProperty("labourID")
+    String labourId;
+
+    @JsonProperty("contractorID")
+    String contractorId;
 }

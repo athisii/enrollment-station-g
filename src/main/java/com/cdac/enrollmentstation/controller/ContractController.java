@@ -4,11 +4,12 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.dto.ContractResDto;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ContractDetail;
-import com.cdac.enrollmentstation.model.ContractorInfo;
-import com.cdac.enrollmentstation.model.DetailsHolder;
+import com.cdac.enrollmentstation.model.ContractorCardInfo;
+import com.cdac.enrollmentstation.model.TokenDetailsHolder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -29,7 +30,7 @@ public class ContractController {
     private TableView<ContractDetail> tableView;
 
     @FXML
-    private Label lblStatus;
+    private Label messageLabel;
 
     @FXML
     private Label contractorIdLabel;
@@ -38,13 +39,13 @@ public class ContractController {
     private Label contractorNameLabel;
 
     @FXML
-    public TableColumn<ContractDetail, String> contractIdTableColumn;
+    private TableColumn<ContractDetail, String> contractIdTableColumn;
 
     @FXML
-    public TableColumn<ContractDetail, String> contractValidFromTableColumn;
+    private TableColumn<ContractDetail, String> contractValidFromTableColumn;
 
     @FXML
-    public TableColumn<ContractDetail, String> contractValidUptoTableColumn;
+    private TableColumn<ContractDetail, String> contractValidUptoTableColumn;
 
 
     List<ContractDetail> contractDetails;
@@ -63,29 +64,27 @@ public class ContractController {
     }
 
     private void fetchDetails() {
-        DetailsHolder detailsHolder = DetailsHolder.getDetailsHolder();
-        contractorIdLabel.setText(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorId());
-        contractorNameLabel.setText(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorName());
+        contractorIdLabel.setText(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId());
+        contractorNameLabel.setText(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorName());
 
         ContractResDto contractResDto;
         try {
-            contractResDto = MafisServerApi.fetchContractList(DetailsHolder.getDetailsHolder().getContractorInfo().getContractorId(), DetailsHolder.getDetailsHolder().getContractorInfo().getSerialNo());
+            contractResDto = MafisServerApi.fetchContractList(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId(), TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardChipSerialNo());
         } catch (GenericException ex) {
-            lblStatus.setText(ex.getMessage());
+            messageLabel.setText(ex.getMessage());
             return;
-        }
-        if (contractResDto == null) {
-            lblStatus.setText("Connection timeout. Please try again.");
+        } catch (ConnectionTimeoutException ex) {
+            messageLabel.setText("Connection timeout. Please try again.");
             return;
         }
 
         if (!"0".equals(contractResDto.getErrorCode())) {
-            lblStatus.setText(contractResDto.getDesc());
+            messageLabel.setText(contractResDto.getDesc());
             return;
         }
 
         if (contractResDto.getContractDetails().isEmpty()) {
-            lblStatus.setText("No contract available.");
+            messageLabel.setText("No contract available.");
             return;
         }
         contractDetails = new ArrayList<>(contractResDto.getContractDetails());
@@ -121,7 +120,7 @@ public class ContractController {
                         App.setRoot("labour");
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, ex.getMessage());
-                        lblStatus.setText(ex.getMessage());
+                        messageLabel.setText(ex.getMessage());
                     }
                 }
             });
@@ -133,8 +132,6 @@ public class ContractController {
         tableView.setItems(observablelist);
         tableView.refresh();
         searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(contractDetails, newValue)));
-        // keep for next screen if required
-        detailsHolder.setContractDetailList(contractDetails);
     }
 
 
@@ -161,9 +158,8 @@ public class ContractController {
     }
 
     public void setContractIdInContractDetailHolder(String contractId) {
-        ContractorInfo contractorInfo = DetailsHolder.getDetailsHolder().getContractorInfo();
-        contractorInfo.setContractId(contractId);
-        DetailsHolder.getDetailsHolder().setContractorInfo(contractorInfo);
+        ContractorCardInfo contractorCardInfo = TokenDetailsHolder.getDetailsHolder().getContractorCardInfo();
+        contractorCardInfo.setContractId(contractId);
+        TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
     }
 }
-

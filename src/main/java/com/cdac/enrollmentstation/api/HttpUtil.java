@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.constant.HttpHeader;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 
@@ -22,10 +23,9 @@ import java.util.logging.Logger;
 public class HttpUtil {
     private static final Logger LOGGER = ApplicationLog.getLogger(HttpUtil.class);
 
-    private static final int NO_OF_RETRIES = 1;
     private static final int CONNECTION_TIMEOUT_IN_SEC = 5;
     private static final int WRITE_TIMEOUT_IN_SEC = 30;
-    private static final ThreadLocal<HttpClient> HTTP_CLIENT_THREAD_LOCAL;
+    private static final HttpClient HTTP_CLIENT;
 
     public enum MethodType {
         POST,
@@ -33,7 +33,7 @@ public class HttpUtil {
     }
 
     static {
-        HTTP_CLIENT_THREAD_LOCAL = ThreadLocal.withInitial(() -> HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build());
+        HTTP_CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build();
     }
 
     //Suppress default constructor for noninstantiability
@@ -68,7 +68,7 @@ public class HttpUtil {
                     .header(HttpHeader.ACCEPT, "application/json")
                     .timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC))
                     .build();
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException("Invalid url or ip address. Kindly try again.");
         }
@@ -82,38 +82,26 @@ public class HttpUtil {
      *
      * @param httpRequest request payload
      * @return HttpResponse<String>  or null if timeout exception occurred
+     * @throws ConnectionTimeoutException - on timeout or response status code not 200
+     * @throws GenericException           - on Exception
      */
 
     public static HttpResponse<String> sendHttpRequest(HttpRequest httpRequest) {
-        int noOfRetries = NO_OF_RETRIES;
         HttpResponse<String> response = null;
-        while (noOfRetries > 0) {
-            try {
-                response = HTTP_CLIENT_THREAD_LOCAL.get().send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-                if (response.statusCode() == 200) {
-                    break;
-                }
-            } catch (IOException ignored) {
-                LOGGER.log(Level.SEVERE, String.format("%s", (NO_OF_RETRIES + 1 - noOfRetries) + " Retrying connection."));
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            } catch (RuntimeException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new GenericException("Invalid url or ip address. Kindly try again.");
-            }
-            noOfRetries--;
+        try {
+            response = HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, () -> "sendHttpRequestError: " + ex.getMessage());
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "sendHttpRequestError: " + ex.getMessage());
+            throw new GenericException("Invalid url or ip address. Kindly try again.");
         }
-        // connection timeout - very important
-        // based on null value, connection status is determined is some APIs
-        if (response == null || noOfRetries == 0) {
+        if (response == null || response.statusCode() != 200) {
             LOGGER.log(Level.SEVERE, "Connection timeout or http response status code is not 200.");
-            return null;
+            throw new ConnectionTimeoutException("Connection timeout or http response status code is not 200.");
         }
         return response;
     }
-
-    public static void removeHttpClientFromThreadLocal() {
-        HTTP_CLIENT_THREAD_LOCAL.remove();
-    }
-
 }

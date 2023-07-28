@@ -5,8 +5,8 @@ import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ARCDetailsHolder;
-import com.cdac.enrollmentstation.model.IRIS;
+import com.cdac.enrollmentstation.model.ArcDetailsHolder;
+import com.cdac.enrollmentstation.model.Iris;
 import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_IRIS_ERR_MSG;
-import static com.cdac.enrollmentstation.model.ARCDetailsHolder.getArcDetailsHolder;
+import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
 /**
  * @author athisii, CDAC
@@ -94,7 +94,7 @@ public class IrisController implements MIDIrisEnrollCallback {
 
     private boolean isDeviceInitialized;
     private boolean isIrisCompleted;
-    private final Set<IRIS> irisSet = new HashSet<>();
+    private final Set<Iris> irisSet = new HashSet<>();
 
     private enum IrisType {
         LEFT, RIGHT, BOTH, NONE
@@ -202,6 +202,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         }
         version.setText(appVersionNumber);
     }
+
     @Override
     public void OnDeviceDetection(String deviceName, IrisSide irisSide, DeviceDetection detection) {
         if (DeviceDetection.CONNECTED == detection) {
@@ -334,8 +335,8 @@ public class IrisController implements MIDIrisEnrollCallback {
         isIrisCompleted = true;
     }
 
-    private IRIS getBase64EncodedIris(String position, byte[] image, byte[] template) {
-        IRIS iris = new IRIS();
+    private Iris getBase64EncodedIris(String position, byte[] image, byte[] template) {
+        Iris iris = new Iris();
         iris.setPosition(position);
         iris.setImage(Base64.getEncoder().encodeToString(image));
         iris.setTemplate(Base64.getEncoder().encodeToString(template));
@@ -353,11 +354,11 @@ public class IrisController implements MIDIrisEnrollCallback {
 
     @FXML
     private void capturePhotoBtnAction() {
-        ARCDetailsHolder holder = getArcDetailsHolder();
+        ArcDetailsHolder holder = getArcDetailsHolder();
         SaveEnrollmentDetails saveEnrollmentDetails = holder.getSaveEnrollmentDetails();
         if (IrisType.NONE == irisTypeToCapture) {
             String notAvailable = "Not Available";
-            saveEnrollmentDetails.setIris(new HashSet<>(Set.of(new IRIS(notAvailable, notAvailable, notAvailable))));
+            saveEnrollmentDetails.setIris(new HashSet<>(Set.of(new Iris(notAvailable, notAvailable, notAvailable))));
             //saveEnrollmentDetails.setIRISScannerSerailNo(notAvailable)
         } else {
             saveEnrollmentDetails.setIris(irisSet);

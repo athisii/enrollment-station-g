@@ -6,17 +6,16 @@ import lombok.experimental.FieldDefaults;
 
 /**
  * @author athisii, CDAC
- * Created on 29/03/23
  */
 @Getter
 @Setter
+@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@NoArgsConstructor
 @AllArgsConstructor
-public class CRSelectAppReqDto {
-    @JsonProperty("cardtype")
-    int cardType;
-    @JsonProperty("handle")
-    int handle;
+@NoArgsConstructor
+public class CRPkiAuthReqDto {
+    @JsonProperty("handle1")
+    int handle1;
+    @JsonProperty("handle2")
+    int handle2;
 }
-

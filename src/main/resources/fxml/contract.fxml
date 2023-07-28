@@ -89,7 +89,7 @@
                         <Font name="System Bold Italic" size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="lblStatus" alignment="CENTER" layoutX="243.0" layoutY="675.0" prefHeight="25.0" prefWidth="518.0">
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="243.0" layoutY="675.0" prefHeight="25.0" prefWidth="518.0">
                     <font>
                         <Font name="System Bold" size="17.0" />
                     </font>

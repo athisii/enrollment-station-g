@@ -4,7 +4,9 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.ArcDetails;
 import com.cdac.enrollmentstation.dto.SaveEnrollmentResDto;
+import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.*;
@@ -124,8 +126,8 @@ public class BiometricCaptureCompleteController {
     }
 
     private void submitData() {
-        ARCDetailsHolder holder = ARCDetailsHolder.getArcDetailsHolder();
-        ARCDetails arcDetails = holder.getArcDetails();
+        ArcDetailsHolder holder = ArcDetailsHolder.getArcDetailsHolder();
+        ArcDetails arcDetails = holder.getArcDetails();
         SaveEnrollmentDetails saveEnrollmentDetails = holder.getSaveEnrollmentDetails();
 
         // based on biometricOptions just do the necessary actions
@@ -145,9 +147,9 @@ public class BiometricCaptureCompleteController {
             saveEnrollmentDetails.setIRISScannerSerailNo(NOT_AVAILABLE);
             saveEnrollmentDetails.setLeftFPScannerSerailNo(NOT_AVAILABLE);
             saveEnrollmentDetails.setRightFPScannerSerailNo(NOT_AVAILABLE);
-            Set<FP> fingerprintset = new HashSet<>(Set.of(new FP(NOT_AVAILABLE, NOT_AVAILABLE, NOT_AVAILABLE)));
+            Set<Fp> fingerprintset = new HashSet<>(Set.of(new Fp(NOT_AVAILABLE, NOT_AVAILABLE, NOT_AVAILABLE)));
             saveEnrollmentDetails.setFp(fingerprintset);
-            Set<IRIS> irisSet = new HashSet<>(Set.of(new IRIS(NOT_AVAILABLE, NOT_AVAILABLE, NOT_AVAILABLE)));
+            Set<Iris> irisSet = new HashSet<>(Set.of(new Iris(NOT_AVAILABLE, NOT_AVAILABLE, NOT_AVAILABLE)));
             saveEnrollmentDetails.setIris(irisSet);
         } else if (arcDetails.getBiometricOptions().toLowerCase().contains("both")) {
             // fingerprint and iris already added in their controllers
@@ -195,10 +197,7 @@ public class BiometricCaptureCompleteController {
         } catch (GenericException ex) {
             onErrorUpdateUiControls(ex.getMessage());
             return;
-        }
-
-        // connection timeout error
-        if (saveEnrollmentResDto == null) {
+        } catch (ConnectionTimeoutException ex) {
             Platform.runLater(() -> {
                 progressIndicator.setVisible(false);
                 messageLabel.setText("Connection timeout. Failed to save record.");
@@ -209,7 +208,6 @@ public class BiometricCaptureCompleteController {
             });
             return;
         }
-
         // checks for error response
         if (!"0".equals(saveEnrollmentResDto.getErrorCode())) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + saveEnrollmentResDto.getDesc());

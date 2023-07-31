@@ -3,7 +3,7 @@ package com.cdac.enrollmentstation.util;
 import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -19,7 +19,7 @@ public class Singleton {
         if (objectMapper == null) {
             objectMapper = JsonMapper.builder()
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-                    .propertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE) // to change property naming automatically
+                    .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE) // to change property naming automatically
                     .build();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
             objectMapper.setBase64Variant(Base64Variants.MIME_NO_LINEFEEDS);

@@ -1,5 +1,9 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
+import com.cdac.enrollmentstation.dto.DefaultValidityFile;
+import com.cdac.enrollmentstation.dto.DynamicFile;
+import com.cdac.enrollmentstation.dto.LabourFp;
+import com.cdac.enrollmentstation.dto.SpecialAccessFile;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;

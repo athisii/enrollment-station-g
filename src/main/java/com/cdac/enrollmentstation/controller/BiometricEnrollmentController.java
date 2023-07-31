@@ -4,14 +4,14 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.ArcDetail;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.dto.ArcDetails;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
+import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -102,14 +102,14 @@ public class BiometricEnrollmentController {
     }
 
     private void continueBtnAction() {
-        ArcDetails arcDetails = ArcDetailsHolder.getArcDetailsHolder().getArcDetails();
-        if (arcDetails.getBiometricOptions().trim().equalsIgnoreCase("photo")) {
+        ArcDetail arcDetail = ArcDetailsHolder.getArcDetailsHolder().getArcDetail();
+        if (arcDetail.getBiometricOptions().trim().equalsIgnoreCase("photo")) {
             try {
                 App.setRoot("camera");
             } catch (IOException ex) {
                 LOGGER.log(Level.INFO, ex.getMessage());
             }
-        } else if (arcDetails.getBiometricOptions().trim().equalsIgnoreCase("both") || arcDetails.getBiometricOptions().trim().equalsIgnoreCase("biometric")) {
+        } else if (arcDetail.getBiometricOptions().trim().equalsIgnoreCase("both") || arcDetail.getBiometricOptions().trim().equalsIgnoreCase("biometric")) {
             setNextScreen();
         } else {
             messageLabel.setText("Biometric capturing not required for e-ARC number: " + tempArc);
@@ -119,9 +119,9 @@ public class BiometricEnrollmentController {
     }
 
     private void setNextScreen() {
-        SaveEnrollmentDetails saveEnrollmentDetails;
+        SaveEnrollmentDetail saveEnrollmentDetail;
         try {
-            saveEnrollmentDetails = SaveEnrollmentDetailsUtil.readFromFile();
+            saveEnrollmentDetail = SaveEnrollmentDetailUtil.readFromFile();
         } catch (GenericException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             messageLabel.setText(GENERIC_ERR_MSG);
@@ -129,7 +129,7 @@ public class BiometricEnrollmentController {
         }
 
         // different e-ARC number is entered.
-        if (saveEnrollmentDetails.getArcNo() == null || !ArcDetailsHolder.getArcDetailsHolder().getArcDetails().getArcNo().equals(saveEnrollmentDetails.getArcNo())) {
+        if (saveEnrollmentDetail.getArcNo() == null || !ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getArcNo().equals(saveEnrollmentDetail.getArcNo())) {
             try {
                 App.setRoot("slap_scanner");
             } catch (IOException ex) {
@@ -137,14 +137,14 @@ public class BiometricEnrollmentController {
             }
         } else {
             // same e-ARC number is entered as the one saved in saveEnrollment.txt file.
-            ArcDetailsHolder.getArcDetailsHolder().setSaveEnrollmentDetails(saveEnrollmentDetails);
+            ArcDetailsHolder.getArcDetailsHolder().setSaveEnrollmentDetail(saveEnrollmentDetail);
             changeScreenBasedOnEnrollmentStatus();
         }
 
     }
 
     private void changeScreenBasedOnEnrollmentStatus() {
-        switch (ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetails().getEnrollmentStatus()) {
+        switch (ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetail().getEnrollmentStatus()) {
             case "FingerPrintCompleted":
                 try {
                     App.setRoot("iris");
@@ -194,10 +194,10 @@ public class BiometricEnrollmentController {
     }
 
     private void showArcDetails() {
-        ArcDetails arcDetails;
+        ArcDetail arcDetail;
         try {
             disableControls(backBtn, showArcBtn);
-            arcDetails = MafisServerApi.fetchARCDetails(tempArc);
+            arcDetail = MafisServerApi.fetchARCDetail(tempArc);
         } catch (GenericException ex) {
             enableControls(backBtn, showArcBtn);
             updateUiDynamicLabelText(null);
@@ -211,38 +211,38 @@ public class BiometricEnrollmentController {
             return;
         }
 
-        if (!"0".equals(arcDetails.getErrorCode())) {
-            LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetails.getDesc());
+        if (!"0".equals(arcDetail.getErrorCode())) {
+            LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);
             updateUiDynamicLabelText(null);
-            if ("-9999".equals(arcDetails.getErrorCode()) || "null".equals(arcDetails.getDesc())) { // very common error when server's dependencies are not available
+            if ("-9999".equals(arcDetail.getErrorCode()) || "null".equals(arcDetail.getDesc())) { // very common error when server's dependencies are not available
                 updateUi("Received an unexpected response from server. Kindly try again.");
-            } else if (arcDetails.getDesc().toLowerCase().contains("not found")) {
+            } else if (arcDetail.getDesc().toLowerCase().contains("not found")) {
                 updateUi("Details not found for e-ARC: " + tempArc);
             } else {
-                updateUi(arcDetails.getDesc());
+                updateUi(arcDetail.getDesc());
             }
             return;
         }
 
-        if (arcDetails.getBiometricOptions() == null || arcDetails.getBiometricOptions().isBlank() || arcDetails.getBiometricOptions().trim().equalsIgnoreCase("none")) {
+        if (arcDetail.getBiometricOptions() == null || arcDetail.getBiometricOptions().isBlank() || arcDetail.getBiometricOptions().trim().equalsIgnoreCase("none")) {
             LOGGER.log(Level.INFO, () -> "Biometric capturing not required for e-ARC: " + tempArc);
             enableControls(backBtn, showArcBtn);
-            updateUiDynamicLabelText(arcDetails);
+            updateUiDynamicLabelText(arcDetail);
             updateUi("Biometric capturing not required for e-ARC: " + tempArc);
             return;
         }
 
-        updateUiDynamicLabelText(arcDetails);
+        updateUiDynamicLabelText(arcDetail);
         updateUi("Details fetched successfully for e-ARC: " + tempArc);
 
         ArcDetailsHolder holder = ArcDetailsHolder.getArcDetailsHolder();
-        holder.setArcDetails(arcDetails);
-        SaveEnrollmentDetails saveEnrollmentDetails = new SaveEnrollmentDetails();
+        holder.setArcDetail(arcDetail);
+        SaveEnrollmentDetail saveEnrollmentDetail = new SaveEnrollmentDetail();
 
         try {
-            saveEnrollmentDetails.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
-            saveEnrollmentDetails.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
+            saveEnrollmentDetail.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
+            saveEnrollmentDetail.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
         } catch (GenericException ex) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.SEVERE, ex.getMessage());
@@ -250,9 +250,9 @@ public class BiometricEnrollmentController {
             return;
         }
 
-        saveEnrollmentDetails.setArcNo(arcDetails.getArcNo());
-        saveEnrollmentDetails.setBiometricOptions(arcDetails.getBiometricOptions());
-        holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
+        saveEnrollmentDetail.setArcNo(arcDetail.getArcNo());
+        saveEnrollmentDetail.setBiometricOptions(arcDetail.getBiometricOptions());
+        holder.setSaveEnrollmentDetail(saveEnrollmentDetail);
         enableControls(showArcBtn, backBtn, continueBtn);
     }
 
@@ -268,28 +268,28 @@ public class BiometricEnrollmentController {
         messageLabel.setText("Fetching details for e-ARC: " + tempArc + ". Kindly wait...");
     }
 
-    private void updateUiDynamicLabelText(ArcDetails arcDetails) {
+    private void updateUiDynamicLabelText(ArcDetail arcDetail) {
         Platform.runLater(() -> {
-            if (arcDetails == null) {
+            if (arcDetail == null) {
                 clearLabelText(txtName, txtRank, txtApp, txtUnit, txtFinger, txtIris, txtBiometricOptions, txtArcStatus);
                 return;
             }
-            txtName.setText(arcDetails.getName());
-            txtRank.setText(arcDetails.getRank());
-            txtApp.setText(arcDetails.getApplicantID());
-            txtUnit.setText(arcDetails.getUnit());
-            if (arcDetails.getFingers().isEmpty()) {
+            txtName.setText(arcDetail.getName());
+            txtRank.setText(arcDetail.getRank());
+            txtApp.setText(arcDetail.getApplicantId());
+            txtUnit.setText(arcDetail.getUnit());
+            if (arcDetail.getFingers().isEmpty()) {
                 txtFinger.setText("NA");
             } else {
-                txtFinger.setText(String.join(",", arcDetails.getFingers()));
+                txtFinger.setText(String.join(",", arcDetail.getFingers()));
             }
-            if (arcDetails.getIris().isEmpty()) {
+            if (arcDetail.getIris().isEmpty()) {
                 txtIris.setText("NA");
             } else {
-                txtIris.setText(String.join(",", arcDetails.getIris()));
+                txtIris.setText(String.join(",", arcDetail.getIris()));
             }
-            txtBiometricOptions.setText(arcDetails.getBiometricOptions());
-            txtArcStatus.setText(arcDetails.getArcStatus());
+            txtBiometricOptions.setText(arcDetail.getBiometricOptions());
+            txtArcStatus.setText(arcDetail.getArcStatus());
         });
     }
 

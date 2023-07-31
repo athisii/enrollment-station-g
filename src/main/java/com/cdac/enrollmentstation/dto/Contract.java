@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ContractDetail {
+public class Contract {
     @JsonProperty("contractId")
     String contractId;
     @JsonProperty("contractValidFrom")

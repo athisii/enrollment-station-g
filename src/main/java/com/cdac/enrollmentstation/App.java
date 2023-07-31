@@ -39,7 +39,7 @@ public class App extends Application {
         //Added for Close Button
         stage.setOnCloseRequest(event -> {
             event.consume();
-            Platform.exit();  //Comment this line in production/deployment (Alt+f4 and close button)
+            Platform.exit();
         });
         scene = new Scene(loadFXML("main_screen"), 1024, 768);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {

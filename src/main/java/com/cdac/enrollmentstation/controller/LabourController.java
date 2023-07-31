@@ -4,13 +4,13 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
-import com.cdac.enrollmentstation.dto.LabourResDto;
-import com.cdac.enrollmentstation.dto.TokenResDto;
+import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.*;
+import com.cdac.enrollmentstation.model.ContractorCardInfo;
+import com.cdac.enrollmentstation.model.LabourDetailsTableRow;
+import com.cdac.enrollmentstation.model.TokenDetailsHolder;
 import com.cdac.enrollmentstation.util.Asn1CardTokenUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.TokenDispenserUtil;
@@ -327,7 +327,7 @@ public class LabourController implements MIDFingerAuth_Callback {
             updateUi("Kindly connect the Token Dispenser And Try Again");
             return;
         }
-        TokenResDto.TokenReqDto tokenReqDto;
+        TokenReqDto tokenReqDto;
         try {
             tokenReqDto = startProcedureCall(labour);
         } catch (GenericException ex) {
@@ -377,7 +377,7 @@ public class LabourController implements MIDFingerAuth_Callback {
 
     }
 
-    private TokenResDto.TokenReqDto startProcedureCall(Labour labour) {
+    private TokenReqDto startProcedureCall(Labour labour) {
         // If user removes the contractor card, the handle will change, so to be on the safe, lets
         // DeInitialize and start over again.
 
@@ -465,18 +465,18 @@ public class LabourController implements MIDFingerAuth_Callback {
         return createTokenReqDto(labour.getDynamicFile().getLabourId(), tokenCsn, tokenNumber);
     }
 
-    private TokenResDto.TokenReqDto createTokenReqDto(String labourId, String tokenCsn, String tokenNumber) {
-        TokenResDto.TokenReqDto tokenReqDto = new TokenResDto.TokenReqDto();
+    private TokenReqDto createTokenReqDto(String labourId, String tokenCsn, String tokenNumber) {
+        TokenReqDto tokenReqDto = new TokenReqDto();
         ContractorCardInfo contractorCardInfo = TokenDetailsHolder.getDetailsHolder().getContractorCardInfo();
-        tokenReqDto.setCardCSN(tokenCsn);
-        tokenReqDto.setContractorCSN(contractorCardInfo.getCardChipSerialNo());
-        tokenReqDto.setContractorID(contractorCardInfo.getContractorId());
-        tokenReqDto.setContractID(contractorCardInfo.getContractId());
-        tokenReqDto.setEnrollmentStationUnitID(MafisServerApi.getEnrollmentStationUnitId());
+        tokenReqDto.setCardCsn(tokenCsn);
+        tokenReqDto.setContractorCsn(contractorCardInfo.getCardChipSerialNo());
+        tokenReqDto.setContractorId(contractorCardInfo.getContractorId());
+        tokenReqDto.setContractId(contractorCardInfo.getContractId());
+        tokenReqDto.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
         tokenReqDto.setUniqueNo(labourId);
-        tokenReqDto.setEnrollmentStationID(MafisServerApi.getEnrollmentStationId());
-        tokenReqDto.setTokenID(tokenNumber);
-        tokenReqDto.setVerifyFPSerialNo(deviceInfo.SerialNo);
+        tokenReqDto.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
+        tokenReqDto.setTokenId(tokenNumber);
+        tokenReqDto.setVerifyFpSerialNo(deviceInfo.SerialNo);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         tokenReqDto.setTokenIssuanceDate(dtf.format(LocalDateTime.now()));
         return tokenReqDto;

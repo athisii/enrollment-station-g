@@ -131,7 +131,7 @@ public class DeviceStatusController {
 
     private void checkMafisApi() {
         try {
-            MafisServerApi.fetchARCDetails("123abc");
+            MafisServerApi.fetchARCDetail("123abc");
             mafisUrlImage.setImage(GREEN_TICK_IMAGE);
         } catch (ConnectionTimeoutException ex) {
             // connected but throws exception on JSON parsing error

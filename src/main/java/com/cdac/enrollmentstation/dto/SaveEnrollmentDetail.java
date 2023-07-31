@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Set;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SaveEnrollmentDetails {
+public class SaveEnrollmentDetail {
     @JsonProperty("ARCNo")
     String arcNo;
 
@@ -28,10 +27,10 @@ public class SaveEnrollmentDetails {
     String photoCompressed;
 
     @JsonProperty("EnrollmentStationID")
-    String enrollmentStationID;
+    String enrollmentStationId;
 
     @JsonProperty("EnrollmentStationUnitID")
-    String enrollmentStationUnitID;
+    String enrollmentStationUnitId;
 
     @JsonProperty("EnrollmentStatus")
     String enrollmentStatus;
@@ -40,27 +39,26 @@ public class SaveEnrollmentDetails {
     String enrollmentDate;
 
     @JsonProperty("Fp")
-    Set<Fp> fp = new HashSet<>();
+    Set<Fp> fp;
 
     @JsonProperty("Iris")
-    Set<Iris> iris = new HashSet<>();
+    Set<Iris> iris;
 
-    @JsonProperty("IRISScannerSerailNo")
-    String iRISScannerSerailNo;
+    @JsonProperty("IRISScannerSerailNo") // incorrect name from API
+    String irisScannerSerialNo;
 
     @JsonProperty("LeftFPScannerSerailNo")
-    String leftFPScannerSerailNo;
+    String leftFpScannerSerialNo;
 
     @JsonProperty("RightFPScannerSerailNo")
-    String rightFPScannerSerailNo;
+    String rightFpScannerSerialNo;
 
     @JsonProperty("UniqueID")
-    String uniqueID;
+    String uniqueId;
 
     @JsonProperty("ARCStatus")
     String arcStatus;
 
-    //For Biometric Options
     @JsonProperty("BiometricOptions")
     String biometricOptions;
 

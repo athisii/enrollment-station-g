@@ -2,9 +2,9 @@ package com.cdac.enrollmentstation.util;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,18 +17,18 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 20/03/23
  */
-public class SaveEnrollmentDetailsUtil {
-    private static final Logger LOGGER = ApplicationLog.getLogger(SaveEnrollmentDetailsUtil.class);
+public class SaveEnrollmentDetailUtil {
+    private static final Logger LOGGER = ApplicationLog.getLogger(SaveEnrollmentDetailUtil.class);
 
     //Suppress default constructor for noninstantiability
-    private SaveEnrollmentDetailsUtil() {
+    private SaveEnrollmentDetailUtil() {
         throw new AssertionError("The SaveEnrollmentUtil methods must be accessed statically.");
     }
 
-    public static void writeToFile(SaveEnrollmentDetails saveEnrollmentDetails) {
+    public static void writeToFile(SaveEnrollmentDetail saveEnrollmentDetail) {
         Path path = getFilePath();
         try {
-            String saveEnrollmentDetailsString = Singleton.getObjectMapper().writeValueAsString(saveEnrollmentDetails);
+            String saveEnrollmentDetailsString = Singleton.getObjectMapper().writeValueAsString(saveEnrollmentDetail);
             Files.writeString(path, saveEnrollmentDetailsString, StandardCharsets.UTF_8);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
@@ -46,15 +46,15 @@ public class SaveEnrollmentDetailsUtil {
         return Path.of(saveEnrollmentFileString);
     }
 
-    public static SaveEnrollmentDetails readFromFile() {
+    public static SaveEnrollmentDetail readFromFile() {
         Path path = getFilePath();
         try {
             String content = Files.readString(path, StandardCharsets.UTF_8);
-            return Singleton.getObjectMapper().readValue(content, SaveEnrollmentDetails.class);
+            return Singleton.getObjectMapper().readValue(content, SaveEnrollmentDetail.class);
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             //if error occurs, then overwrite with new data
-            writeToFile(new SaveEnrollmentDetails());
+            writeToFile(new SaveEnrollmentDetail());
             // recursive call
             return readFromFile();
         }

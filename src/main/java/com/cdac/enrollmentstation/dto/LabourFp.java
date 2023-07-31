@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -7,13 +7,19 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
+/**
+ *
+ * @author root
+ */
 @Getter
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DefaultValidityFile {
-    @JsonProperty("validFrom")
-    String validFrom;
-    @JsonProperty("validTo")
-    String validTo;
+public class LabourFp {
+    @JsonProperty("FPPos")
+    String fpPos;
+    
+    @JsonProperty("FPData")
+    String fpData;
+    
 }

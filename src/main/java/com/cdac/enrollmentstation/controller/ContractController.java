@@ -7,7 +7,7 @@ import com.cdac.enrollmentstation.dto.ContractResDto;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.ContractDetail;
+import com.cdac.enrollmentstation.dto.Contract;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
 import javafx.collections.FXCollections;
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 public class ContractController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     @FXML
-    private TableView<ContractDetail> tableView;
+    private TableView<Contract> tableView;
 
     @FXML
     private Label messageLabel;
@@ -39,16 +39,16 @@ public class ContractController {
     private Label contractorNameLabel;
 
     @FXML
-    private TableColumn<ContractDetail, String> contractIdTableColumn;
+    private TableColumn<Contract, String> contractIdTableColumn;
 
     @FXML
-    private TableColumn<ContractDetail, String> contractValidFromTableColumn;
+    private TableColumn<Contract, String> contractValidFromTableColumn;
 
     @FXML
-    private TableColumn<ContractDetail, String> contractValidUptoTableColumn;
+    private TableColumn<Contract, String> contractValidUptoTableColumn;
 
 
-    List<ContractDetail> contractDetails;
+    List<Contract> contracts;
 
     @FXML
     private Pagination pagination;
@@ -83,11 +83,11 @@ public class ContractController {
             return;
         }
 
-        if (contractResDto.getContractDetails().isEmpty()) {
+        if (contractResDto.getContracts().isEmpty()) {
             messageLabel.setText("No contract available.");
             return;
         }
-        contractDetails = new ArrayList<>(contractResDto.getContractDetails());
+        contracts = new ArrayList<>(contractResDto.getContracts());
 
         //for property bindings
         contractIdTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractId"));
@@ -95,12 +95,12 @@ public class ContractController {
         contractValidUptoTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractValidUpto"));
 
         int extraPage;
-        if (contractDetails.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+        if (contracts.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
             extraPage = 0;
         } else {
             extraPage = 1;
         }
-        int pageCount = contractDetails.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
+        int pageCount = contracts.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
 
         pagination.setPageCount(pageCount);
         pagination.setCurrentPageIndex(0);
@@ -111,10 +111,10 @@ public class ContractController {
             return createPage(pageIndex);
         });
         tableView.setRowFactory(tv -> {
-            TableRow<ContractDetail> row = new TableRow<>();
+            TableRow<Contract> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
-                    ContractDetail element = row.getItem();
+                    Contract element = row.getItem();
                     setContractIdInContractDetailHolder(element.getContractId());
                     try {
                         App.setRoot("labour");
@@ -128,17 +128,17 @@ public class ContractController {
 
         });
         tableView.setFixedCellSize(35.0);
-        ObservableList<ContractDetail> observablelist = FXCollections.observableArrayList(contractDetails);
+        ObservableList<Contract> observablelist = FXCollections.observableArrayList(contracts);
         tableView.setItems(observablelist);
         tableView.refresh();
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(contractDetails, newValue)));
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(contracts, newValue)));
     }
 
 
     private Node createPage(int pageIndex) {
         int fromIndex = pageIndex * NUMBER_OF_ROWS_PER_PAGE;
-        int toIndex = Math.min(fromIndex + NUMBER_OF_ROWS_PER_PAGE, contractDetails.size());
-        tableView.setItems(FXCollections.observableArrayList(contractDetails.subList(fromIndex, toIndex)));
+        int toIndex = Math.min(fromIndex + NUMBER_OF_ROWS_PER_PAGE, contracts.size());
+        tableView.setItems(FXCollections.observableArrayList(contracts.subList(fromIndex, toIndex)));
         return tableView;
     }
 
@@ -147,9 +147,9 @@ public class ContractController {
         fetchDetails();
     }
 
-    private ObservableList<ContractDetail> filterList(List<ContractDetail> list, String searchText) {
-        List<ContractDetail> filteredList = new ArrayList<>();
-        for (ContractDetail contract : list) {
+    private ObservableList<Contract> filterList(List<Contract> list, String searchText) {
+        List<Contract> filteredList = new ArrayList<>();
+        for (Contract contract : list) {
             if (contract.getContractId().toLowerCase().contains(searchText.toLowerCase()) || (contract.getContractValidFrom().toLowerCase().contains(searchText.toLowerCase())) || (contract.getContractValidUpto().toLowerCase().contains(searchText.toLowerCase()))) {
                 filteredList.add(contract);
             }

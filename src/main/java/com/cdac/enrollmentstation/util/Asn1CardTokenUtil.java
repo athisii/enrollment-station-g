@@ -9,10 +9,10 @@ import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.exception.NoReaderException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.DefaultValidityFile;
-import com.cdac.enrollmentstation.model.DynamicFile;
-import com.cdac.enrollmentstation.model.LabourFp;
-import com.cdac.enrollmentstation.model.SpecialAccessFile;
+import com.cdac.enrollmentstation.dto.DefaultValidityFile;
+import com.cdac.enrollmentstation.dto.DynamicFile;
+import com.cdac.enrollmentstation.dto.LabourFp;
+import com.cdac.enrollmentstation.dto.SpecialAccessFile;
 import org.bouncycastle.asn1.*;
 
 import java.io.ByteArrayInputStream;

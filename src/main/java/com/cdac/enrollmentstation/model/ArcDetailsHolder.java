@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.model;
 
-import com.cdac.enrollmentstation.dto.ArcDetails;
+import com.cdac.enrollmentstation.dto.ArcDetail;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,8 +17,8 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ArcDetailsHolder {
-    ArcDetails arcDetails;
-    SaveEnrollmentDetails saveEnrollmentDetails;
+    ArcDetail arcDetail;
+    SaveEnrollmentDetail saveEnrollmentDetail;
     private static final ArcDetailsHolder INSTANCE = new ArcDetailsHolder();
 
     // Should not instantiate outside the class.

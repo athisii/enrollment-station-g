@@ -3,13 +3,13 @@ package RealScan;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.model.Fp;
-import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
+import com.cdac.enrollmentstation.dto.Fp;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
+import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.innovatrics.commons.img.RawGrayscaleImage;
 import com.innovatrics.iengine.ansiiso.AnsiIso;
 import com.innovatrics.iengine.ansiiso.AnsiIsoImageFormatEnum;
@@ -212,18 +212,18 @@ public class SlapScannerController {
         }
 
 
-        if (getArcDetailsHolder().getArcDetails() == null) {
+        if (getArcDetailsHolder().getArcDetail() == null) {
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
             scanBtn.setDisable(true);
             return;
         }
 
-        leftFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.LEFT);
-        rightFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.RIGHT);
-        thumbToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetails().getFingers(), FingerSetType.THUMB);
+        leftFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetail().getFingers(), FingerSetType.LEFT);
+        rightFingerToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetail().getFingers(), FingerSetType.RIGHT);
+        thumbToFingerTypeLinkedHashMap = getFingersToScanSeqMap(getArcDetailsHolder().getArcDetail().getFingers(), FingerSetType.THUMB);
 
-        if (getArcDetailsHolder().getArcDetails() != null && getArcDetailsHolder().getArcDetails().getArcNo() != null) {
-            displayArcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetails().getArcNo());
+        if (getArcDetailsHolder().getArcDetail() != null && getArcDetailsHolder().getArcDetail().getArcNo() != null) {
+            displayArcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetail().getArcNo());
         }
     }
 
@@ -1204,15 +1204,15 @@ public class SlapScannerController {
         }
 
         ArcDetailsHolder arcDetailsHolder = ArcDetailsHolder.getArcDetailsHolder();
-        SaveEnrollmentDetails saveEnrollmentDetails = arcDetailsHolder.getSaveEnrollmentDetails();
-        saveEnrollmentDetails.setLeftFPScannerSerailNo(leftFpDeviceInfo.deviceID);
-        saveEnrollmentDetails.setRightFPScannerSerailNo(rightFpDeviceInfo.deviceID);
-        saveEnrollmentDetails.setFp(fps);
-        saveEnrollmentDetails.setEnrollmentStatus("FingerPrintCompleted");
+        SaveEnrollmentDetail saveEnrollmentDetail = arcDetailsHolder.getSaveEnrollmentDetail();
+        saveEnrollmentDetail.setLeftFpScannerSerialNo(leftFpDeviceInfo.deviceID);
+        saveEnrollmentDetail.setRightFpScannerSerialNo(rightFpDeviceInfo.deviceID);
+        saveEnrollmentDetail.setFp(fps);
+        saveEnrollmentDetail.setEnrollmentStatus("FingerPrintCompleted");
 
         // throws GenericException
         try {
-            SaveEnrollmentDetailsUtil.writeToFile(saveEnrollmentDetails);
+            SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
         } catch (GenericException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);

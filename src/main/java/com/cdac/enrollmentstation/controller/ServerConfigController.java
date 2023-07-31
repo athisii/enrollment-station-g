@@ -7,7 +7,7 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.Unit;
+import com.cdac.enrollmentstation.dto.Unit;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;

@@ -146,8 +146,8 @@ public class CameraController {
         backBtn.setOnAction(this::back);
         confirmNoBtn.setOnAction(this::confirmNo);
         confirmYesBtn.setOnAction(this::confirmYes);
-        if (getArcDetailsHolder().getArcDetails() != null && getArcDetailsHolder().getArcDetails().getArcNo() != null) {
-            arcLbl.setText("e-ARC: " + getArcDetailsHolder().getArcDetails().getArcNo());
+        if (getArcDetailsHolder().getArcDetail() != null && getArcDetailsHolder().getArcDetail().getArcNo() != null) {
+            arcLbl.setText("e-ARC: " + getArcDetailsHolder().getArcDetail().getArcNo());
         }
 //        camSlider.setVisible(true);
 //        brightness.setVisible(true);
@@ -168,7 +168,7 @@ public class CameraController {
         enableControls(startStopCameraBtn, backBtn);
         try {
             ArcDetailsHolder holder = getArcDetailsHolder();
-            if (holder.getArcDetails().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
+            if (holder.getArcDetail().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
                 App.setRoot("biometric_enrollment");
             } else {
                 App.setRoot("iris");
@@ -190,7 +190,7 @@ public class CameraController {
         confirmPane.setVisible(true);
         ArcDetailsHolder holder = getArcDetailsHolder();
         // Added For Biometric Options
-        if (holder.getArcDetails().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
+        if (holder.getArcDetail().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
             confirmPaneLbl.setText("Click 'Yes' to FetchArc or Click 'No' to Capture photo");
         } else {
             confirmPaneLbl.setText("Click 'Yes' to Scan Iris or Click 'No' to Capture photo");

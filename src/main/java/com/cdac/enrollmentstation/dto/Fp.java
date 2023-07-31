@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation.model;
+package com.cdac.enrollmentstation.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Iris {
+public class Fp {
     @JsonProperty("Position")
     String position;
 
@@ -22,4 +22,5 @@ public class Iris {
 
     @JsonProperty("Template")
     String template;
+
 }

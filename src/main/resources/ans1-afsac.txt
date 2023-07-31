@@ -1,0 +1,72 @@
+U.P.SEQUENCE {
+---------------------------------------------------------------------------------------------------------------------------------------------
+  Index    DATE TYPE             -             ContractorStaticData                        TokenData
+---------------------------------------------------------------------------------------------------------------------------------------------
+   0.   U.P.OCTETSTRING CC77338A010003000300  - Chip Serial No.
+   1.   U.P.IA5String '227'                   - Card No.
+   2.   U.P.INTEGER 0x01 (1 decimal)          - Card Type ID
+   3.   U.P.INTEGER 0x37 (55 decimal)         - User Category ID                           - User Category ID
+   4.   U.P.PrintableString 'Rohit'           - Name                                       - Name
+   5.   U.P.INTEGER 0x00 (0 decimal)		  - Service
+   6.   U.P.IA5String ''			          - P. No./Academy No.
+   7.   U.P.IA5String '2612RRE-01'		      - Unique ID - To identify the person         - Unique ID - To identify the person / Contractor ID
+   8.   U.P.INTEGER 0x00 (0 decimal)		  - Rank
+   9.   U.P.INTEGER 0x00 (0 decimal)		  - Designation
+   10.  U.P.INTEGER 0x00 (0 decimal)		  - Group
+   11.  U.P.IA5String '19991226'		      - Date of Birth                              - Date of Birth
+   12.  U.P.IA5String 'INSI'			      - Unit                                       - Unit
+   13.  U.P.IA5String 'Testing'		          - Zone Access
+   14.  U.P.IA5String '20230328'		      - Date Issued
+   15.  U.P.INTEGER 0x00 (0 decimal)	      - Place Issued
+   16.  U.P.INTEGER 0x00 (0 decimal)		  - Blood Group                                - Blood Group
+   17.  U.P.INTEGER 0x01 (1 decimal)		  - Nationality                                - Nationality
+   18.  U.P.IA5String ''			          - Issued By (Card Issuing unit name)
+   19.  U.P.IA5String ''			          - Firm's Name/Employed As
+   20.  U.P.INTEGER 0x01 (1 decimal)		  - Gender                                      - Gender
+   21.  U.P.IA5String '226103Y'		          - Sponsor P.No.
+   22.  U.P.PrintableString 'AMIT KUMAR'	  - Sponsor Name
+   23.  U.P.INTEGER 0x48 (72 decimal)	      - Sponsor Rank/Desig.
+   24.  U.P.IA5String '1'			          - Sponsor's Unit
+   25.  U.P.INTEGER 0x00 (0 decimal)		  - Relation (Dependent)
+}
+
+--- This is for Signature ---
+U.P.SEQUENCE {
+   U.P.IA5String 'tjhyfhdsrhsdjfkyhtfhtdrdyhjtddhgjfyj'
+}
+--- Default Access Validity (Card's Validity) ---
+   U.P.IA5String '20230328'		         - Date Issued
+   U.P.IA5String '20230328'		         - Date Issued
+
+--- Special Access Permission File ---
+   U.P.INTEGER 0x01 (5 decimal)          - Unit code
+   U.P.INTEGER 0x01 (5 decimal)          - Zone Id
+   U.P.IA5String '20230328'		         - Date Issued
+   U.P.IA5String '20230328'		         - Date Issued
+   U.P.INTEGER 0x01 (1 decimal)          - Working Hour Code
+
+--Photo--
+ U.P.OCTETSTRING 040B48656C6C6F20576F726C64
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

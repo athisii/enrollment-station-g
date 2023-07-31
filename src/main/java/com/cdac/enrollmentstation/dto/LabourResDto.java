@@ -1,6 +1,5 @@
 package com.cdac.enrollmentstation.dto;
 
-import com.cdac.enrollmentstation.model.Labour;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;

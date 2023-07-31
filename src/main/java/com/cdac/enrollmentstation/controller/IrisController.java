@@ -3,13 +3,13 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.model.Iris;
-import com.cdac.enrollmentstation.model.SaveEnrollmentDetails;
+import com.cdac.enrollmentstation.dto.Iris;
 import com.cdac.enrollmentstation.util.PropertyFile;
-import com.cdac.enrollmentstation.util.SaveEnrollmentDetailsUtil;
+import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.mantra.midirisenroll.DeviceInfo;
 import com.mantra.midirisenroll.MIDIrisEnroll;
 import com.mantra.midirisenroll.MIDIrisEnrollCallback;
@@ -172,8 +172,8 @@ public class IrisController implements MIDIrisEnrollCallback {
             backBtn.setDisable(false);
         }
 
-        arcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetails().getArcNo());
-        irisTypeToCapture = getIrisToScan(getArcDetailsHolder().getArcDetails().getIris());
+        arcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetail().getArcNo());
+        irisTypeToCapture = getIrisToScan(getArcDetailsHolder().getArcDetail().getIris());
         if (IrisType.NONE == irisTypeToCapture) {
             capturePhotoBtn.setDisable(false);
             scanBtn.setDisable(true);
@@ -292,7 +292,7 @@ public class IrisController implements MIDIrisEnrollCallback {
             updateUIOnFailureOrSuccess(false, QUALITY_TOO_POOR_MSG);
             return;
         }
-        // validates received iris exceptions in ArcDetails and captured iris.
+        // validates received iris exceptions in ArcDetail and captured iris.
         boolean leftImageResult = displayLeftIris && imageData.LeftImageBufferLen > 0;
         boolean rightImageResult = displayRightIris && imageData.RightImageBufferLen > 0;
 
@@ -355,13 +355,13 @@ public class IrisController implements MIDIrisEnrollCallback {
     @FXML
     private void capturePhotoBtnAction() {
         ArcDetailsHolder holder = getArcDetailsHolder();
-        SaveEnrollmentDetails saveEnrollmentDetails = holder.getSaveEnrollmentDetails();
+        SaveEnrollmentDetail saveEnrollmentDetail = holder.getSaveEnrollmentDetail();
         if (IrisType.NONE == irisTypeToCapture) {
             String notAvailable = "Not Available";
-            saveEnrollmentDetails.setIris(new HashSet<>(Set.of(new Iris(notAvailable, notAvailable, notAvailable))));
-            //saveEnrollmentDetails.setIRISScannerSerailNo(notAvailable)
+            saveEnrollmentDetail.setIris(new HashSet<>(Set.of(new Iris(notAvailable, notAvailable, notAvailable))));
+            //saveEnrollmentDetail.setIRISScannerSerailNo(notAvailable)
         } else {
-            saveEnrollmentDetails.setIris(irisSet);
+            saveEnrollmentDetail.setIris(irisSet);
         }
 
         if (deviceInfo == null || deviceInfo.SerialNo == null) {
@@ -370,12 +370,12 @@ public class IrisController implements MIDIrisEnrollCallback {
             capturePhotoBtn.setDisable(false);
             return;
         }
-        saveEnrollmentDetails.setIRISScannerSerailNo(deviceInfo.SerialNo);
-        saveEnrollmentDetails.setEnrollmentStatus("IrisCompleted");
-        holder.setSaveEnrollmentDetails(saveEnrollmentDetails);
+        saveEnrollmentDetail.setIrisScannerSerialNo(deviceInfo.SerialNo);
+        saveEnrollmentDetail.setEnrollmentStatus("IrisCompleted");
+        holder.setSaveEnrollmentDetail(saveEnrollmentDetail);
 
         try {
-            SaveEnrollmentDetailsUtil.writeToFile(saveEnrollmentDetails);
+            SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
         } catch (GenericException ex) {
             updateUIOnFailureOrSuccess(false, ex.getMessage());
             return;
@@ -389,7 +389,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         }
 
         // Added For Biometric Options
-        if (holder.getArcDetails().getBiometricOptions().trim().equalsIgnoreCase("Biometric")) {
+        if (holder.getArcDetail().getBiometricOptions().trim().equalsIgnoreCase("Biometric")) {
             try {
                 App.setRoot("biometric_capture_complete");
             } catch (IOException ex) {

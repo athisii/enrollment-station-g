@@ -17,7 +17,7 @@ import java.util.List;
 @Setter
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ArcDetails {
+public class ArcDetail {
     @JsonProperty("arcNo")
     String arcNo;
 
@@ -28,7 +28,7 @@ public class ArcDetails {
     String rank;
 
     @JsonProperty("ApplicantID")
-    String applicantID;
+    String applicantId;
 
     @JsonProperty("Unit")
     String unit;

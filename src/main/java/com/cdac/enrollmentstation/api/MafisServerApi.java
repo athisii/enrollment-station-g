@@ -7,10 +7,7 @@ import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.dto.ArcDetails;
-import com.cdac.enrollmentstation.dto.ArcDetailsList;
-import com.cdac.enrollmentstation.model.Unit;
-import com.cdac.enrollmentstation.dto.UnitListDetails;
+import com.cdac.enrollmentstation.dto.Unit;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.HmacUtil;
 import com.cdac.enrollmentstation.security.PkiUtil;
@@ -42,16 +39,16 @@ public class MafisServerApi {
     }
 
     /**
-     * Fetches single ArcDetails based on e-ARC number.
+     * Fetches single ArcDetail based on e-ARC number.
      * Caller must handle the exception.
      *
      * @param arcNo unique id whose details are to be fetched
-     * @return ArcDetails or null on connection timeout
+     * @return ArcDetail or null on connection timeout
      * @throws GenericException           exception on connection timeout, error, json parsing exception etc.
      * @throws ConnectionTimeoutException on connection timeout
      */
 
-    public static ArcDetails fetchARCDetails(String arcNo) {
+    public static ArcDetail fetchARCDetail(String arcNo) {
         String jsonRequestData;
         try {
             jsonRequestData = Singleton.getObjectMapper().writeValueAsString(new ArcNoReqDto(arcNo));
@@ -60,9 +57,9 @@ public class MafisServerApi {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getArcUrl(), jsonRequestData));
-        ArcDetails arcDetail;
+        ArcDetail arcDetail;
         try {
-            arcDetail = Singleton.getObjectMapper().readValue(response.body(), ArcDetails.class);
+            arcDetail = Singleton.getObjectMapper().readValue(response.body(), ArcDetail.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
@@ -165,7 +162,7 @@ public class MafisServerApi {
      * @throws GenericException           exception on error, json parsing exception etc.
      * @throws ConnectionTimeoutException on connection timeout
      */
-    public static TokenResDto updateTokenStatus(TokenResDto.TokenReqDto tokenReqDto) {
+    public static TokenResDto updateTokenStatus(TokenReqDto tokenReqDto) {
         String data;
         try {
             data = Singleton.getObjectMapper().writeValueAsString(tokenReqDto);
@@ -233,18 +230,18 @@ public class MafisServerApi {
      */
     public static List<Unit> fetchAllUnits() {
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createGetHttpRequest(getUnitListURL()));// if this line is reached, response received with status code 200
-        UnitListDetails unitListDetails;
+        UnitsResDto unitsResDto;
         try {
-            unitListDetails = Singleton.getObjectMapper().readValue(response.body(), UnitListDetails.class);
+            unitsResDto = Singleton.getObjectMapper().readValue(response.body(), UnitsResDto.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        if (unitListDetails.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + unitListDetails.getDesc());
-            throw new GenericException(unitListDetails.getDesc());
+        if (unitsResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.SEVERE, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + unitsResDto.getDesc());
+            throw new GenericException(unitsResDto.getDesc());
         }
-        return unitListDetails.getUnits();
+        return unitsResDto.getUnits();
     }
 
 
@@ -252,12 +249,12 @@ public class MafisServerApi {
      * Fetches list of e-ARC based on unitCode.
      * Caller must handle the exception.
      *
-     * @return List<ArcDetails> or null on connection timeout
+     * @return List<ArcDetail> or null on connection timeout
      * @throws GenericException           exception on error, json parsing exception etc.
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      */
 
-    public static List<ArcDetails> fetchArcListByUnitCode(String unitCode) {
+    public static List<ArcDetail> fetchArcsByUnitCode(String unitCode) {
         String jsonRequestData;
         try {
             jsonRequestData = Singleton.getObjectMapper().writeValueAsString(new UnitCodeReqDto(unitCode));
@@ -267,18 +264,18 @@ public class MafisServerApi {
         }
         HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(getDemographicURL(), jsonRequestData);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
-        ArcDetailsList arcDetailsList;
+        ArcDetailsResDto arcDetailsResDto;
         try {
-            arcDetailsList = Singleton.getObjectMapper().readValue(httpResponse.body(), ArcDetailsList.class);
+            arcDetailsResDto = Singleton.getObjectMapper().readValue(httpResponse.body(), ArcDetailsResDto.class);
         } catch (JsonProcessingException e) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        if (arcDetailsList.getErrorCode() != 0) {
-            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + arcDetailsList.getDesc());
-            throw new GenericException(arcDetailsList.getDesc());
+        if (arcDetailsResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + arcDetailsResDto.getDesc());
+            throw new GenericException(arcDetailsResDto.getDesc());
         }
-        return arcDetailsList.getArcDetails();
+        return arcDetailsResDto.getArcDetails();
     }
 
 

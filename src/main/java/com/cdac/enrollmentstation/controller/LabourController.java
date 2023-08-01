@@ -227,11 +227,13 @@ public class LabourController implements MIDFingerAuth_Callback {
             TableRow<LabourDetailsTableRow> row = new TableRow<>() {
                 @Override
                 public void updateItem(LabourDetailsTableRow item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item.getStrStatus().equalsIgnoreCase("token issued")) {
-                        setStyle("-fx-background-color: green;");
-                    } else {
-                        setStyle("");
+                    if (item != null) {
+                        super.updateItem(item, empty);
+                        if (item.getStrStatus().equalsIgnoreCase("token issued")) {
+                            setStyle("-fx-background-color: green;");
+                        } else {
+                            setStyle("");
+                        }
                     }
                 }
             };
@@ -246,7 +248,7 @@ public class LabourController implements MIDFingerAuth_Callback {
     }
 
     @FXML
-    private void showHome() throws IOException {
+    private void showContractBtnAction() throws IOException {
         App.setRoot("contract");
     }
 

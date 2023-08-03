@@ -7,6 +7,7 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.exception.NoReaderOrCardException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.LabourDetailsTableRow;
@@ -332,7 +333,7 @@ public class LabourController implements MIDFingerAuth_Callback {
         TokenReqDto tokenReqDto;
         try {
             tokenReqDto = startProcedureCall(labour);
-        } catch (GenericException ex) {
+        } catch (GenericException | NoReaderOrCardException ex) {
             updateUi(ex.getMessage());
             return;
         } catch (ConnectionTimeoutException ex) {

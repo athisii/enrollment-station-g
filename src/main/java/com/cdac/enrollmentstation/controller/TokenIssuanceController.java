@@ -4,7 +4,7 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
-import com.cdac.enrollmentstation.exception.NoReaderException;
+import com.cdac.enrollmentstation.exception.NoReaderOrCardException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
@@ -57,7 +57,7 @@ public class TokenIssuanceController {
         byte[] asn1EncodedData;
         try {
             asn1EncodedData = startProcedureCall();
-        } catch (NoReaderException | GenericException ex) {
+        } catch (NoReaderOrCardException | GenericException ex) {
             updateUI(ex.getMessage());
             enableControls(backBtn, showContractBtn);
             return;
@@ -72,7 +72,7 @@ public class TokenIssuanceController {
             contractorName = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.NAME.getValue()), StandardCharsets.UTF_8);
             contractorId = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.UNIQUE_ID.getValue()), StandardCharsets.UTF_8);
         } catch (GenericException ex) {
-            updateUI("Both contractor name and id are required.");
+            updateUI("Kindly place a valid card and try again.");
             enableControls(backBtn, showContractBtn);
             return;
         }

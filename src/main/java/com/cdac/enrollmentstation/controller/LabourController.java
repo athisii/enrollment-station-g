@@ -160,7 +160,7 @@ public class LabourController implements MIDFingerAuth_Callback {
             return;
         }
 
-        if (!"0".equals(labourResDto.getErrorCode())) {
+        if (labourResDto.getErrorCode() != 0) {
             messageLabel.setText(labourResDto.getDesc());
             return;
         }
@@ -353,7 +353,7 @@ public class LabourController implements MIDFingerAuth_Callback {
             return;
         }
 
-        if (!"0".equals(tokenResDto.getErrorCode())) {
+        if (tokenResDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Error Desc: " + tokenResDto.getDesc());
             updateUi(tokenResDto.getDesc());
             return;

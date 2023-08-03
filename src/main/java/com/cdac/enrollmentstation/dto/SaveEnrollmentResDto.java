@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class SaveEnrollmentResDto {
     @JsonProperty("ErrorCode")
-    String errorCode;
+    int errorCode;
 
     @JsonProperty("Desc")
     String desc;

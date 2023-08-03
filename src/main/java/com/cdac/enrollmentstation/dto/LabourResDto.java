@@ -21,7 +21,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabourResDto {
     @JsonProperty("ErrorCode")
-    String errorCode;
+    int errorCode;
 
     @JsonProperty("Desc")
     String desc;

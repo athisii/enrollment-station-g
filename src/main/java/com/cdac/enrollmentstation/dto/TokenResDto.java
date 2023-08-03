@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TokenResDto {
     @JsonProperty("ErrorCode")
-    String errorCode;
+    int errorCode;
 
     @JsonProperty("Desc")
     String desc;

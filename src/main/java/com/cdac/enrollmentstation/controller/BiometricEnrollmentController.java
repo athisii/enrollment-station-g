@@ -211,11 +211,11 @@ public class BiometricEnrollmentController {
             return;
         }
 
-        if (!"0".equals(arcDetail.getErrorCode())) {
+        if (arcDetail.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);
             updateUiDynamicLabelText(null);
-            if ("-9999".equals(arcDetail.getErrorCode()) || "null".equals(arcDetail.getDesc())) { // very common error when server's dependencies are not available
+            if (-9999 == arcDetail.getErrorCode() || "null".equals(arcDetail.getDesc())) { // very common error when server's dependencies are not available
                 updateUi("Received an unexpected response from server. Kindly try again.");
             } else if (arcDetail.getDesc().toLowerCase().contains("not found")) {
                 updateUi("Details not found for e-ARC: " + tempArc);

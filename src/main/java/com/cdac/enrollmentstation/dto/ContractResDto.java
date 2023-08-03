@@ -20,7 +20,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ContractResDto {
     @JsonProperty("ErrorCode")
-    String errorCode;
+    int errorCode;
 
     @JsonProperty("Desc")
     String desc;

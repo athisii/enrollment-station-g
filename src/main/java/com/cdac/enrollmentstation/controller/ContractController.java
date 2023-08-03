@@ -3,11 +3,11 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
+import com.cdac.enrollmentstation.dto.Contract;
 import com.cdac.enrollmentstation.dto.ContractResDto;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.dto.Contract;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
 import javafx.collections.FXCollections;
@@ -78,7 +78,7 @@ public class ContractController {
             return;
         }
 
-        if (!"0".equals(contractResDto.getErrorCode())) {
+        if (contractResDto.getErrorCode() != 0) {
             messageLabel.setText(contractResDto.getDesc());
             return;
         }

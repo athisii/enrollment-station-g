@@ -23,7 +23,7 @@ public class AuthUtil {
     }
 
     public static boolean authenticate(String username, String password) {
-        if (password.length() == 0 || username.length() == 0) {
+        if (password.isBlank() || username.isBlank()) {
             throw new GenericException("Please provide the username and password");
         }
 

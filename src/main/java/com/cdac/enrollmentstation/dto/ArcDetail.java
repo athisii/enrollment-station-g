@@ -46,7 +46,7 @@ public class ArcDetail {
     String arcStatus;
 
     @JsonProperty("ErrorCode")
-    String errorCode;
+    int errorCode;
 
     @JsonProperty("Desc")
     String desc;

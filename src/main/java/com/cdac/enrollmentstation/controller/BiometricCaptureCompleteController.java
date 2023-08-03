@@ -8,7 +8,7 @@ import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.model.*;
+import com.cdac.enrollmentstation.model.ArcDetailsHolder;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.cdac.enrollmentstation.util.Singleton;
@@ -129,11 +129,11 @@ public class BiometricCaptureCompleteController {
         ArcDetail arcDetail = holder.getArcDetail();
         SaveEnrollmentDetail saveEnrollmentDetail = holder.getSaveEnrollmentDetail();
 
+        saveEnrollmentDetail.setEnrollmentStatus("SUCCESS");
         // based on biometricOptions just do the necessary actions
         if (arcDetail.getBiometricOptions().toLowerCase().contains("biometric")) {
             saveEnrollmentDetail.setPhoto(NOT_AVAILABLE);
             saveEnrollmentDetail.setPhotoCompressed(NOT_AVAILABLE);
-            saveEnrollmentDetail.setEnrollmentStatus("Success");
         } else if (arcDetail.getBiometricOptions().toLowerCase().contains("photo")) {
             // only adds photo
             try {
@@ -208,7 +208,7 @@ public class BiometricCaptureCompleteController {
             return;
         }
         // checks for error response
-        if (!"0".equals(saveEnrollmentResDto.getErrorCode())) {
+        if (saveEnrollmentResDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + saveEnrollmentResDto.getDesc());
             // runs on main thread
             updateUiIconOnServerResponse(false, saveEnrollmentResDto.getDesc());
@@ -278,9 +278,7 @@ public class BiometricCaptureCompleteController {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-
         }
-        saveEnrollmentDetail.setEnrollmentStatus("PhotoCompleted");
     }
 
     private void onErrorUpdateUiControls(String message) {

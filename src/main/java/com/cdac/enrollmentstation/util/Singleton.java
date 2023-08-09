@@ -17,7 +17,7 @@ public class Singleton {
             objectMapper = JsonMapper.builder()
                     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                     .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-                    .propertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE) // to change property naming automatically
+                    .propertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE) // to change property naming automatically
                     .build();
             objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
             objectMapper.setBase64Variant(Base64Variants.MIME_NO_LINEFEEDS);

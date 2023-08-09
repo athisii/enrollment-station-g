@@ -3,7 +3,9 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
@@ -13,9 +15,15 @@ import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LicenceInfoController {
+public class LicenceInfoController implements BaseController {
     @FXML
-    private Label statusLabel;
+    private Button homeBtn;
+    @FXML
+    private Button backBtn;
+    @FXML
+    private Button reloadBtn;
+    @FXML
+    private Label messageLabel;
     @FXML
     private TextField finScannerInfo;
     private static final Logger LOGGER = ApplicationLog.getLogger(LicenceInfoController.class);
@@ -61,8 +69,21 @@ public class LicenceInfoController {
                 Thread.currentThread().interrupt();
             }
             LOGGER.log(Level.SEVERE, ex.getMessage());
-            statusLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
         }
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        backBtn.setDisable(false);
+        reloadBtn.setDisable(false);
+        homeBtn.setDisable(false);
+        updateUi("Unhandled exception occurred. Please try again.");
+    }
+
+    private void updateUi(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
     }
 }
         

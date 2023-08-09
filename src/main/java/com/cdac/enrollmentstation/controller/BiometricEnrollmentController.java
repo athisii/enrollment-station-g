@@ -32,7 +32,7 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class BiometricEnrollmentController {
+public class BiometricEnrollmentController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentController.class);
 
     // *****************************BARCODE SCANNER *************************
@@ -198,19 +198,18 @@ public class BiometricEnrollmentController {
         try {
             disableControls(backBtn, showArcBtn);
             arcDetail = MafisServerApi.fetchARCDetail(tempArc);
-        } catch (GenericException ex) {
-            enableControls(backBtn, showArcBtn);
-            updateUiDynamicLabelText(null);
-            updateUi(GENERIC_ERR_MSG);
-            return;
         } catch (ConnectionTimeoutException ex) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.INFO, "Connection timeout");
             updateUiDynamicLabelText(null);
             updateUi("Connection timeout. Please try again.");
             return;
+        } catch (Exception ex) {
+            enableControls(backBtn, showArcBtn);
+            updateUiDynamicLabelText(null);
+            updateUi(GENERIC_ERR_MSG);
+            return;
         }
-
         if (arcDetail.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);
@@ -243,7 +242,7 @@ public class BiometricEnrollmentController {
         try {
             saveEnrollmentDetail.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
             saveEnrollmentDetail.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.SEVERE, ex.getMessage());
             updateUi(GENERIC_ERR_MSG);
@@ -331,5 +330,13 @@ public class BiometricEnrollmentController {
             barcodeStringBuilder.setLength(0);
         }
         lastEventTimeStamp = now;
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        backBtn.setDisable(false);
+        showArcBtn.setDisable(false);
+        updateUi("Received an invalid data from the server.");
     }
 }

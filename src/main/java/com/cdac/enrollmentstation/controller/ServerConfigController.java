@@ -4,10 +4,10 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.Unit;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.dto.Unit;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  * Created on 29/03/23
  */
 
-public class ServerConfigController {
+public class ServerConfigController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(ServerConfigController.class);
     private List<Unit> units;
 
@@ -75,7 +75,7 @@ public class ServerConfigController {
 
     @FXML
     private void editBtnAction() {
-        updateUI("");
+        updateUi("");
         enableControls(mafisUrlTextField, enrollmentStationIdTextField, enrollmentStationUnitIdsComboBox, fetchUnitsBtn);
     }
 
@@ -114,7 +114,7 @@ public class ServerConfigController {
         try {
             units = MafisServerApi.fetchAllUnits();
         } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+            updateUi(ex.getMessage());
             enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
             return;
         } catch (ConnectionTimeoutException ex) {
@@ -127,13 +127,13 @@ public class ServerConfigController {
         }
 
         if (units.isEmpty()) {
-            updateUI("No units for selected mafis url.");
+            updateUi("No units for selected mafis url.");
             enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
             return;
         }
         List<String> captions = units.stream().map(Unit::getCaption).collect(Collectors.toList());
         Platform.runLater(() -> enrollmentStationUnitIdsComboBox.setItems(FXCollections.observableArrayList(captions)));
-        updateUI("Units fetched successfully.");
+        updateUi("Units fetched successfully.");
         enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
     }
 
@@ -186,7 +186,7 @@ public class ServerConfigController {
         }
     }
 
-    private void updateUI(String message) {
+    private void updateUi(String message) {
         Platform.runLater((() -> messageLabel.setText(message)));
     }
 
@@ -203,5 +203,12 @@ public class ServerConfigController {
         for (Node node : nodes) {
             node.setDisable(false);
         }
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        enableControls(backBtn, fetchUnitsBtn, homeBtn, editBtn);
+        updateUi("Received an invalid data from the server.");
     }
 }

@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class AdminAuthController {
+public class AdminAuthController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
 
     private static final int MAX_LENGTH = 30;
@@ -134,5 +134,11 @@ public class AdminAuthController {
         }
     }
 
-
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        backBtn.setDisable(false);
+        loginBtn.setDisable(false);
+        updateUi("Unhandled exception occurred. Please try again");
+    }
 }

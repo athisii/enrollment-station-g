@@ -26,7 +26,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DeviceStatusController {
+public class DeviceStatusController implements BaseController {
 
     private static final Logger LOGGER = ApplicationLog.getLogger(DeviceStatusController.class);
     private static final Image RED_CROSS_IMAGE;
@@ -141,4 +141,10 @@ public class DeviceStatusController {
             mafisUrlImage.setImage(GREEN_TICK_IMAGE);
         }
     }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+    }
+
 }

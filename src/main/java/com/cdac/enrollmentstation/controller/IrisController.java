@@ -3,11 +3,11 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.Iris;
 import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.dto.Iris;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.mantra.midirisenroll.DeviceInfo;
@@ -42,7 +42,7 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class IrisController implements MIDIrisEnrollCallback {
+public class IrisController implements MIDIrisEnrollCallback, BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(IrisController.class);
     private static final int IMAGE_COMPRESSION_RATIO = 0;
     private static final int TEMPLATE_COMPRESSION_RATIO = 0;
@@ -166,7 +166,7 @@ public class IrisController implements MIDIrisEnrollCallback {
 
         try {
             initDevice();
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             messageLabel.setText(ex.getMessage());
             scanBtn.setDisable(false);
             backBtn.setDisable(false);
@@ -225,7 +225,7 @@ public class IrisController implements MIDIrisEnrollCallback {
         if (!isDeviceInitialized) {
             try {
                 initDevice();
-            } catch (GenericException ex) {
+            } catch (Exception ex) {
                 messageLabel.setText(ex.getMessage());
                 scanBtn.setDisable(false);
                 backBtn.setDisable(false);
@@ -376,7 +376,7 @@ public class IrisController implements MIDIrisEnrollCallback {
 
         try {
             SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             updateUIOnFailureOrSuccess(false, ex.getMessage());
             return;
         }
@@ -440,5 +440,13 @@ public class IrisController implements MIDIrisEnrollCallback {
             statusImageView.setImage(status ? successImage : failureImage);
             isIrisCompleted = status;
         });
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        backBtn.setDisable(false);
+        scanBtn.setDisable(false);
+        updateUIOnFailureOrSuccess(false, "Unhandled exception occurred. Please try again");
     }
 }

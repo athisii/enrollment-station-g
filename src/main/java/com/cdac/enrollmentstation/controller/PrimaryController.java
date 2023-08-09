@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class PrimaryController {
+public class PrimaryController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
 
     @FXML
@@ -24,7 +24,7 @@ public class PrimaryController {
         try {
             App.setRoot("biometric_enrollment");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, ex::getMessage);
         }
 
     }
@@ -34,7 +34,7 @@ public class PrimaryController {
         try {
             App.setRoot("token_issuance");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE, ex::getMessage);
         }
 
     }
@@ -54,4 +54,8 @@ public class PrimaryController {
     }
 
 
+    @Override
+    public void onUncaughtException() {
+        // TODO: update the UI on uncaught exception
+    }
 }

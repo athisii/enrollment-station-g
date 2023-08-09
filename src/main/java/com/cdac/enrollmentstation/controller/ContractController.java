@@ -10,6 +10,7 @@ import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -24,8 +25,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ContractController {
+public class ContractController implements BaseController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    @FXML
+    private Button homeBtn;
     @FXML
     private TableView<Contract> tableView;
 
@@ -161,5 +164,16 @@ public class ContractController {
         ContractorCardInfo contractorCardInfo = TokenDetailsHolder.getDetailsHolder().getContractorCardInfo();
         contractorCardInfo.setContractId(contractId);
         TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        homeBtn.setDisable(false);
+        updateUi("Received an invalid data from the server.");
+    }
+
+    private void updateUi(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
     }
 }

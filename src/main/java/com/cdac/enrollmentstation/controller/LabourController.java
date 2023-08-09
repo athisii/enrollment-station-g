@@ -48,10 +48,12 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
 import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 
-public class LabourController implements MIDFingerAuth_Callback {
+public class LabourController implements MIDFingerAuth_Callback, BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(LabourController.class);
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    @FXML
+    private Button selectNextContractorBtn;
     private int jniErrorCode;
 
     //***********************Fingerprint***************************//
@@ -548,5 +550,12 @@ public class LabourController implements MIDFingerAuth_Callback {
         }
         // tries matching fingerprint
         matchFingerprintTemplate(template);
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        selectNextContractorBtn.setDisable(false);
+        updateUi("Received an invalid data from the server.");
     }
 }

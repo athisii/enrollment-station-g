@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
-public class TokenIssuanceController {
+public class TokenIssuanceController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
 
     private ContractorCardInfo contractorCardInfo;
@@ -48,7 +48,7 @@ public class TokenIssuanceController {
         App.setRoot("main_screen");
     }
 
-    private void updateUI(String message) {
+    private void updateUi(String message) {
         Platform.runLater(() -> messageLabel.setText(message));
     }
 
@@ -58,11 +58,11 @@ public class TokenIssuanceController {
         try {
             asn1EncodedData = startProcedureCall();
         } catch (NoReaderOrCardException | GenericException ex) {
-            updateUI(ex.getMessage());
+            updateUi(ex.getMessage());
             enableControls(backBtn, showContractBtn);
             return;
         } catch (ConnectionTimeoutException ex) {
-            updateUI("Something went wrong. Kindly check Card API service.");
+            updateUi("Something went wrong. Kindly check Card API service.");
             enableControls(backBtn, showContractBtn);
             return;
         }
@@ -72,12 +72,12 @@ public class TokenIssuanceController {
             contractorName = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.NAME.getValue()), StandardCharsets.UTF_8);
             contractorId = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.UNIQUE_ID.getValue()), StandardCharsets.UTF_8);
         } catch (GenericException ex) {
-            updateUI("Kindly place a valid card and try again.");
+            updateUi("Kindly place a valid card and try again.");
             enableControls(backBtn, showContractBtn);
             return;
         }
         if (contractorName.isEmpty() || contractorId.isEmpty()) {
-            updateUI("No contractor details available in the card.");
+            updateUi("No contractor details available in the card.");
             enableControls(backBtn, showContractBtn);
             return;
         }
@@ -87,9 +87,9 @@ public class TokenIssuanceController {
         TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
         try {
             App.setRoot("contract");
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
-            updateUI("Something went wrong. Contact the system admin.");
+            updateUi("Something went wrong. Contact the system admin.");
             enableControls(backBtn, showContractBtn);
         }
     }
@@ -179,5 +179,12 @@ public class TokenIssuanceController {
             throw new GenericException(GENERIC_ERR_MSG);
         }
 
+    }
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        enableControls(backBtn);
+        updateUi("Received an invalid data from the server.");
     }
 }

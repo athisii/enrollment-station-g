@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation;
 
 
+import com.cdac.enrollmentstation.controller.BaseController;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
@@ -13,7 +14,6 @@ import javafx.stage.StageStyle;
 import org.opencv.core.Core;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -25,6 +25,7 @@ import java.util.logging.Logger;
  */
 public class App extends Application {
     private static Scene scene;
+    private static BaseController controller;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
@@ -43,11 +44,11 @@ public class App extends Application {
         });
         scene = new Scene(loadFXML("main_screen"), 1024, 768);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            LOGGER.log(Level.INFO, () -> "Caught by default Uncaught Exception Handler. Will exit now");
             LOGGER.log(Level.INFO, () -> "Caused: " + throwable.getCause());
             LOGGER.log(Level.INFO, () -> "Message: " + throwable.getMessage());
-            throwable.printStackTrace();
+            controller.onUncaughtException();
         });
+
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.setTitle("Enrolment Application");
@@ -61,7 +62,10 @@ public class App extends Application {
     }
 
     private static Parent loadFXML(String fxml) throws IOException {
-        return FXMLLoader.load(Objects.requireNonNull(App.class.getResource("/fxml/" + fxml + ".fxml")));
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/fxml/" + fxml + ".fxml"));
+        Parent parent = fxmlLoader.load();
+        controller = fxmlLoader.getController();
+        return parent;
     }
 
     public static void main(String[] args) {

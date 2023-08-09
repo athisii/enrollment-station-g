@@ -3,11 +3,12 @@ package RealScan;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.controller.BaseController;
+import com.cdac.enrollmentstation.dto.Fp;
 import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.dto.Fp;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.innovatrics.commons.img.RawGrayscaleImage;
@@ -49,7 +50,7 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
  * Created on 29/03/23
  */
 
-public class SlapScannerController {
+public class SlapScannerController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerController.class);
     private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 1; // to be on safe side
     private static final int TIME_TO_WAIT_FOR_USER_IN_SEC = 3; // wait for users to place their fingers on sensor
@@ -326,7 +327,7 @@ public class SlapScannerController {
         disableControls(scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, backBtn, captureIrisBtn);
         try {
             initSdkAndScanners();
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             messageLabel.setText(ex.getMessage());
             scanBtn.setDisable(false);
             backBtn.setDisable(false);
@@ -365,24 +366,24 @@ public class SlapScannerController {
         duplicateFpFound = false;
         if (!isLeftFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
-            updateUI(GENERIC_RS_ERR_MSG);
+            updateUi(GENERIC_RS_ERR_MSG);
             enableControls(backBtn, leftScanBtn);
             return;
         }
 
         if (leftFingerToFingerTypeLinkedHashMap.isEmpty()) {
             // runs in same thread.
-            updateUI("No left fingers to scan. Going to scan right fingers...");
+            updateUi("No left fingers to scan. Going to scan right fingers...");
             startRightScan();
             return;
         }
 
         if (leftFingerToFingerTypeLinkedHashMap.size() > 3) {
-            updateUI("Place your four left fingers on the sensor.");
+            updateUi("Place your four left fingers on the sensor.");
         } else {
             // Place your Left Index, Left Middle finger(s) on the sensor.
             String fingers = leftFingerToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
-            updateUI("Place your  " + fingers + " finger(s) on the sensor.");
+            updateUi("Place your  " + fingers + " finger(s) on the sensor.");
         }
 
         // throws GenericException
@@ -390,8 +391,8 @@ public class SlapScannerController {
             // when fingers are already placed on the sensor at the time of initialization, it fails
             // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
-        } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+        } catch (Exception ex) {
+            updateUi(ex.getMessage());
             enableControls(backBtn, leftScanBtn);
         }
 
@@ -410,22 +411,22 @@ public class SlapScannerController {
 
         if (!isRightFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'. ");
-            updateUI(GENERIC_RS_ERR_MSG);
+            updateUi(GENERIC_RS_ERR_MSG);
             enableControls(backBtn, rightScanBtn);
             return;
         }
         if (rightFingerToFingerTypeLinkedHashMap.isEmpty()) {
             // runs in same thread.
-            updateUI("No right fingers to scan. Going to scan thumb...");
+            updateUi("No right fingers to scan. Going to scan thumb...");
             startThumbScan();
             return;
         }
         if (rightFingerToFingerTypeLinkedHashMap.size() > 3) {
-            updateUI("Place your four right fingers on the sensor.");
+            updateUi("Place your four right fingers on the sensor.");
         } else {
             // Place your Right Index, Right Middle finger(s) on the sensor.
             String fingers = rightFingerToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
-            updateUI("Place your " + fingers + " finger(s) on the sensor.");
+            updateUi("Place your " + fingers + " finger(s) on the sensor.");
         }
 
         // throws GenericException
@@ -433,8 +434,8 @@ public class SlapScannerController {
             // when fingers are already placed on the sensor at the time of initialization, it fails
             // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
-        } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+        } catch (Exception ex) {
+            updateUi(ex.getMessage());
             enableControls(backBtn, rightScanBtn);
         }
 
@@ -454,21 +455,21 @@ public class SlapScannerController {
 
         if (!isLeftFpDeviceInitialised) {
             LOGGER.log(Level.SEVERE, "Device is not initialised. Status of isDeviceInitialised is 'false'.");
-            updateUI(GENERIC_RS_ERR_MSG);
+            updateUi(GENERIC_RS_ERR_MSG);
             enableControls(backBtn, thumbScanBtn);
             return;
         }
         if (thumbToFingerTypeLinkedHashMap.isEmpty()) {// runs in same thread.
-            updateUI("No thumb to scan. Please wait. ");
+            updateUi("No thumb to scan. Please wait. ");
             convertToTemplate();
             return;
         }
         if (thumbToFingerTypeLinkedHashMap.size() > 1) {
-            updateUI("Place your two thumbs on the sensor.");
+            updateUi("Place your two thumbs on the sensor.");
         } else {
             // Place your Left thumb on the sensor.
             String thumb = thumbToFingerTypeLinkedHashMap.keySet().stream().map(fingerAbrvToLFMap::get).collect(Collectors.joining(", "));
-            updateUI("Place your " + thumb + " on the sensor.");
+            updateUi("Place your " + thumb + " on the sensor.");
         }
 
         // throws GenericException
@@ -476,8 +477,8 @@ public class SlapScannerController {
             // when fingers are already placed on the sensor at the time of initialization, it fails
             // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
-        } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+        } catch (Exception ex) {
+            updateUi(ex.getMessage());
             enableControls(backBtn, thumbScanBtn);
         }
     }
@@ -508,7 +509,7 @@ public class SlapScannerController {
         }
 
         if (imageData == null || imageHeight == 0 || imageWidth == 0) {
-            updateUI("Something went wrong. Please try again.");
+            updateUi("Something went wrong. Please try again.");
             enableControls(backBtn, button);
             return;
         }
@@ -516,15 +517,15 @@ public class SlapScannerController {
         int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
         if (nistQuality > FP_NIST_VALUE) {
             LOGGER.log(Level.INFO, "Quality too poor (NIST): " + nistQuality);
-            updateUI("Quality too poor. Please try again.");
+            updateUi("Quality too poor. Please try again.");
             enableControls(backBtn, button);
             return;
         }
 
         try {
             checkLFD(deviceHandle);
-        } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+        } catch (Exception ex) {
+            updateUi(ex.getMessage());
             enableControls(backBtn, button);
             return;
         }
@@ -539,18 +540,18 @@ public class SlapScannerController {
             Map<Integer, RSImageInfo> mFingerTypeRsImageInfoMap = segmentSlapImage(resImageInfo);
             // adds to global finger sequence holder map.
             scannedFingerTypeToRsImageInfoMap.putAll(mFingerTypeRsImageInfoMap);
-            updateUI(successMessage);
+            updateUi(successMessage);
             Platform.runLater(() -> displaySegmentedFpImage(mFingerTypeRsImageInfoMap));
             // to get hold of fingerSetTypeToScan used by displaySegmentedFpImage()
             // if not it will cause issue, since, we change its value in the following line
             Thread.sleep(TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS);
-        } catch (GenericException ex) {
-            updateUI(ex.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (Exception ex) {
+            updateUi(ex.getMessage());
             enableControls(backBtn, button);
             isFromPrevScan = false;
             return;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
 
         /* now get ready for next call */
@@ -576,7 +577,7 @@ public class SlapScannerController {
             App.getThreadPool().execute(this::convertToTemplate);
         } else {
             LOGGER.log(Level.SEVERE, UNSUPPORTED_FINGER_SET_TYPE);
-            updateUI(GENERIC_RS_ERR_MSG);
+            updateUi(GENERIC_RS_ERR_MSG);
         }
     }
 
@@ -1091,7 +1092,7 @@ public class SlapScannerController {
 
 
     private synchronized void convertToTemplate() {
-        updateUI("Processing fingerprints. Please wait...");
+        updateUi("Processing fingerprints. Please wait...");
         int requiredFingerCount = leftFingerToFingerTypeLinkedHashMap.size() + rightFingerToFingerTypeLinkedHashMap.size() + thumbToFingerTypeLinkedHashMap.size();
         Set<Integer> fingerSet = new HashSet<>(leftFingerToFingerTypeLinkedHashMap.values());
         fingerSet.addAll(rightFingerToFingerTypeLinkedHashMap.values());
@@ -1101,7 +1102,7 @@ public class SlapScannerController {
         if (fingerSet.size() != requiredFingerCount || requiredFingerCount != scannedFingerTypeToRsImageInfoMap.size()) {
             LOGGER.log(Level.SEVERE, "requiredFingerCount and map size not equal.");
             Platform.runLater(this::clearFingerprintOnUI);
-            updateUI("Finger counts different than specified. Kindly rescan all the required fingers.");
+            updateUi("Finger counts different than specified. Kindly rescan all the required fingers.");
             enableControls(leftScanBtn);
             return;
         }
@@ -1153,7 +1154,7 @@ public class SlapScannerController {
             if (rsImageInfo == null) {
                 LOGGER.log(Level.SEVERE, () -> "Finger-RSImageInfo mapping not found in scannedFingerTypeToRsImageInfoMap for key: " + finger);
                 Platform.runLater(this::clearFingerprintOnUI);
-                updateUI("Fingerprint map not found. Kindly rescan from start");
+                updateUi("Fingerprint map not found. Kindly rescan from start");
                 enableControls(leftScanBtn);
                 return;
             }
@@ -1163,7 +1164,7 @@ public class SlapScannerController {
             if (imageAndIsoTemplateMap == null) {
                 LOGGER.log(Level.SEVERE, "imageAndIsoTemplateMap is null.");
                 Platform.runLater(this::clearFingerprintOnUI);
-                updateUI("Error converting to template. Kindly rescan from start");
+                updateUi("Error converting to template. Kindly rescan from start");
                 enableControls(leftScanBtn);
                 return;
             }
@@ -1174,7 +1175,7 @@ public class SlapScannerController {
             if (image == null || template == null) {
                 LOGGER.log(Level.SEVERE, "Either image or template is null");
                 Platform.runLater(this::clearFingerprintOnUI);
-                updateUI("Either image or template is invalid");
+                updateUi("Either image or template is invalid");
                 enableControls(leftScanBtn);
                 return;
             }
@@ -1190,7 +1191,7 @@ public class SlapScannerController {
 
         if (checkDuplicateFp(isoTemplates)) {
             LOGGER.log(Level.SEVERE, "Scanned duplicate fingerprints.");
-            updateUI("Duplicate fingerprints found. Rescanning from the start....");
+            updateUi("Duplicate fingerprints found. Rescanning from the start....");
             duplicateFpFound = true;
             rescanFromStart();
             return;
@@ -1213,9 +1214,9 @@ public class SlapScannerController {
         // throws GenericException
         try {
             SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
-            updateUI(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
+            updateUi(ApplicationConstant.GENERIC_TEMPLATE_CONVERSION_ERR_MSG);
             enableControls(scanBtn);
             return;
         }
@@ -1235,7 +1236,7 @@ public class SlapScannerController {
         int fpMatchMinThreshold;
         try {
             fpMatchMinThreshold = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_MATCH_MIN_THRESHOLD).trim());
-        } catch (NumberFormatException | GenericException ex) {
+        } catch (NumberFormatException ex) {
             LOGGER.log(Level.SEVERE, () -> "Not a number or no entry for '" + PropertyName.FP_MATCH_MIN_THRESHOLD + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
             throw new GenericException(GENERIC_ERR_MSG);
         }
@@ -1283,7 +1284,7 @@ public class SlapScannerController {
         }
     }
 
-    private void updateUI(String message) {
+    private void updateUi(String message) {
         Platform.runLater(() -> messageLabel.setText(message));
     }
 
@@ -1299,4 +1300,11 @@ public class SlapScannerController {
         }
     }
 
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        backBtn.setDisable(false);
+        currentEnabledButton.setDisable(false);
+        updateUi("Unhandled exception occurred. Please try again. ");
+    }
 }

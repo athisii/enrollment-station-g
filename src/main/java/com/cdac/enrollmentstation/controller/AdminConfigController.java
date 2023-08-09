@@ -5,6 +5,7 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -19,7 +20,7 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class AdminConfigController {
+public class AdminConfigController implements BaseController {
     //For Application Log
     private static final Logger LOGGER = ApplicationLog.getLogger(AdminConfigController.class);
     private static final int FINGERPRINT_LIVENESS_MAX;
@@ -138,4 +139,14 @@ public class AdminConfigController {
         }
     }
 
+
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        updateUi("Unhandled exception occurred. Please try again");
+    }
+
+    private void updateUi(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
+    }
 }

@@ -17,7 +17,7 @@
                         <Font size="22.0" />
                     </font>
                 </Text>
-                <Button layoutX="439.0" layoutY="627.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="HOME" textFill="WHITE">
+                <Button fx:id="homeBtn" layoutX="439.0" layoutY="627.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="HOME" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>

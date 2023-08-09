@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class BiometricCaptureCompleteController {
+public class BiometricCaptureCompleteController implements BaseController {
     //For Application Log
     private static final Logger LOGGER = ApplicationLog.getLogger(BiometricCaptureCompleteController.class);
     private static final String NOT_AVAILABLE = "Not Available";
@@ -138,7 +138,7 @@ public class BiometricCaptureCompleteController {
             // only adds photo
             try {
                 addPhoto(saveEnrollmentDetail);
-            } catch (GenericException ex) {
+            } catch (Exception ex) {
                 onErrorUpdateUiControls(ex.getMessage());
                 return;
             }
@@ -155,7 +155,7 @@ public class BiometricCaptureCompleteController {
             // so now add only photo
             try {
                 addPhoto(saveEnrollmentDetail);
-            } catch (GenericException ex) {
+            } catch (Exception ex) {
                 onErrorUpdateUiControls(ex.getMessage());
                 return;
             }
@@ -174,7 +174,7 @@ public class BiometricCaptureCompleteController {
         // saves saveEnrollmentDetail for backups
         try {
             SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             onErrorUpdateUiControls(ex.getMessage());
             return;
         }
@@ -193,9 +193,6 @@ public class BiometricCaptureCompleteController {
         // try submitting to the server.
         try {
             saveEnrollmentResDto = MafisServerApi.postEnrollment(jsonData);
-        } catch (GenericException ex) {
-            onErrorUpdateUiControls(ex.getMessage());
-            return;
         } catch (ConnectionTimeoutException ex) {
             Platform.runLater(() -> {
                 progressIndicator.setVisible(false);
@@ -205,6 +202,9 @@ public class BiometricCaptureCompleteController {
                 timeline.setCycleCount(1);
                 timeline.play();
             });
+            return;
+        } catch (Exception ex) {
+            onErrorUpdateUiControls(ex.getMessage());
             return;
         }
         // checks for error response
@@ -221,7 +221,7 @@ public class BiometricCaptureCompleteController {
         // time for cleanup
         try {
             SaveEnrollmentDetailUtil.delete();
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             onErrorUpdateUiControls(ex.getMessage());
         }
         timeline.setCycleCount(1);
@@ -290,6 +290,16 @@ public class BiometricCaptureCompleteController {
         });
     }
 
+    @Override
+    public void onUncaughtException() {
+        LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
+        homeBtn.setDisable(false);
+        updateUi("Unhandled exception occurred. Please try again");
+    }
+
+    private void updateUi(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
+    }
 }
 
  

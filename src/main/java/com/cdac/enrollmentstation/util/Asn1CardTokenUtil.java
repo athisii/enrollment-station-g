@@ -253,10 +253,10 @@ public class Asn1CardTokenUtil {
             // ORDER MUST BE FOLLOWED
             derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(dynamicFile.getUserCategoryId()).trim())));
             derSequenceGenerator.addObject(new DERPrintableString(nonNull(dynamicFile.getLabourName())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(dynamicFile.getLabourGenderId()).trim())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getLabourDateOfBirth())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(dynamicFile.getLabourBloodGroupId()).trim())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(dynamicFile.getLabourNationalityId()).trim())));
+            derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getGenderId()));
+            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getDateOfBirth())));
+            derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getBloodGroupId()));
+            derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getNationalityId()));
             derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getIssuanceUnit())));
             derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getLabourId())));
             derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getContractorId())));
@@ -413,22 +413,22 @@ public class Asn1CardTokenUtil {
     }
 
     /**
-     * Utility to encode and store SpecialAccessFile. Caller must handle the exception
+     * Utility to encode and store AccessFile. Caller must handle the exception
      *
      * @param handle            - handle of the token
-     * @param specialAccessFile - object to be encoded
+     * @param accessFile - object to be encoded
      * @throws GenericException - on exception
      */
-    public static void encodeAndStoreSpecialAccessFile(int handle, SpecialAccessFile specialAccessFile) {
+    public static void encodeAndStoreSpecialAccessFile(int handle, AccessFile accessFile) {
         byte[] bytes;
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
             // ORDER MUST BE FOLLOWED
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(specialAccessFile.getUnitCode()).trim())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(specialAccessFile.getZoneId()).trim())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(specialAccessFile.getFromDate())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(specialAccessFile.getToDate())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(specialAccessFile.getWorkingHourCode().trim()))));
+            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getUnitCode()).trim())));
+            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getZoneId()).trim())));
+            derSequenceGenerator.addObject(new DERIA5String(nonNull(accessFile.getFromDate())));
+            derSequenceGenerator.addObject(new DERIA5String(nonNull(accessFile.getToDate())));
+            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getWorkingHourCode().trim()))));
             derSequenceGenerator.close(); // must close it
             bytes = byteArrayOutputStream.toByteArray();
         } catch (Exception ex) {
@@ -436,7 +436,7 @@ public class Asn1CardTokenUtil {
             throw new GenericException("Error occurred while encoding special access file.");
         }
         if (bytes.length > MAX_SPECIAL_ACCESS_PERMISSION_FILE_SIZE) {
-            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSpecialAccessFileError: SpecialAccessFile size exceeded the allowed limit. Length: " + bytes.length);
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSpecialAccessFileError: AccessFile size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The special access file size exceeded the allowed limit.");
         }
         storeBufferedData(handle, CardTokenFileType.SPECIAL_ACCESS_PERMISSION_FILE, bytes);

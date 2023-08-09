@@ -72,22 +72,22 @@ public class MafisServerApi {
      * Caller must handle the exception.
      *
      * @param data request payload
-     * @return SaveEnrollmentResDto or null on connection timeout
+     * @return CommonResDto or null on connection timeout
      * @throws GenericException exception on error, json parsing exception etc.
      */
-    public static SaveEnrollmentResDto postEnrollment(String data) {
+    public static CommonResDto postEnrollment(String data) {
         // to avoid encrypt/decrypt problems
         data = data.replace("\n", "");
         String receivedData = encryptAndSendToServer(data, getSaveEnrollmentUrl());
         // response data from server
-        SaveEnrollmentResDto saveEnrollmentResDto;
+        CommonResDto resDto;
         try {
-            saveEnrollmentResDto = Singleton.getObjectMapper().readValue(receivedData, SaveEnrollmentResDto.class);
+            resDto = Singleton.getObjectMapper().readValue(receivedData, CommonResDto.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        return saveEnrollmentResDto;
+        return resDto;
     }
 
     /**
@@ -162,7 +162,7 @@ public class MafisServerApi {
      * @throws GenericException           exception on error, json parsing exception etc.
      * @throws ConnectionTimeoutException on connection timeout
      */
-    public static TokenResDto updateTokenStatus(TokenReqDto tokenReqDto) {
+    public static CommonResDto updateTokenStatus(TokenReqDto tokenReqDto) {
         String data;
         try {
             data = Singleton.getObjectMapper().writeValueAsString(tokenReqDto);
@@ -172,14 +172,14 @@ public class MafisServerApi {
         }
 
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getTokenUpdateUrl(), data));
-        TokenResDto tokenResDto;
+        CommonResDto resDto;
         try {
-            tokenResDto = Singleton.getObjectMapper().readValue(response.body(), TokenResDto.class);
+            resDto = Singleton.getObjectMapper().readValue(response.body(), CommonResDto.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        return tokenResDto;
+        return resDto;
     }
 
     private static String encryptAndSendToServer(String data, String url) {

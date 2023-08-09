@@ -20,13 +20,9 @@ import java.util.List;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabourResDto {
-    @JsonProperty("ErrorCode")
     int errorCode;
-
-    @JsonProperty("Desc")
     String desc;
-
-    @JsonProperty("LabourList")
+    @JsonProperty("labourList")
     List<Labour> labours;
 
 }

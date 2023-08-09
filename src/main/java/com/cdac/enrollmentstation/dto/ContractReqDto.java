@@ -1,6 +1,5 @@
 package com.cdac.enrollmentstation.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -16,10 +15,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContractReqDto {
-    @JsonProperty("ContractorID")
     String contractorId;
-
-    @JsonProperty("CardSerialNo")
     String cardSerialNo;
 }
 

@@ -12,8 +12,6 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DefaultValidityFile {
-    @JsonProperty("validFrom")
     String validFrom;
-    @JsonProperty("validTo")
     String validTo;
 }

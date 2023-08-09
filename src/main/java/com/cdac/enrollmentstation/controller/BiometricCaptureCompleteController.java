@@ -189,10 +189,10 @@ public class BiometricCaptureCompleteController implements BaseController {
             return;
         }
 
-        SaveEnrollmentResDto saveEnrollmentResDto;
+        CommonResDto resDto;
         // try submitting to the server.
         try {
-            saveEnrollmentResDto = MafisServerApi.postEnrollment(jsonData);
+            resDto = MafisServerApi.postEnrollment(jsonData);
         } catch (ConnectionTimeoutException ex) {
             Platform.runLater(() -> {
                 progressIndicator.setVisible(false);
@@ -208,10 +208,10 @@ public class BiometricCaptureCompleteController implements BaseController {
             return;
         }
         // checks for error response
-        if (saveEnrollmentResDto.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> "Server desc: " + saveEnrollmentResDto.getDesc());
+        if (resDto.getErrorCode() != 0) {
+            LOGGER.log(Level.SEVERE, () -> "Server desc: " + resDto.getDesc());
             // runs on main thread
-            updateUiIconOnServerResponse(false, saveEnrollmentResDto.getDesc());
+            updateUiIconOnServerResponse(false, resDto.getDesc());
         } else {
             // else saved successfully on the server
             // runs on main thread

@@ -181,7 +181,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             } else {
                 DynamicFile dynamicFile = labour.getDynamicFile();
                 LabourDetailsTableRow labourDetailsTableRow = new LabourDetailsTableRow();
-                labourDetailsTableRow.setDateOfBirth(dynamicFile.getLabourDateOfBirth());
+                labourDetailsTableRow.setDateOfBirth(dynamicFile.getDateOfBirth());
                 labourDetailsTableRow.setLabourID(dynamicFile.getLabourId());
                 labourDetailsTableRow.setLabourName(dynamicFile.getLabourName());
                 //for differentiating table row for token issued labour, if required but now removed from the list if issued
@@ -343,10 +343,10 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             return;
         }
 
-        TokenResDto tokenResDto;
+        CommonResDto resDto;
         //Update token details to MAFIS
         try {
-            tokenResDto = MafisServerApi.updateTokenStatus(tokenReqDto);
+            resDto = MafisServerApi.updateTokenStatus(tokenReqDto);
         } catch (GenericException ex) {
             updateUi(ex.getMessage());
             return;
@@ -355,9 +355,9 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             return;
         }
 
-        if (tokenResDto.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + tokenResDto.getDesc());
-            updateUi(tokenResDto.getDesc());
+        if (resDto.getErrorCode() != 0) {
+            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + resDto.getDesc());
+            updateUi(resDto.getDesc());
             return;
         }
         updateUi("Kindly collect the token.");
@@ -462,7 +462,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
 
         Asn1CardTokenUtil.encodeAndStoreDynamicFile(tokenHandle, labour.getDynamicFile());
         Asn1CardTokenUtil.encodeAndStoreDefaultValidityFile(tokenHandle, labour.getDefaultValidityFile());
-        Asn1CardTokenUtil.encodeAndStoreSpecialAccessFile(tokenHandle, labour.getSpecialAccessFile());
+        Asn1CardTokenUtil.encodeAndStoreSpecialAccessFile(tokenHandle, labour.getAccessFile());
         Asn1CardTokenUtil.encodeAndStorePhotoFile(tokenHandle, labour.getPhoto());
         Asn1CardTokenUtil.encodeAndStoreFingerprintFile(tokenHandle, labour.getFps());
         Asn1CardTokenUtil.encodeAndStoreSignFile1(tokenHandle, labour.getSignFile1());

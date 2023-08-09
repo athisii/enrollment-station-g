@@ -1,6 +1,5 @@
 package com.cdac.enrollmentstation.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +7,6 @@ import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 /**
- *
  * @author root
  */
 @Getter
@@ -16,10 +14,6 @@ import lombok.experimental.FieldDefaults;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LabourFp {
-    @JsonProperty("FPPos")
     String fpPos;
-    
-    @JsonProperty("FPData")
     String fpData;
-    
 }

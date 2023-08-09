@@ -4,7 +4,6 @@ package com.cdac.enrollmentstation.dto;
  * Created on 29/03/23
  */
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,6 +13,5 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ArcNoReqDto {
-    @JsonProperty("ARCNo")
     String arcNo;
 }

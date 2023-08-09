@@ -19,13 +19,9 @@ import java.util.Set;
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ContractResDto {
-    @JsonProperty("ErrorCode")
     int errorCode;
-
-    @JsonProperty("Desc")
     String desc;
-
-    @JsonProperty("ContractIDList")
+    @JsonProperty("contractIdList")
     Set<Contract> contracts;
 
 }

@@ -376,12 +376,14 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
         tableview.refresh();
 
         if (tableview.getItems().isEmpty()) {
-            try {
-                App.setRoot("contract");
-            } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                throw new GenericException(GENERIC_ERR_MSG);
-            }
+            Platform.runLater(() -> {
+                try {
+                    App.setRoot("contract");
+                } catch (IOException ex) {
+                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    throw new GenericException(GENERIC_ERR_MSG);
+                }
+            });
         }
 
     }

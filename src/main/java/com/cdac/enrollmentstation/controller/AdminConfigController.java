@@ -37,7 +37,7 @@ public class AdminConfigController implements BaseController {
     }
 
     @FXML
-    public Label messageLabel;
+    private Label messageLabel;
     @FXML
     private TextField liveFpTextField;
     @FXML

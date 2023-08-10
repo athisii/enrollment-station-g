@@ -44,12 +44,12 @@ public class BiometricEnrollmentController implements BaseController {
     private String tempArc;
 
     @FXML
-    public Button continueBtn;
+    private Button continueBtn;
     @FXML
 
-    public Button backBtn;
+    private Button backBtn;
     @FXML
-    public Button showArcBtn;
+    private Button showArcBtn;
 
     @FXML
     private TextField arcNumberTextField;

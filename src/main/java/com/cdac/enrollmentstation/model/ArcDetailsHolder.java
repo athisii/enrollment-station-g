@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@ToString
+
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ArcDetailsHolder {
     ArcDetail arcDetail;

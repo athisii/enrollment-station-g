@@ -13,6 +13,11 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author athisii, CDAC
+ * Created on 26/12/22
+ */
+
 public class PrimaryController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
 

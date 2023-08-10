@@ -25,6 +25,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @author athisii, CDAC
+ * Created on 26/12/22
+ */
+
 public class ContractController implements BaseController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     @FXML

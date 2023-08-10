@@ -1,4 +1,6 @@
-package com.cdac.enrollmentstation.constant;/*
+package com.cdac.enrollmentstation.constant;
+
+/**
  * @author athisii, CDAC
  * Created on 02/12/22
  */

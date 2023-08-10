@@ -1,10 +1,5 @@
 package com.cdac.enrollmentstation.api;
 
-/**
- * @author athisii, CDAC
- * Created on 29/03/23
- */
-
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
@@ -19,6 +14,11 @@ import javax.naming.directory.InitialDirContext;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+/**
+ * @author athisii, CDAC
+ * Created on 29/03/23
+ */
 
 public class DirectoryLookup {
 

@@ -79,7 +79,7 @@ public class LicenceInfoController implements BaseController {
         backBtn.setDisable(false);
         reloadBtn.setDisable(false);
         homeBtn.setDisable(false);
-        updateUi("Unhandled exception occurred. Please try again.");
+        updateUi("Something went wrong. Please try again.");
     }
 
     private void updateUi(String message) {

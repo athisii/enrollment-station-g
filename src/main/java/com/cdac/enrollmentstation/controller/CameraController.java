@@ -500,6 +500,6 @@ public class CameraController implements BaseController {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
         backBtn.setDisable(false);
         startStopCameraBtn.setDisable(false);
-        updateUi("Unhandled exception occurred. Please try again");
+        updateUi("Something went wrong. Please try again");
     }
 }

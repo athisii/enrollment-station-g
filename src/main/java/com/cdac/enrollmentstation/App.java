@@ -44,8 +44,8 @@ public class App extends Application {
         });
         scene = new Scene(loadFXML("main_screen"), 1024, 768);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            LOGGER.log(Level.INFO, () -> "Caused: " + throwable.getCause());
-            LOGGER.log(Level.INFO, () -> "Message: " + throwable.getMessage());
+            LOGGER.log(Level.SEVERE, () -> "Caused: " + throwable.getCause());
+            LOGGER.log(Level.SEVERE, () -> "Message: " + throwable.getMessage());
             controller.onUncaughtException();
         });
 

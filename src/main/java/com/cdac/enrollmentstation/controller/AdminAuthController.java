@@ -45,7 +45,7 @@ public class AdminAuthController implements BaseController {
     private PasswordField passwordField;
 
     @FXML
-    private TextField textField;
+    private TextField username;
 
     @FXML
     public void showHome() throws IOException {
@@ -69,7 +69,7 @@ public class AdminAuthController implements BaseController {
 
     private void authenticateUser() {
         try {
-            if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
+            if (AuthUtil.authenticate(username.getText(), passwordField.getText())) {
                 App.setRoot("admin_config");
                 isDone = true;
                 return;
@@ -81,17 +81,17 @@ public class AdminAuthController implements BaseController {
         }
         isDone = true;
         // clean up UI on failure
-        clearPasswordField();
+        clearUiControls();
         enableControls(backBtn, loginBtn);
     }
 
     public void initialize() {
         // restrict the TextField Length
-        textField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(textField, oldValue, newValue));
+        username.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(username, oldValue, newValue));
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(passwordField, oldValue, newValue));
 
         // ease of use for operator
-        textField.setOnKeyPressed(event -> {
+        username.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
                 passwordField.requestFocus();
                 event.consume();
@@ -114,10 +114,10 @@ public class AdminAuthController implements BaseController {
         Platform.runLater(() -> statusMsg.setText(message));
     }
 
-    private void clearPasswordField() {
+    private void clearUiControls() {
         Platform.runLater(() -> {
-            textField.requestFocus();
-            textField.setText("");
+            username.requestFocus();
+            username.setText("");
             passwordField.setText("");
         });
     }
@@ -139,6 +139,6 @@ public class AdminAuthController implements BaseController {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
         backBtn.setDisable(false);
         loginBtn.setDisable(false);
-        updateUi("Unhandled exception occurred. Please try again");
+        updateUi("Something went wrong. Please try again");
     }
 }

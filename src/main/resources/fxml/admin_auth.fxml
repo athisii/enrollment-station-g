@@ -29,7 +29,7 @@
 
                 </AnchorPane>
                 <AnchorPane layoutX="285.0" layoutY="255.0" prefHeight="133.0" prefWidth="488.0" style="-fx-border-color: #04127b;">
-                    <TextField fx:id="textField" layoutX="154.0" layoutY="30.0" prefHeight="26.0" prefWidth="194.0" promptText="Username" />
+                    <TextField fx:id="username" layoutX="154.0" layoutY="30.0" prefHeight="26.0" prefWidth="194.0" promptText="Username" />
                     <ImageView fitHeight="35.0" fitWidth="32.0" layoutX="83.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
 
                         <Image url="@../img/username.png" />

@@ -56,6 +56,6 @@ public class PrimaryController implements BaseController {
 
     @Override
     public void onUncaughtException() {
-        // TODO: update the UI on uncaught exception
+        LOGGER.log(Level.SEVERE, "***Unhandled exception occurred.");
     }
 }

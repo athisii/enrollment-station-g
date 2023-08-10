@@ -447,6 +447,6 @@ public class IrisController implements MIDIrisEnrollCallback, BaseController {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
         backBtn.setDisable(false);
         scanBtn.setDisable(false);
-        updateUIOnFailureOrSuccess(false, "Unhandled exception occurred. Please try again");
+        updateUIOnFailureOrSuccess(false, "Something went wrong. Please try again");
     }
 }

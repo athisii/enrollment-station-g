@@ -143,7 +143,7 @@ public class AdminConfigController implements BaseController {
     @Override
     public void onUncaughtException() {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
-        updateUi("Unhandled exception occurred. Please try again");
+        updateUi("Something went wrong. Please try again");
     }
 
     private void updateUi(String message) {

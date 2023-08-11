@@ -371,14 +371,11 @@ public class Asn1CardTokenUtil {
      */
     public static void encodeAndStoreSignFile1(int handle, String signFile1) {
         byte[] bytes;
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(signFile1)));
-            derSequenceGenerator.close(); // must close it
-            bytes = byteArrayOutputStream.toByteArray();
+        try {
+            bytes = Base64.getDecoder().decode(signFile1);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: " + ex.getMessage());
-            throw new GenericException("Error occurred while encoding signature file1.");
+            throw new GenericException("Error occurred while decoding signature file1.");
         }
         if (bytes.length > MAX_SIGNATURE_FILE_SIZE) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: SignFile1 size exceeded the allowed limit. Length: " + bytes.length);
@@ -396,14 +393,11 @@ public class Asn1CardTokenUtil {
      */
     public static void encodeAndStoreSignFile3(int handle, String signFile3) {
         byte[] bytes;
-        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-            DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(signFile3)));
-            derSequenceGenerator.close(); // must close it
-            bytes = byteArrayOutputStream.toByteArray();
+        try {
+            bytes = Base64.getDecoder().decode(signFile3);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: " + ex.getMessage());
-            throw new GenericException("Error occurred while encoding signature file3.");
+            throw new GenericException("Error occurred while decoding signature file3.");
         }
         if (bytes.length > MAX_SIGNATURE_FILE_SIZE) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: SignFile3 size exceeded the allowed limit. Length: " + bytes.length);
@@ -415,7 +409,7 @@ public class Asn1CardTokenUtil {
     /**
      * Utility to encode and store AccessFile. Caller must handle the exception
      *
-     * @param handle            - handle of the token
+     * @param handle     - handle of the token
      * @param accessFile - object to be encoded
      * @throws GenericException - on exception
      */

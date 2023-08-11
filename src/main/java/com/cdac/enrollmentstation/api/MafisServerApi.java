@@ -7,7 +7,6 @@ import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
-import com.cdac.enrollmentstation.dto.Unit;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.HmacUtil;
 import com.cdac.enrollmentstation.security.PkiUtil;
@@ -142,6 +141,7 @@ public class MafisServerApi {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
         String receivedData = encryptAndSendToServer(data, getLabourListUrl());
+        LOGGER.log(Level.INFO, () -> "*****url: " + getLabourListUrl());
         // response data from server
         LabourResDto labourResDto;
         try {

@@ -29,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
@@ -82,7 +83,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     private Label messageLabel;
 
     @FXML
-    private javafx.scene.image.ImageView fingerprintImageView;
+    private ImageView fingerprintImageView;
 
 
     @FXML
@@ -247,6 +248,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             row.setOnMouseClicked(event -> {
                 // check for non-empty rows, double-click with the primary button of the mouse
                 if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                    fingerprintImageView.setImage(null);
                     captureBtn.setDisable(false);
                 }
             });
@@ -554,6 +556,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             captureBtn.setDisable(false);
             return;
         }
+        Platform.runLater(() -> fingerprintImageView.setImage(null));
         // tries matching fingerprint
         matchFingerprintTemplate(template);
     }

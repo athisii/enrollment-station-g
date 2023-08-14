@@ -91,7 +91,7 @@ public class ContractController implements BaseController {
             return;
         }
 
-        if (contractResDto.getContracts().isEmpty()) {
+        if (contractResDto.getContracts() == null || contractResDto.getContracts().isEmpty()) {
             messageLabel.setText("No contract available.");
             return;
         }

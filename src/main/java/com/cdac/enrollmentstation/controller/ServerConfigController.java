@@ -126,7 +126,7 @@ public class ServerConfigController implements BaseController {
             return;
         }
 
-        if (units.isEmpty()) {
+        if (units == null || units.isEmpty()) {
             updateUi("No units for selected mafis url.");
             enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
             return;

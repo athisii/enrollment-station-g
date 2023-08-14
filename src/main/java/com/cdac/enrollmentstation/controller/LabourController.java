@@ -170,8 +170,8 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             messageLabel.setText(labourResDto.getDesc());
             return;
         }
-        if (labourResDto.getLabours().isEmpty()) {
-            messageLabel.setText("No labour found for contractor id: " + contractDetails.getContractorId() + " with contract id: " + contractDetails.getContractId());
+        if (labourResDto.getLabours() == null || labourResDto.getLabours().isEmpty()) {
+            messageLabel.setText("No labour found for contract id: " + contractDetails.getContractId());
             return;
         }
 
@@ -186,7 +186,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
                 DynamicFile dynamicFile = labour.getDynamicFile();
                 LabourDetailsTableRow labourDetailsTableRow = new LabourDetailsTableRow();
                 labourDetailsTableRow.setDateOfBirth(dynamicFile.getDateOfBirth());
-                labourDetailsTableRow.setLabourID(dynamicFile.getLabourId());
+                labourDetailsTableRow.setLabourId(dynamicFile.getLabourId());
                 labourDetailsTableRow.setLabourName(dynamicFile.getLabourName());
                 //for differentiating table row for token issued labour, if required but now removed from the list if issued
                 labourDetailsTableRow.setStrStatus("token not issued");
@@ -288,14 +288,14 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             return;
         }
 
-        Labour labour = labourMap.get(labourDetailsTableRowRow.getLabourID());
+        Labour labour = labourMap.get(labourDetailsTableRowRow.getLabourId());
         if (labour == null) {
-            updateUi("No labour details found for selected labour id: " + labourDetailsTableRowRow.getLabourID());
+            updateUi("No labour details found for selected labour id: " + labourDetailsTableRowRow.getLabourId());
             return;
         }
 
-        if (labour.getFps().isEmpty()) {
-            updateUi("No fingerprint data for selected labour id: " + labourDetailsTableRowRow.getLabourID());
+        if (labour.getFps() == null || labour.getFps().isEmpty()) {
+            updateUi("No fingerprint data for selected labour id: " + labourDetailsTableRowRow.getLabourId());
             return;
         }
         int[] matchScore = new int[1];
@@ -322,10 +322,10 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
         }
 
         if (!matchFound) {
-            updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourID());
+            updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
             return;
         }
-        updateUi("Fingerprint matched for labour id: " + labourDetailsTableRowRow.getLabourID());
+        updateUi("Fingerprint matched for labour id: " + labourDetailsTableRowRow.getLabourId());
         //now match found.
         dispenseToken(labour);
     }
@@ -366,7 +366,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
         }
         updateUi("Kindly collect the token.");
         LOGGER.log(Level.INFO, "Token dispensed successfully.");
-        Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableview.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourID().equals(labour.getDynamicFile().getLabourId())).findFirst();
+        Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableview.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
 
         LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
 
@@ -504,7 +504,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     private ObservableList<LabourDetailsTableRow> filterList(List<LabourDetailsTableRow> labourDetailsTableRowList, String searchText) {
         List<LabourDetailsTableRow> filteredList = new ArrayList<>();
         for (LabourDetailsTableRow labourData : labourDetailsTableRowList) {
-            if (labourData.getLabourID().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
+            if (labourData.getLabourId().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
                 filteredList.add(labourData);
             }
         }

@@ -107,7 +107,7 @@
                                 <columns>
                                     <javafx.scene.control.TableColumn fx:id="labourName" prefWidth="267.0"
                                                                       text="LABOUR NAME"/>
-                                    <javafx.scene.control.TableColumn fx:id="labourID" prefWidth="177.0"
+                                    <javafx.scene.control.TableColumn fx:id="labourId" prefWidth="177.0"
                                                                       text="LABOUR ID"/>
                                     <javafx.scene.control.TableColumn fx:id="dateOfBirth" prefWidth="267.0"
                                                                       text="DATE OF BIRTH"/>

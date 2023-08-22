@@ -93,7 +93,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     private TableColumn<LabourDetailsTableRow, String> labourName;
 
     @FXML
-    private TableColumn<LabourDetailsTableRow, String> labourID;
+    private TableColumn<LabourDetailsTableRow, String> labourId;
 
     @FXML
     public TableColumn<LabourDetailsTableRow, String> dateOfBirth;
@@ -116,12 +116,12 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     }
 
     public void initialize() {
+        // initially disable it until a row is selected
+        captureBtn.setDisable(true);
         midFingerAuth = new MIDFingerAuth(this);
         if (!initFpReader()) {
             return;
         }
-        // initially disable it until a row is selected
-        captureBtn.setDisable(true);
         fetchLabourList();
     }
 
@@ -222,7 +222,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
         ObservableList<LabourDetailsTableRow> observablelist = FXCollections.observableArrayList(labourDetailsTableRows);
 
         labourName.setCellValueFactory(new PropertyValueFactory<>("labourName"));
-        labourID.setCellValueFactory(new PropertyValueFactory<>("labourID"));
+        labourId.setCellValueFactory(new PropertyValueFactory<>("labourId"));
         dateOfBirth.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
         strStatus.setCellValueFactory(new PropertyValueFactory<>("strStatus"));
 
@@ -248,6 +248,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             row.setOnMouseClicked(event -> {
                 // check for non-empty rows, double-click with the primary button of the mouse
                 if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                    messageLabel.setText("");
                     fingerprintImageView.setImage(null);
                     captureBtn.setDisable(false);
                 }
@@ -263,7 +264,6 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
 
     @FXML
     private void captureBtnAction() {
-        messageLabel.setText("");
         captureBtn.setDisable(true);
         if (!isDeviceInitialized && (!initFpReader())) {
             //message updated by initFpReader()

@@ -141,7 +141,6 @@ public class MafisServerApi {
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
         String receivedData = encryptAndSendToServer(data, getLabourListUrl());
-        LOGGER.log(Level.INFO, () -> "*****url: " + getLabourListUrl());
         // response data from server
         LabourResDto labourResDto;
         try {

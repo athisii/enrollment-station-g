@@ -516,19 +516,27 @@ public class SlapScannerController implements BaseController {
 
         int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
         if (nistQuality > FP_NIST_VALUE) {
-            LOGGER.log(Level.INFO, "Quality too poor (NIST): " + nistQuality);
+            LOGGER.log(Level.INFO, () -> "Quality too poor (NFIQ): " + nistQuality);
             updateUi("Quality too poor. Please try again.");
             enableControls(backBtn, button);
             return;
         }
 
-        try {
-            checkLFD(deviceHandle);
-        } catch (Exception ex) {
-            updateUi(ex.getMessage());
-            enableControls(backBtn, button);
-            return;
+        // check LFD only when value is non-zero
+        if (fingerprintLivenessValue != 0) {
+            try {
+                checkLFD(deviceHandle);
+            } catch (Exception ex) {
+                updateUi(ex.getMessage());
+                enableControls(backBtn, button);
+                return;
+            }
         }
+        // to maintain record, it can be misused
+        else {
+            LOGGER.log(Level.INFO, () -> "***Fingerprints accepted without LFD check for arc: " + ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getArcNo());
+        }
+
 
         // saves in RSImageInfo for later modification
         RSImageInfo resImageInfo = byteArrayToRSImageInfo(imageData, imageWidth, imageHeight);
@@ -692,18 +700,21 @@ public class SlapScannerController implements BaseController {
             throw new GenericException(GENERIC_RS_ERR_MSG);
         }
 
-        // RS_LFD_OFF = 0
-        // upto
-        // RS_LFD_LEVEL_6 = 6
+        // set LFD only when value is non-zero
+        if (fingerprintLivenessValue != 0) {
+            // RS_LFD_OFF = 0
+            // upto
+            // RS_LFD_LEVEL_6 = 6
         /*
         RS_SetLFDLevel Error Codes:
             RS_SUCCESS - The option is set successfully.
             RS_ERR_UNSUPPORTED_COMMAND - Unsupported device.
          */
-        jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
-        if (jniReturnedCode != RS_SUCCESS) {
-            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-            throw new GenericException(GENERIC_RS_ERR_MSG);
+            jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
+            if (jniReturnedCode != RS_SUCCESS) {
+                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                throw new GenericException(GENERIC_RS_ERR_MSG);
+            }
         }
 
         /*

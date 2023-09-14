@@ -498,7 +498,7 @@ public class SlapScannerController implements BaseController {
             throw new GenericException(UNSUPPORTED_FINGER_SET_TYPE);
         }
         // very important
-        // error message set by RS_TakeCurrentImageData call in setModeAndStartCapture ()
+        // error message set by RS_TakeImageData call in setModeAndStartCapture ()
         // so just return.
         if (errorCode != RS_SUCCESS) {
             return;

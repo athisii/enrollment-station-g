@@ -53,7 +53,6 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
 public class SlapScannerController implements BaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerController.class);
     private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 1; // to be on safe side
-    private static final int TIME_TO_WAIT_FOR_USER_IN_SEC = 3; // wait for users to place their fingers on sensor
     private static final int TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS = 100;
     // range: 0~7
     public static final String UNSUPPORTED_FINGER_SET_TYPE = "Unsupported finger set type.";
@@ -389,7 +388,6 @@ public class SlapScannerController implements BaseController {
         // throws GenericException
         try {
             // when fingers are already placed on the sensor at the time of initialization, it fails
-            // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
         } catch (Exception ex) {
             updateUi(ex.getMessage());
@@ -432,7 +430,6 @@ public class SlapScannerController implements BaseController {
         // throws GenericException
         try {
             // when fingers are already placed on the sensor at the time of initialization, it fails
-            // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
         } catch (Exception ex) {
             updateUi(ex.getMessage());
@@ -475,7 +472,6 @@ public class SlapScannerController implements BaseController {
         // throws GenericException
         try {
             // when fingers are already placed on the sensor at the time of initialization, it fails
-            // set capture mode, register a callback, start capture and return immediately
             setModeAndStartCapture();
         } catch (Exception ex) {
             updateUi(ex.getMessage());
@@ -484,7 +480,7 @@ public class SlapScannerController implements BaseController {
     }
 
     // called when capture succeeds or error occurs
-    private void captureCallback(int deviceHandle, int errorCode, byte[] imageData, byte[] qualityMap, int imageWidth, int imageHeight, int quality, int liveness) {
+    private void processCapturedFp(int deviceHandle, int errorCode, byte[] imageData, int imageWidth, int imageHeight) {
         Button button;  // local reference for pointing to different multiple buttons
         String successMessage;
         if (FingerSetType.LEFT == fingerSetTypeToScan) {
@@ -630,7 +626,6 @@ public class SlapScannerController implements BaseController {
         }
     }
 
-    // set capture mode, register a callback, start capture and return immediately
     private void setModeAndStartCapture() {
         Map<String, Integer> mFingersToScanSeqMap;
         int deviceHandler;
@@ -673,16 +668,6 @@ public class SlapScannerController implements BaseController {
             throw new GenericException(GENERIC_RS_ERR_MSG);
         }
 
-        /* RS_RegisterAdvCaptureDataCallback Error Code
-                RS_SUCCESS - The callback is registered successfully.
-                RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
-                RS_ERR_INVALID_HANDLE - The device handle is invalid.
-        */
-        jniReturnedCode = RS_RegisterAdvCaptureDataCallback(deviceHandler, this, "captureCallback");
-        if (jniReturnedCode != RS_SUCCESS) {
-            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-            throw new GenericException(GENERIC_RS_ERR_MSG);
-        }
 
          /*
             RS_SetMinimumFinger Error Codes:
@@ -717,59 +702,42 @@ public class SlapScannerController implements BaseController {
             }
         }
 
-        /*
-         RS_StartCapture Error Codes:
-                RS_SUCCESS - Capture process is started successfully.
-                RS_ERR_SDK_UNINITIALIZED -  The SDK is not yet initialized.
-                RS_ERR_INVALID_HANDLE - The device handle is invalid.
-                RS_ERR_SENSOR_DIRTY - The sensor surface is too dirty.
-                RS_ERR_FINGER_EXIST - Fingers are placed on the sensor before capturing starts.
-                RS_ERR_CAPTURE_DISABLED - The capture mode is disabled.
-                RS_ERR_CAPTURE_IS_RUNNING - A capture process is already running.
+       /*
+        RS_TakeImageData Error Codes:
+        RS_SUCCESS - An image is captured successfully.
+        RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
+        RS_ERR_INVALID_HANDLE - The device handle is invalid.
+        RS_ERR_SENSOR_DIRTY -  The sensor surface is too dirty. See RS_SetAutomaticCalibrate for details.
+        RS_ERR_FINGER_EXIST - Fingers are placed on the sensor before capturing starts. See RS_SetAutomaticCalibrate for details.
+        RS_ERR_CAPTURE_DISABLED - The capture mode is disabled.
+        RS_ERR_CAPTURE_TIMEOUT - Cannot capture an image within the specified timeout period.
+        RS_ERR_ROLL_PART_LIFT - A part of the rolling finger is lifted.
+        RS_ERR_ROLL_DIRTY - The sensor surface is dirty, or more than one finger is detected.
+        RS_ERR_ROLL_TOO_FAST - Rolling speed is too fast.
+        RS_ERR_ROLL_SHIFTED - The finger is heavily shifted or rotated.
+        RS_ERR_ROLL_DRY - The finger could not be recognized correctly because of bad image contrast or smeared finger patterns
+        RS_ERR_ROLL_WRONG_DIR - The rolling does not confirm to the specified direction.
+        RS_ERR_ROLL_TOO_SHORT - Rolling time is too short.
          */
-        // returns immediately, callbacks are executed in background thread.
-        jniReturnedCode = RS_StartCapture(deviceHandler, false, 0);
+        RSImageInfo imageInfo = new RSImageInfo();
+        jniReturnedCode = RS_TakeImageData(deviceHandler, 10000, imageInfo);
         if (jniReturnedCode != RS_SUCCESS) {
-            if (jniReturnedCode != RS_ERR_SENSOR_DIRTY && jniReturnedCode != RS_ERR_FINGER_EXIST) {
-                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-                throw new GenericException(GENERIC_RS_ERR_MSG);
-            } else {
+            if (jniReturnedCode == RS_ERR_SENSOR_DIRTY || jniReturnedCode == RS_ERR_FINGER_EXIST) {
                 LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
                 throw new GenericException("Sensor is too dirty or a finger exists on the sensor. Please try again.");
             }
+            if (jniReturnedCode == RS_ERR_CAPTURE_TIMEOUT) {
+                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                throw new GenericException("Capture timeout. Kindly try again.");
+            }
+            if (jniReturnedCode == RS_WRN_TOO_POOR_QUALITY) {
+                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                throw new GenericException("Quality too poor. Kindly try again.");
+            }
+            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            throw new GenericException(GENERIC_RS_ERR_MSG);
         }
-
-        // now good to go.
-
-        // To wait for user to place their fingers on the sensor
-        try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(TIME_TO_WAIT_FOR_USER_IN_SEC));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new GenericException("Interrupted while sleeping.");
-        }
-
-        /*
-        RS_TakeCurrentImageData Error Codes:
-                RS_SUCCESS - An image is captured successfully.
-                RS_ERR_SDK_UNINITIALIZED - The SDK is not yet initialized.
-                RS_ERR_INVALID_HANDLE - The device handle is invalid.
-                RS_ERR_CAPTURE_DISABLED - The capture mode is disabled.
-                RS_ERR_CAPTURE_TIMEOUT - Cannot capture an image within the specified timeout period.
-                RS_ERR_ROLL_PART_LIFT - A part of the rolling finger is lifted.
-                RS_ERR_ROLL_DIRTY - The sensor surface is dirty, or more than one finger is detected.
-                RS_ERR_ROLL_TOO_FAST - Rolling speed is too fast.
-                RS_ERR_ROLL_SHIFTED - The finger is heavily shifted or rotated.
-                RS_ERR_ROLL_DRY - The finger could not be recognized correctly because of bad image contrast or smeared finger patterns
-                RS_ERR_ROLL_WRONG_DIR - The rolling does not confirm to the specified direction.
-                RS_ERR_ROLL_TOO_SHORT - Rolling time is too short.
-         */
-        jniReturnedCode = RS_TakeCurrentImageData(deviceHandler, 10000, new RSImageInfo());
-        if (jniReturnedCode != RS_SUCCESS) {
-            jniErrorMsg = RS_GetErrString(jniReturnedCode);
-            LOGGER.log(Level.INFO, () -> "******RS_TakeCurrentImageData returned message: " + jniErrorMsg);
-            throw new GenericException("Quality too poor. Please try again.");
-        }
+        processCapturedFp(deviceHandler, jniReturnedCode, imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
     }
 
     private void rescanFromStart() {
@@ -811,8 +779,6 @@ public class SlapScannerController implements BaseController {
                 }
             }
         });
-
-
     }
 
 

@@ -17,14 +17,13 @@ module com.cdac.enrollmentstation {
     requires MFS;
     requires MIDIris.Enroll;
     requires MIDFingerAuth;
+    requires serial.port.token.dispenser;
 
     requires org.bouncycastle.provider;
 
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
-
-    requires jssc;
 
     // exports
     opens com.cdac.enrollmentstation to javafx.fxml;

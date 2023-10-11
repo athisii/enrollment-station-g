@@ -23,6 +23,7 @@ import javafx.scene.input.KeyEvent;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +41,8 @@ public class BiometricEnrollmentController implements BaseController {
     private static final int KEY_PRESSED_EVENT_GAP_THRESHOLD = 30;
     private long lastEventTimeStamp = 0L;
     private static final StringBuilder barcodeStringBuilder = new StringBuilder();
+    private final AtomicInteger lastCaretPosition = new AtomicInteger(0);
+
     // *
     private String tempArc;
 
@@ -84,12 +87,13 @@ public class BiometricEnrollmentController implements BaseController {
         backBtn.setOnAction(event -> backBtnAction());
         showArcBtn.setOnAction(event -> showArcBtnAction());
         continueBtn.setOnAction(event -> continueBtnAction());
+        arcNumberTextField.setOnKeyTyped(event -> changeTextToUpperCase());
+    }
 
-        arcNumberTextField.setOnKeyPressed(event -> {
-            if (event.getCode().equals(KeyCode.ENTER)) {
-                showArcBtnAction();
-            }
-        });
+    private void changeTextToUpperCase() {
+        lastCaretPosition.set(arcNumberTextField.getCaretPosition());
+        arcNumberTextField.setText(arcNumberTextField.getText().toUpperCase());
+        arcNumberTextField.positionCaret(lastCaretPosition.get());
     }
 
     private void getVersion() {

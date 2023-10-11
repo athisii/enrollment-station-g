@@ -67,7 +67,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
-    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 5;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 7;
 
     //***********************Fingerprint***************************//
 
@@ -335,7 +335,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
     private void dispenseToken(Labour labour) {
         //dispenses token on card writer
         if (!TokenDispenserUtil.dispenseToken()) {
-            updateUi("Kindly connect the Token Dispenser And Try Again");
+            updateUi("Kindly check the Token Dispenser and try again.");
             return;
         }
         TokenReqDto tokenReqDto;

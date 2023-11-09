@@ -23,18 +23,16 @@
 
                     </ImageView>
                 </AnchorPane>
-                <Button fx:id="capturePhotoBtn" disable="true" layoutX="604.0" layoutY="680.0" maxHeight="36.0"
-                        maxWidth="163.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false"
-                        onAction="#capturePhotoBtnAction" onTouchPressed="#capturePhotoBtnAction" prefHeight="36.0"
+                <Button fx:id="saveIrisBtn" disable="true" layoutX="604.0" layoutY="680.0" maxHeight="36.0"
+                        maxWidth="163.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"
                         prefWidth="163.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="CAPTURE PHOTO" textFill="WHITE">
+                        text="SAVE IRIS" textFill="WHITE">
                     <font>
                         <Font name="System Bold" size="14.0"/>
                     </font>
                 </Button>
                 <Button fx:id="scanBtn" layoutX="430.0" layoutY="680.0" maxHeight="36.0" maxWidth="150.0"
-                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#scanBtnAction"
-                        onTouchPressed="#scanBtnAction" prefHeight="36.0" prefWidth="150.0"
+                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
                         style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="SCAN"
                         textFill="WHITE">
                     <font>
@@ -68,8 +66,7 @@
                     </font>
                 </Label>
                 <Button fx:id="backBtn" layoutX="257.0" layoutY="680.0" maxHeight="36.0" maxWidth="150.0"
-                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction"
-                        onTouchPressed="#backBtnAction" prefHeight="36.0" prefWidth="150.0"
+                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
                         style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
                         textFill="WHITE">
                     <font>

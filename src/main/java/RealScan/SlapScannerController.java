@@ -63,13 +63,13 @@ public class SlapScannerController implements BaseController {
     private static final int FP_SEGMENT_WIDTH;
     private static final int FP_SEGMENT_HEIGHT;
 
-    private static final int FP_NIST_VALUE;
+    private static final int FP_NFIQ_VALUE;
 
     static {
         try {
             FP_SEGMENT_WIDTH = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_WIDTH).trim());
             FP_SEGMENT_HEIGHT = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_SEGMENT_HEIGHT).trim());
-            FP_NIST_VALUE = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_NIST_VALUE).trim());
+            FP_NFIQ_VALUE = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_NFIQ_VALUE).trim());
         } catch (RuntimeException ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException("Not a number or no entry found.");
@@ -191,8 +191,7 @@ public class SlapScannerController implements BaseController {
     // calls automatically by JavaFX runtime
 
     public void initialize() {
-        //To get the Version Number
-        getVersion();
+        version.setText(App.getAppVersion());
         scanBtn.setOnAction(event -> scanBtnAction());
         leftScanBtn.setOnAction(event -> leftScanBtnAction());
         rightScanBtn.setOnAction(event -> rightScanBtnAction());
@@ -225,15 +224,6 @@ public class SlapScannerController implements BaseController {
         if (getArcDetailsHolder().getArcDetail() != null && getArcDetailsHolder().getArcDetail().getArcNo() != null) {
             displayArcLabel.setText("e-ARC: " + getArcDetailsHolder().getArcDetail().getArcNo());
         }
-    }
-
-    private void getVersion() {
-        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
-        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
-            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        version.setText(appVersionNumber);
     }
 
     private void initSdkAndScanners() {
@@ -511,7 +501,7 @@ public class SlapScannerController implements BaseController {
         }
 
         int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
-        if (nistQuality > FP_NIST_VALUE) {
+        if (nistQuality > FP_NFIQ_VALUE) {
             LOGGER.log(Level.INFO, () -> "Quality too poor (NFIQ): " + nistQuality);
             updateUi("Quality too poor. Please try again.");
             enableControls(backBtn, button);

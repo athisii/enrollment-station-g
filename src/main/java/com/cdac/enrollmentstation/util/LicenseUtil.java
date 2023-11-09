@@ -29,7 +29,7 @@ public class LicenseUtil {
     public static AnsiIso getAnsiIso() throws IOException {
         // lic --> /etc/licence/iengine.lic
         if (ansiIso == null) {
-            byte[] bytes = Files.readAllBytes(Paths.get(PropertyFile.getProperty(PropertyName.SLAP_LICENSE)));
+            byte[] bytes = Files.readAllBytes(Paths.get(PropertyFile.getProperty(PropertyName.LIC_IENGINE)));
             LOGGER.log(Level.INFO, () -> "license content : " + Arrays.toString(bytes));
             LOGGER.log(Level.INFO, () -> "hardware ID : " + Arrays.toString(AnsiIso.getHardwareId()));
             ansiIso = new AnsiIso();

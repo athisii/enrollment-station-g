@@ -26,11 +26,7 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -80,19 +76,8 @@ public class BiometricCaptureCompleteController implements BaseController {
 
     // calls automatically by JavaFx runtime
     public void initialize() {
-        //To get the Version Number
-        getVersion();
-        // better sets button actions here
+        version.setText(App.getAppVersion());
         messageLabel.setText("Please click SUBMIT button and wait....");
-    }
-
-    private void getVersion() {
-        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
-        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
-            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        version.setText(appVersionNumber);
     }
 
     @FXML
@@ -135,13 +120,6 @@ public class BiometricCaptureCompleteController implements BaseController {
             saveEnrollmentDetail.setPhoto(NOT_AVAILABLE);
             saveEnrollmentDetail.setPhotoCompressed(NOT_AVAILABLE);
         } else if (arcDetail.getBiometricOptions().toLowerCase().contains("photo")) {
-            // only adds photo
-            try {
-                addPhoto(saveEnrollmentDetail);
-            } catch (Exception ex) {
-                onErrorUpdateUiControls(ex.getMessage());
-                return;
-            }
             // set NA for slap_scanner, iris etc.
             saveEnrollmentDetail.setIrisScannerSerialNo(NOT_AVAILABLE);
             saveEnrollmentDetail.setLeftFpScannerSerialNo(NOT_AVAILABLE);
@@ -150,15 +128,11 @@ public class BiometricCaptureCompleteController implements BaseController {
             saveEnrollmentDetail.setFp(fingerprintset);
             Set<Iris> irisSet = new HashSet<>(Set.of(new Iris(NOT_AVAILABLE, NOT_AVAILABLE, NOT_AVAILABLE)));
             saveEnrollmentDetail.setIris(irisSet);
-        } else if (arcDetail.getBiometricOptions().toLowerCase().contains("both")) {
-            // fingerprint and iris already added in their controllers
-            // so now add only photo
-            try {
-                addPhoto(saveEnrollmentDetail);
-            } catch (Exception ex) {
-                onErrorUpdateUiControls(ex.getMessage());
-                return;
-            }
+        }
+
+        if (!arcDetail.isSignatureRequired()) {
+            saveEnrollmentDetail.setSignature(NOT_AVAILABLE);
+            saveEnrollmentDetail.setSignatureCompressed(NOT_AVAILABLE);
         }
 
         // common properties
@@ -250,36 +224,6 @@ public class BiometricCaptureCompleteController implements BaseController {
     }
 
     // adds photo to GLOBAL saveEnrollment object
-    private void addPhoto(SaveEnrollmentDetail saveEnrollmentDetail) {
-        String subPhoto = PropertyFile.getProperty(PropertyName.IMG_SUB_FILE);
-        if (subPhoto == null || subPhoto.isBlank()) {
-            LOGGER.log(Level.SEVERE, "No entry for '" + PropertyName.IMG_SUB_FILE + ", in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-        }
-
-        String compressPhoto = PropertyFile.getProperty(PropertyName.IMG_COMPRESS_FILE);
-        if (compressPhoto == null || compressPhoto.isBlank()) {
-            LOGGER.log(Level.SEVERE, "No entry for '" + PropertyName.IMG_COMPRESS_FILE + ", in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-        }
-
-        Path subPhotoPath = Paths.get(subPhoto);
-        Path compressPhotoPath = Paths.get(compressPhoto);
-
-        // check if photo files exists.
-        if (!Files.exists(subPhotoPath) || !Files.exists(compressPhotoPath)) {
-            LOGGER.log(Level.SEVERE, "Both or either sub photo and compress photo file not found.");
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-        }
-
-        try {
-            saveEnrollmentDetail.setPhoto(Base64.getEncoder().encodeToString(Files.readAllBytes(subPhotoPath)));
-            saveEnrollmentDetail.setPhotoCompressed(Base64.getEncoder().encodeToString(Files.readAllBytes(compressPhotoPath)));
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
-        }
-    }
 
     private void onErrorUpdateUiControls(String message) {
         Platform.runLater(() -> {

@@ -29,4 +29,6 @@ public class SaveEnrollmentDetail {
     String uniqueId;
     String arcStatus;
     String biometricOptions;
+    String signature;
+    String signatureCompressed;
 }

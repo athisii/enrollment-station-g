@@ -1,5 +1,6 @@
 package com.cdac.enrollmentstation.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,6 +21,8 @@ public class ArcDetail {
     String rank;
     String applicantId;
     String unit;
+    @JsonProperty("isSignatureRequired")
+    boolean isSignatureRequired;
     List<String> fingers;
     List<String> iris;
     String detailLink;

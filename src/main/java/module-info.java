@@ -7,6 +7,10 @@ module com.cdac.enrollmentstation {
     requires javafx.controls;
     requires javafx.fxml;
 
+    requires java.desktop; // for ImageIO
+    requires javafx.swing; // for SwingFXUtils
+    requires com.twelvemonkeys.common.image;
+
     // python
     requires opencv;
     requires jython;

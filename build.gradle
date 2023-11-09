@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'com.cdac'
-version '1.3'
+version '1.4'
 
 repositories {
     mavenLocal()
@@ -37,6 +37,7 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
     implementation 'org.scream3r:jssc:2.8.0'
     implementation 'net.java.dev.jna:jna:4.2.2'
+    implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.9.4'
 
     implementation 'org.bouncycastle:bcprov-jdk15on:1.60' // latest version not supported
 
@@ -46,9 +47,8 @@ dependencies {
 
 
 javafx {
-//    version = '13'
     version = '11.0.2'
-    modules = ['javafx.controls', 'javafx.fxml']
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
 }
 
 jar {

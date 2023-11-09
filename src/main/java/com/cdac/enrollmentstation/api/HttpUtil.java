@@ -24,7 +24,7 @@ public class HttpUtil {
     private static final Logger LOGGER = ApplicationLog.getLogger(HttpUtil.class);
 
     private static final int CONNECTION_TIMEOUT_IN_SEC = 5;
-    private static final int WRITE_TIMEOUT_IN_SEC = 30;
+    private static final int WRITE_TIMEOUT_IN_SEC = 60;
     private static final HttpClient HTTP_CLIENT;
 
     public enum MethodType {

@@ -123,13 +123,6 @@
                             <Font name="System Bold" size="14.0"/>
                         </font>
                     </Button>
-                    <Text fill="#04127b" layoutX="209.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                          text="Click 'Yes' to Iris Scan or Click 'No' Capture photo" textAlignment="JUSTIFY"
-                          visible="false">
-                        <font>
-                            <Font size="18.0"/>
-                        </font>
-                    </Text>
                     <Button fx:id="confirmNoBtn" layoutX="460.0" layoutY="31.0" maxHeight="35.0" maxWidth="150.0"
                             minHeight="28.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
                             prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"

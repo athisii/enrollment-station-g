@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.SignatureController">
+    <BorderPane prefHeight="778.0" prefWidth="1024.0">
+        <top>
+            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
+                        BorderPane.alignment="CENTER">
+
+                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
+
+                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+                               preserveRatio="true">
+
+                        <Image url="@../img/navy_logo.png"/>
+
+                    </ImageView>
+                </AnchorPane>
+
+                <Label fx:id="messageLabel" alignment="CENTER" layoutX="206.0" layoutY="110.0" prefHeight="25.0"
+                       prefWidth="608.0" text="Kindly sign in the centre of the black box">
+                    <font>
+                        <Font name="System Bold" size="17.0"/>
+                    </font>
+                </Label>
+                <AnchorPane layoutX="210.0" layoutY="150.0" prefHeight="400.0" prefWidth="600.0"
+                            style="-fx-background-color: #fff;">
+                    <Pane prefHeight="450.0" prefWidth="600.0"
+                          style=" -fx-border-color:black; -fx-border-width: 2; -fx-border-style: solid;">
+                        <Canvas fx:id="canvas" height="450.0" width="600.0"/>
+                    </Pane>
+                    <Button fx:id="backBtn" layoutX="10.0" layoutY="460.0" maxHeight="36.0" maxWidth="150.0"
+                            minHeight="36.0" minWidth="150.0" mnemonicParsing="false" onAction="#backBtnAction"
+                            prefHeight="36.0" prefWidth="150.0"
+                            style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
+                            textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="clearBtn" layoutX="187.0" layoutY="460.0" maxHeight="36.0" maxWidth="150.0"
+                            minHeight="36.0"
+                            minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"
+                            prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;"
+                            text="CLEAR" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="saveSignatureBtn" layoutX="357.0" layoutY="460.0" maxHeight="35.0" maxWidth="233.0"
+                            minHeight="35.0"
+                            minWidth="150.0" mnemonicParsing="false"
+                            prefHeight="35.0" prefWidth="233.0"
+                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
+                            text="SAVE SIGNATURE" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                </AnchorPane>
+                <AnchorPane fx:id="confirmPane" layoutX="76.0" layoutY="652.0" prefHeight="67.0" prefWidth="863.0"
+                            style="-fx-border-color: #04127b;" visible="false">
+
+                    <Button fx:id="confirmYesBtn" layoutX="271.0" layoutY="32.0" maxHeight="35.0" maxWidth="150.0"
+                            minHeight="28.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
+                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
+                            text="Yes" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <Button fx:id="confirmNoBtn" layoutX="460.0" layoutY="31.0" maxHeight="35.0" maxWidth="150.0"
+                            minHeight="28.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
+                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
+                            text="No" textFill="WHITE">
+                        <font>
+                            <Font name="System Bold" size="14.0"/>
+                        </font>
+                    </Button>
+                    <Label fx:id="confirmPaneLbl" alignment="CENTER" layoutX="120.0" layoutY="10.0" prefHeight="16.0"
+                           prefWidth="588.0" textFill="#04127b">
+                        <font>
+                            <Font size="18.0"/>
+                        </font>
+                    </Label>
+                    <opaqueInsets>
+                        <Insets top="-10.0"/>
+                    </opaqueInsets>
+                </AnchorPane>
+
+                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0"
+                            style="-fx-background-color: #1990ea;"/>
+            </AnchorPane>
+        </top>
+    </BorderPane>
+
+</VBox>

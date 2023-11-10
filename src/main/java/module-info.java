@@ -9,7 +9,7 @@ module com.cdac.enrollmentstation {
 
     requires java.desktop; // for ImageIO
     requires javafx.swing; // for SwingFXUtils
-    requires com.twelvemonkeys.common.image;
+    requires com.twelvemonkeys.common.image; // image resampling
 
     // python
     requires opencv;

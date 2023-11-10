@@ -182,7 +182,7 @@ public class CameraController implements BaseController {
         ArcDetailsHolder holder = getArcDetailsHolder();
         // Added For Biometric Options
         if (holder.getArcDetail().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
-            confirmPaneLbl.setText("Click 'Yes' to FetchArc or Click 'No' to Capture photo");
+            confirmPaneLbl.setText("Click 'Yes' to Fetch e-ARC or Click 'No' to Capture photo");
         } else {
             confirmPaneLbl.setText("Click 'Yes' to Scan Iris or Click 'No' to Capture photo");
         }

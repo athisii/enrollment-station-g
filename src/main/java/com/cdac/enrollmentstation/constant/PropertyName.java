@@ -66,5 +66,5 @@ public class PropertyName {
     public static final String CARD_API_CARD_READER_NAME = "card.api.card.reader.name";
     public static final String CARD_API_CARD_WRITER_NAME = "card.api.card.writer.name";
     public static final String CARD_API_SERVICE_RESTART_COMMAND = "card.api.service.restart.command";
-
+    public static final String CARD_API_VERIFY_PIN = "card.api.verify.pin";
 }

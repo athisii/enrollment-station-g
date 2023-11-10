@@ -25,15 +25,15 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DeviceStatusController implements BaseController {
+public class DeviceStatusControllerAbstract extends AbstractBaseController {
 
-    private static final Logger LOGGER = ApplicationLog.getLogger(DeviceStatusController.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(DeviceStatusControllerAbstract.class);
     private static final Image RED_CROSS_IMAGE;
     private static final Image GREEN_TICK_IMAGE;
 
     static {
-        RED_CROSS_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/red_cross.png")));
-        GREEN_TICK_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/tick_green.jpg")));
+        RED_CROSS_IMAGE = new Image(Objects.requireNonNull(DeviceStatusControllerAbstract.class.getResourceAsStream("/img/red_cross.png")));
+        GREEN_TICK_IMAGE = new Image(Objects.requireNonNull(DeviceStatusControllerAbstract.class.getResourceAsStream("/img/tick_green.jpg")));
     }
 
     @FXML

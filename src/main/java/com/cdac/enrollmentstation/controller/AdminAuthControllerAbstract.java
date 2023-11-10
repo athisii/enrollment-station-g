@@ -29,8 +29,8 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class AdminAuthController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
+public class AdminAuthControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthControllerAbstract.class);
 
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;

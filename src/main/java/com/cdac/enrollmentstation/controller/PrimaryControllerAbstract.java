@@ -14,8 +14,8 @@ import java.util.logging.Logger;
  * Created on 26/12/22
  */
 
-public class PrimaryController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
+public class PrimaryControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryControllerAbstract.class);
 
     @FXML
     private Label version;

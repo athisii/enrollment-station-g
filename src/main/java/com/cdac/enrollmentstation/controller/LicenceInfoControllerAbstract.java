@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * Created on 26/12/22
  */
 
-public class LicenceInfoController implements BaseController {
+public class LicenceInfoControllerAbstract extends AbstractBaseController {
     @FXML
     private Button homeBtn;
     @FXML
@@ -31,7 +31,7 @@ public class LicenceInfoController implements BaseController {
     private Label messageLabel;
     @FXML
     private TextField finScannerInfo;
-    private static final Logger LOGGER = ApplicationLog.getLogger(LicenceInfoController.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(LicenceInfoControllerAbstract.class);
 
 
     public void initialize() {

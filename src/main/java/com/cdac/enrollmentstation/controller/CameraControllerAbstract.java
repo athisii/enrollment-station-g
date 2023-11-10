@@ -44,8 +44,8 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
  * @author athisii, CDAC
  * Created on 26/12/22
  */
-public class CameraController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(CameraController.class);
+public class CameraControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(CameraControllerAbstract.class);
     private static final int COUNTDOWN_IN_SEC = 5;
     private static final AtomicInteger COUNTDOWN = new AtomicInteger(COUNTDOWN_IN_SEC);
     private static final int FIXED_DELAY_TIME_IN_MILLIS = 5; // in milliseconds
@@ -446,7 +446,7 @@ public class CameraController implements BaseController {
     }
 
     private static Image loadFileFromFaceCodeDirectory(String filename) {
-        InputStream inputStream = CameraController.class.getResourceAsStream("/facecode/" + filename);
+        InputStream inputStream = CameraControllerAbstract.class.getResourceAsStream("/facecode/" + filename);
         if (inputStream == null) {
             String errorMessage = filename + " not found in '/facecode/' directory";
             LOGGER.log(Level.SEVERE, errorMessage);
@@ -456,7 +456,7 @@ public class CameraController implements BaseController {
     }
 
     private static Image loadFileFromImgDirectory(String filename) {
-        InputStream inputStream = CameraController.class.getResourceAsStream("/img/" + filename);
+        InputStream inputStream = CameraControllerAbstract.class.getResourceAsStream("/img/" + filename);
         if (inputStream == null) {
             String errorMessage = filename + " not found in '/img/' directory";
             LOGGER.log(Level.SEVERE, errorMessage);

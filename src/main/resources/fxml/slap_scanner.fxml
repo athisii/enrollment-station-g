@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 <VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerController">
+      xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerControllerAbstract">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>

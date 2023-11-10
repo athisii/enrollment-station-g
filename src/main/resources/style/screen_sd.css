@@ -1,0 +1,6 @@
+@import "base.css";
+
+.btn-large {
+    -fx-font-size: 16px;
+    -fx-pref-width: 250px;
+}

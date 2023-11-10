@@ -6,7 +6,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.Font?>
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cdac.enrollmentstation.controller.BiometricCaptureCompleteController">
+      fx:controller="com.cdac.enrollmentstation.controller.BiometricCaptureCompleteControllerAbstract">
 
     <BorderPane prefHeight="778.0" prefWidth="1024.0">
         <center>

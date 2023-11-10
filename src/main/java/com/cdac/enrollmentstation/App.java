@@ -3,9 +3,10 @@ package com.cdac.enrollmentstation;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.controller.BaseController;
+import com.cdac.enrollmentstation.controller.AbstractBaseController;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.util.DisplayUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
@@ -18,6 +19,7 @@ import javafx.stage.StageStyle;
 import org.opencv.core.Core;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -29,7 +31,7 @@ import java.util.logging.Logger;
  */
 public final class App extends Application {
     private static Scene scene;
-    private static BaseController controller;
+    private static AbstractBaseController controller;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
@@ -46,13 +48,13 @@ public final class App extends Application {
             event.consume();
             Platform.exit();
         });
-        scene = new Scene(loadFXML("main_screen"), 1024, 768);
+        scene = new Scene(loadFXML("main_screen"), DisplayUtil.SCREEN_WIDTH, DisplayUtil.SCREEN_HEIGHT);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LOGGER.log(Level.SEVERE, () -> "Caused: " + throwable.getCause());
             LOGGER.log(Level.SEVERE, () -> "Message: " + throwable.getMessage());
             controller.onUncaughtException();
         });
-
+        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(getCssFileName())).toExternalForm());
         stage.initStyle(StageStyle.UNDECORATED);
         stage.setScene(scene);
         stage.setTitle("Enrolment Application");
@@ -88,5 +90,15 @@ public final class App extends Application {
             throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
         }
         return appVersionNumber;
+    }
+
+    public static String getCssFileName() {
+        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_FHD[0]) {
+            return "/style/screen_fhd.css";
+        }
+        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_HD[0]) {
+            return "/style/screen_hd.css";
+        }
+        return "/style/screen_sd.css";
     }
 }

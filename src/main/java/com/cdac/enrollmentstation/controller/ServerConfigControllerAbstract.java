@@ -33,8 +33,8 @@ import java.util.stream.Collectors;
  * Created on 29/03/23
  */
 
-public class ServerConfigController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(ServerConfigController.class);
+public class ServerConfigControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(ServerConfigControllerAbstract.class);
     private List<Unit> units;
 
     @FXML

@@ -3,65 +3,69 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.AdminAuthControllerAbstract">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="778.0" prefWidth="1024.0" style="-fx-background-color: #fff;" BorderPane.alignment="CENTER">
-
-                <AnchorPane prefHeight="100.0" prefWidth="1061.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" focusTraversable="true" layoutX="20.0" layoutY="10.0" pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png" />
-
-                    </ImageView>
-                </AnchorPane>
-                <AnchorPane layoutY="100.0" prefHeight="60.0" prefWidth="1061.0" style="-fx-background-color: #04127b;">
-
-                    <Label layoutX="440.0" layoutY="19.0" text="Enter Username &amp; Password" textFill="WHITE">
-                        <font>
-                            <Font size="16.0" />
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <AnchorPane layoutX="285.0" layoutY="255.0" prefHeight="133.0" prefWidth="488.0" style="-fx-border-color: #04127b;">
-                    <TextField fx:id="username" layoutX="154.0" layoutY="30.0" prefHeight="26.0" prefWidth="194.0" promptText="Username" />
-                    <ImageView fitHeight="35.0" fitWidth="32.0" layoutX="83.0" layoutY="25.0" pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/username.png" />
-
-                    </ImageView>
-                    <ImageView fitHeight="34.0" fitWidth="37.0" layoutX="82.0" layoutY="66.0" pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/password.png" />
-
-                    </ImageView>
-                    <PasswordField fx:id="passwordField" layoutX="154.0" layoutY="75.0" prefHeight="26.0" prefWidth="194.0" promptText="Password" />
-
-                </AnchorPane>
-                <Label fx:id="statusMsg" alignment="CENTER" layoutX="293.0" layoutY="431.0" prefHeight="33.0" prefWidth="555.0">
-                    <font>
-                        <Font name="System Bold" size="15.0" />
-                    </font>
-                </Label>
-
-                <Button fx:id="backBtn" layoutX="357.0" layoutY="487.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0" />
-                    </font>
-                </Button>
-                <Button fx:id="loginBtn" layoutX="525.0" layoutY="487.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#serverConfig" prefHeight="35.0" prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="LOGIN" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0" />
-                    </font>
-                </Button>
-                <AnchorPane layoutY="730.0" prefHeight="40.0" prefWidth="1061.0" style="-fx-background-color: #1990ea;" />
-            </AnchorPane>
-        </center>
-    </BorderPane>
-
-</VBox>
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.AdminAuthController">
+    <top>
+        <HBox styleClass="header">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <left>
+        <!--  id: contMinHeightSmall!-> only used in fxml expression       -->
+        <HBox fx:id="contMinHeightSmall" styleClass="container-min-height-small">
+            <ImageView fitWidth="${contMinHeightSmall.minHeight}" fitHeight="${contMinHeightSmall.minHeight}"
+                       preserveRatio="true">
+                <Image url="@../gif/authentication.gif"/>
+            </ImageView>
+            <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
+            <Label fx:id="bodyHeaderLabel" styleClass="container-min-height-small, press-effect, label-border-radius"
+                   text="AUTHENTICATION"/>
+        </HBox>
+    </left>
+    <right>
+        <Region minWidth="${bodyHeaderLabel.width + contMinHeightSmall.minHeight}"/>
+    </right>
+    <center>
+        <VBox styleClass="body" alignment="CENTER">
+            <VBox styleClass="border-color" alignment="CENTER">
+                <VBox alignment="CENTER">
+                    <Region styleClass="region-min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <ImageView fitWidth="${contMinHeightSmall.minHeight}"
+                                   fitHeight="${contMinHeightSmall.minHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/username.png"/>
+                        </ImageView>
+                        <Region styleClass="region-min-width-small"/>
+                        <TextField fx:id="username" styleClass="input-field" promptText="Username"/>
+                    </HBox>
+                    <Region styleClass="region-min-height-small"/>
+                    <HBox alignment="CENTER">
+                        <ImageView fitWidth="${contMinHeightSmall.minHeight}"
+                                   fitHeight="${contMinHeightSmall.minHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/password.png"/>
+                        </ImageView>
+                        <Region styleClass="region-min-width-small"/>
+                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"/>
+                    </HBox>
+                </VBox>
+                <Label fx:id="statusMsg" styleClass="message-font-size"/>
+            </VBox>
+            <Region styleClass="region-min-height-medium"/>
+            <HBox alignment="CENTER">
+                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" onAction="#showHome" text="BACK"/>
+                <Region styleClass="region-min-width-medium"/>
+                <Button fx:id="loginBtn" styleClass="btn-medium, press-effect" onAction="#serverConfig" text="LOGIN"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="footer">
+            <Label fx:id="version"/>
+        </HBox>
+    </bottom>
+</BorderPane>

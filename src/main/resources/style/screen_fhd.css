@@ -1,6 +1,74 @@
 @import "base.css";
 
+.root {
+    -fx-font-size: 20px;
+}
+
+.btn-medium {
+    -fx-font-size: 20px;
+    -fx-pref-height: 50px;
+    -fx-pref-width: 250px;
+}
+
 .btn-large {
     -fx-font-size: 22px;
-    -fx-pref-width: 330px;
+    -fx-pref-height: 50px;
+    -fx-pref-width: 380px;
+}
+
+.btn-img {
+    -fx-font-size: 22px;
+}
+
+.container-min-height-small {
+    -fx-min-height: 60px;
+}
+
+.container-min-height-medium {
+    -fx-min-height: 100px;
+}
+
+.container-min-height-large {
+    -fx-min-height: 320px;
+}
+
+.input-field {
+    -fx-font-size: 20px;
+    -fx-pref-width: 350px;
+    -fx-pref-height: 50px;
+}
+
+.message-font-size {
+    -fx-font-size: 20px;
+    -fx-padding: 10px;
+    -fx-alignment: center;
+}
+
+.font-medium {
+    -fx-font-size: 18px;
+}
+
+.region-min-width-small {
+    -fx-min-width: 50px;
+}
+
+.region-min-width-medium {
+    -fx-min-width: 180px;
+}
+
+.region-min-width-large {
+    -fx-min-width: 260px;
+}
+
+
+.region-min-height-small {
+    -fx-min-height: 35px;
+}
+
+.region-min-height-medium {
+    -fx-min-height: 35px;
+}
+
+.region-min-height-large {
+    -fx-min-height: 40px;
 }

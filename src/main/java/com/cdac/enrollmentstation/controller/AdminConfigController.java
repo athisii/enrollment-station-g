@@ -20,9 +20,9 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class AdminConfigControllerAbstract extends AbstractBaseController {
+public class AdminConfigController implements BaseController {
     //For Application Log
-    private static final Logger LOGGER = ApplicationLog.getLogger(AdminConfigControllerAbstract.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(AdminConfigController.class);
     private static final int FINGERPRINT_LIVENESS_MAX;
     private static final int FINGERPRINT_LIVENESS_MIN;
     private final int fingerprintLivenessValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FINGERPRINT_LIVENESS_VALUE).trim());

@@ -3,7 +3,7 @@ package com.cdac.enrollmentstation;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.controller.AbstractBaseController;
+import com.cdac.enrollmentstation.controller.BaseController;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.DisplayUtil;
@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public final class App extends Application {
     private static Scene scene;
-    private static AbstractBaseController controller;
+    private static BaseController controller;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
@@ -99,6 +99,6 @@ public final class App extends Application {
         if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_HD[0]) {
             return "/style/screen_hd.css";
         }
-        return "/style/screen_sd.css";
+        return "/style/base.css";
     }
 }

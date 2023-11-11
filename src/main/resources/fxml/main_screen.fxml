@@ -3,9 +3,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.PrimaryControllerAbstract">
+            fx:controller="com.cdac.enrollmentstation.controller.PrimaryController">
     <top>
         <HBox styleClass="header">
             <ImageView preserveRatio="true">
@@ -13,51 +13,50 @@
             </ImageView>
         </HBox>
     </top>
+    <left>
+        <!--  id: contMinHeightSmall!-> only used in fxml expression       -->
+        <HBox fx:id="contMinHeightSmall" styleClass="container-min-height-small">
+            <ImageView fitWidth="${contMinHeightSmall.minHeight}" fitHeight="${contMinHeightSmall.minHeight}"
+                       preserveRatio="true">
+                <Image url="@../img/home_new.png"/>
+            </ImageView>
+            <Label styleClass="container-min-height-small, press-effect, label-border-radius" text="HOME"/>
+        </HBox>
+    </left>
+    <right>
+        <HBox styleClass="container-min-height-small">
+            <ImageView fitWidth="${contMinHeightSmall.minHeight}" fitHeight="${contMinHeightSmall.minHeight}"
+                       preserveRatio="true">
+                <Image url="@../gif/settings.gif"/>
+            </ImageView>
+            <Button styleClass="container-min-height-small, press-effect" text="SETTINGS"
+                    onMouseClicked="#onSettings"/>
+        </HBox>
+    </right>
     <center>
-        <BorderPane styleClass="body">
-            <left>
-                <Button styleClass="btn-img, press-effect" text="HOME">
-                    <graphic>
-                        <ImageView fitWidth="${controller.smallImageSize}" fitHeight="${controller.smallImageSize}"
-                                   preserveRatio="true">
-                            <Image url="@../img/home_new.png"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </left>
-            <right>
-                <Button styleClass="btn-img, press-effect" text="SETTINGS"
-                        onMouseClicked="#onSettings">
-                    <graphic>
-                        <ImageView fitWidth="${controller.smallImageSize}" fitHeight="${controller.smallImageSize}"
-                                   preserveRatio="true">
-                            <Image url="@../gif/settings.gif"/>
-                        </ImageView>
-                    </graphic>
-                </Button>
-            </right>
-            <center>
-                <VBox alignment="CENTER">
-                    <HBox alignment="CENTER" spacing="${controller.HBoxSpacing}">
-                        <VBox alignment="CENTER" spacing="10">
-                            <ImageView fitHeight="${controller.largeImageSize}" fitWidth="${controller.largeImageSize}"
-                                       preserveRatio="true">
-                                <Image url="@../gif/biometric-scan.gif"/>
-                            </ImageView>
-                            <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"
-                                    text="BIOMETRIC ENROLMENT"/>
-                        </VBox>
-                        <VBox alignment="CENTER" spacing="20">
-                            <ImageView fitHeight="${controller.largeImageSize}" fitWidth="${controller.largeImageSize}">
-                                <Image url="@../img/token_new.png"/>
-                            </ImageView>
-                            <Button styleClass="btn-large, press-effect" onAction="#showContract"
-                                    text="TOKEN ISSUANCE"/>
-                        </VBox>
-                    </HBox>
+        <VBox alignment="CENTER">
+            <HBox alignment="CENTER">
+                <!--  id: contMinHeightLarge!-> only used in fxml expression       -->
+                <VBox fx:id="contMinHeightLarge" styleClass="container-min-height-large" alignment="CENTER">
+                    <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}"
+                               preserveRatio="true">
+                        <Image url="@../gif/biometric-scan.gif"/>
+                    </ImageView>
+                    <Region styleClass="region-min-height-small"/>
+                    <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"
+                            text="BIOMETRIC ENROLMENT"/>
                 </VBox>
-            </center>
-        </BorderPane>
+                <Region styleClass="region-min-width-large"/>
+                <VBox alignment="CENTER">
+                    <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}">
+                        <Image url="@../img/token_new.png"/>
+                    </ImageView>
+                    <Region styleClass="region-min-height-small"/>
+                    <Button styleClass="btn-large, press-effect" onAction="#showContract"
+                            text="TOKEN ISSUANCE"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </center>
     <bottom>
         <HBox styleClass="footer">

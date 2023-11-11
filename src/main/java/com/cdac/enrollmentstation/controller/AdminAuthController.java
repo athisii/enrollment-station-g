@@ -29,11 +29,13 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class AdminAuthControllerAbstract extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthControllerAbstract.class);
+public class AdminAuthController implements BaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
 
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;
+    @FXML
+    private Label version;
     @FXML
     private Button backBtn;
     @FXML
@@ -86,6 +88,7 @@ public class AdminAuthControllerAbstract extends AbstractBaseController {
     }
 
     public void initialize() {
+        version.setText(App.getAppVersion());
         // restrict the TextField Length
         username.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(username, oldValue, newValue));
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(passwordField, oldValue, newValue));
@@ -95,6 +98,9 @@ public class AdminAuthControllerAbstract extends AbstractBaseController {
             if (event.getCode().equals(KeyCode.ENTER)) {
                 passwordField.requestFocus();
                 event.consume();
+            }
+            if (!statusMsg.getText().isBlank()) {
+                statusMsg.setText("");
             }
         });
         passwordField.setOnKeyPressed(event -> {

@@ -30,8 +30,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class BiometricEnrollmentControllerAbstract extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentControllerAbstract.class);
+public class BiometricEnrollmentController implements BaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentController.class);
 
     // *****************************BARCODE SCANNER *************************
     private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23

@@ -40,7 +40,7 @@
                 <VBox fx:id="contMinHeightLarge" styleClass="container-min-height-large" alignment="CENTER">
                     <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}"
                                preserveRatio="true">
-                        <Image url="@../gif/biometric-scan.gif"/>
+                        <Image url="@../gif/biometric.gif"/>
                     </ImageView>
                     <Region styleClass="region-min-height-small"/>
                     <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"

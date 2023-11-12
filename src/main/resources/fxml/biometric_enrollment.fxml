@@ -4,167 +4,121 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentController"
-      onKeyTyped="#keyTyped">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <ImageView fitHeight="91.0" fitWidth="363.0" focusTraversable="true" layoutX="20.0" layoutY="10.0"
-                               pickOnBounds="true" preserveRatio="true">
-                        <Image url="@../img/navy_logo.png"/>
-                    </ImageView>
-                </AnchorPane>
-                <Label layoutX="8.0" layoutY="118.0" prefHeight="26.0" prefWidth="334.0" text="BIOMETRIC ENROLMENT"
-                       textFill="#04127b">
-                    <font>
-                        <Font size="22.0"/>
-                    </font>
-                </Label>
-                <AnchorPane layoutY="151.0" prefHeight="74.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-                    <Label layoutX="13.0" layoutY="26.0" prefHeight="20.0" prefWidth="200.0" text="Input e-ARC Number"
-                           textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <TextField fx:id="arcNumberTextField" layoutX="190.0" layoutY="23.0" prefHeight="26.0"
-                               prefWidth="267.0"/>
-                    <Button fx:id="showArcBtn" layoutX="459.0" layoutY="14.0" mnemonicParsing="false" prefHeight="46.0"
-                            prefWidth="50.0">
-                        <graphic>
-                            <ImageView fitHeight="43.0" fitWidth="50.0">
-                                <Image url="@../img/muted_manual_down.png"/>
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                    <Label layoutX="670.0" layoutY="28.0" prefHeight="20.0" prefWidth="135.0" text="BARCODE SCAN"
-                           textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Line endX="100.0" endY="-21.0" layoutX="433.0" layoutY="96.0" startX="100.0" startY="-94.0"
-                          stroke="WHITE" strokeWidth="5.0"/>
-                </AnchorPane>
-                <AnchorPane layoutY="228.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #fff;">
-
-                    <ProgressBar layoutX="129.0" layoutY="23.0" prefHeight="14.0" prefWidth="783.0" progress="0.0"/>
-                    <Circle fill="WHITE" layoutX="123.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="119.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="325.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="321.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2"/>
-                    <Circle fill="WHITE" layoutX="526.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="522.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3"/>
-                    <Circle fill="WHITE" layoutX="722.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="718.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4"/>
-                    <Circle fill="WHITE" layoutX="899.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="895.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5"/>
-
-                </AnchorPane>
-
-                <AnchorPane layoutX="136.0" layoutY="322.0" minHeight="0.0" minWidth="0.0" prefHeight="322.0"
-                            prefWidth="754.0" style="-fx-background-color: #fff;">
-
-                    <Label layoutX="17.0" layoutY="49.0" text="Name" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="243.0" layoutY="49.0" text="Rank" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="475.0" layoutY="49.0" text="Applicant ID" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="17.0" layoutY="114.0" text="Unit" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="243.0" layoutY="114.0" text="Exceptions in Finger" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="475.0" layoutY="114.0" text="Exceptions in Iris" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="20.0" layoutY="180.0" text="Biometric Options" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="245.0" layoutY="180.0" text="e-ARC Status" textFill="#04127b">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-
-                    <Label fx:id="txtName" layoutX="17.0" layoutY="72.0"
-                           prefHeight="26.0" prefWidth="204.0"
-                           style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtRank"  layoutX="243.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtApp" layoutX="475.0" layoutY="72.0"
-                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtUnit" layoutX="17.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtFinger" layoutX="243.0"
-                               layoutY="134.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtIris" layoutX="475.0" layoutY="134.0"
-                               prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtBiometricOptions" layoutX="20.0"
-                               layoutY="200.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-                    <Label fx:id="txtArcStatus" layoutX="245.0"
-                               layoutY="199.0" prefHeight="26.0" prefWidth="204.0" style="-fx-border-color: #dad3d3; -fx-border-style: solid;"/>
-
-                    <Button fx:id="backBtn" layoutX="241.0" layoutY="272.0" maxHeight="36.0" maxWidth="150.0"
-                            minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"
-                            prefWidth="150.0" style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;"
-                            text="BACK" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-                    <Button fx:id="continueBtn" disable="true" layoutX="412.0" layoutY="272.0" maxHeight="36.0"
-                            maxWidth="212.0" minHeight="36.0" minWidth="147.0" mnemonicParsing="false" prefHeight="36.0"
-                            prefWidth="147.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="CONTINUE" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-
-                </AnchorPane>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="198.0" layoutY="663.0" prefHeight="23.0"
-                       prefWidth="674.0" text="Enter e-ARC Number and Click Down Arrow Icon or Scan Barcode">
-                    <font>
-                        <Font name="System Bold" size="15.0"/>
-                    </font>
-                </Label>
-                <AnchorPane layoutY="745.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0" prefWidth="35.0" textFill="#f8f5f5" />
-                </AnchorPane>
-
-            </AnchorPane>
-        </center>
-    </BorderPane>
-
-</VBox>
+<?import javafx.scene.shape.Line?>
+<BorderPane onKeyTyped="#keyTyped" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentController">
+    <top>
+        <HBox styleClass="header">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="container-min-height-small">
+                <Label styleClass="container-min-height-small, press-effect, label-border-radius"
+                       text="BIOMETRIC ENROLMENT"/>
+            </HBox>
+            <HBox fx:id="bodyHeaderRow" styleClass="region-min-height-medium, body-header-row" alignment="CENTER">
+                <Label styleClass="label-white-text" text="INPUT e-ARC NUMBER "/>
+                <Line startX="10.0" endX="10.0" endY="${bodyHeaderRow.minHeight + 10}" stroke="white"
+                      strokeWidth="5.0"/>
+                <Label styleClass="label-white-text" text=" SCAN BARCODE  "/>
+                <TextField fx:id="arcNumberTextField" styleClass="input-field" focusTraversable="false"/>
+                <Region styleClass="region-min-width-small"/>
+                <Button fx:id="showArcBtn" styleClass="btn-img, press-effect">
+                    <graphic>
+                        <ImageView fitHeight="${showArcBtn.minHeight}" fitWidth="${showArcBtn.minHeight}">
+                            <Image url="@../img/muted_manual_down.png"/>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
+            <Region styleClass="region-min-height-small"/>
+            <HBox alignment="CENTER">
+                <StackPane>
+                    <ProgressBar prefWidth="${progressBareLength.width}" progress="0.0"/>
+                    <HBox fx:id="progressBareLength" styleClass="container-min-height-small">
+                        <Button styleClass="btn-progress, btn-progress-selected, press-effect" text="1"/>
+                        <Region styleClass="region-min-width-large"/>
+                        <Button styleClass="btn-progress, press-effect" text="2"/>
+                        <Region styleClass="region-min-width-large"/>
+                        <Button styleClass="btn-progress, press-effect" text="3"/>
+                        <Region styleClass="region-min-width-large"/>
+                        <Button styleClass="btn-progress, press-effect" text="4"/>
+                        <Region styleClass="region-min-width-large"/>
+                        <Button styleClass="btn-progress, press-effect" text="5"/>
+                    </HBox>
+                </StackPane>
+            </HBox>
+            <Region styleClass="region-min-height-small"/>
+            <HBox alignment="CENTER">
+                <Region styleClass="region-min-width-small"/>
+                <VBox styleClass="border-mark">
+                    <HBox alignment="CENTER">
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Name"/>
+                            <Label fx:id="txtName" styleClass="label-border-style"/>
+                        </VBox>
+                        <Region styleClass="region-min-width-medium"/>
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Rank"/>
+                            <Label fx:id="txtRank" styleClass="label-border-style"/>
+                        </VBox>
+                        <Region styleClass="region-min-width-medium"/>
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Applicant ID"/>
+                            <Label fx:id="txtApp" styleClass="label-border-style"/>
+                        </VBox>
+                    </HBox>
+                    <Region styleClass="region-min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Unit"/>
+                            <Label fx:id="txtUnit" styleClass="label-border-style"/>
+                        </VBox>
+                        <Region styleClass="region-min-width-medium"/>
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Exceptions in Finger"/>
+                            <Label fx:id="txtFinger" styleClass="label-border-style"/>
+                        </VBox>
+                        <Region styleClass="region-min-width-medium"/>
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Exceptions in Iris"/>
+                            <Label fx:id="txtIris" styleClass="label-border-style"/>
+                        </VBox>
+                    </HBox>
+                    <Region styleClass="region-min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="Biometric Options"/>
+                            <Label fx:id="txtBiometricOptions" styleClass="label-border-style"/>
+                        </VBox>
+                        <Region styleClass="region-min-width-medium"/>
+                        <VBox>
+                            <Label styleClass="label-darkblue-text" text="e-ARC Status"/>
+                            <Label fx:id="txtArcStatus" styleClass="label-border-style"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+                <Region styleClass="region-min-width-small"/>
+            </HBox>
+            <Region styleClass="region-min-height-medium"/>
+            <HBox alignment="CENTER">
+                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
+                <Region styleClass="region-min-width-medium"/>
+                <Button fx:id="continueBtn" styleClass="btn-medium, press-effect" text="CONTINUE" disable="true"/>
+            </HBox>
+            <Region styleClass="region-min-height-large"/>
+            <HBox alignment="CENTER">
+                <Label fx:id="messageLabel" text="Enter e-ARC Number and Click Down Arrow Icon or Scan Barcode"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="footer">
+            <Label fx:id="version"/>
+        </HBox>
+    </bottom>
+</BorderPane>

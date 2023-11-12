@@ -30,9 +30,9 @@
     </right>
     <center>
         <VBox styleClass="body" alignment="CENTER">
-            <VBox styleClass="border-color" alignment="CENTER">
+            <VBox styleClass="border-mark" alignment="CENTER">
                 <VBox alignment="CENTER">
-                    <Region styleClass="region-min-height-medium"/>
+                    <Region styleClass="region-min-height-small"/>
                     <HBox alignment="CENTER">
                         <ImageView fitWidth="${contMinHeightSmall.minHeight}"
                                    fitHeight="${contMinHeightSmall.minHeight}"
@@ -40,9 +40,10 @@
                             <Image url="@../img/username.png"/>
                         </ImageView>
                         <Region styleClass="region-min-width-small"/>
-                        <TextField fx:id="username" styleClass="input-field" promptText="Username"/>
+                        <TextField fx:id="username" styleClass="input-field" promptText="Username"
+                                   focusTraversable="false"/>
                     </HBox>
-                    <Region styleClass="region-min-height-small"/>
+                    <Region styleClass="region-min-height-large"/>
                     <HBox alignment="CENTER">
                         <ImageView fitWidth="${contMinHeightSmall.minHeight}"
                                    fitHeight="${contMinHeightSmall.minHeight}"
@@ -50,12 +51,14 @@
                             <Image url="@../img/password.png"/>
                         </ImageView>
                         <Region styleClass="region-min-width-small"/>
-                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"/>
+                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"
+                                       focusTraversable="false"/>
                     </HBox>
                 </VBox>
+                <Region styleClass="region-min-height-small"/>
                 <Label fx:id="statusMsg" styleClass="message-font-size"/>
             </VBox>
-            <Region styleClass="region-min-height-medium"/>
+            <Region styleClass="region-min-height-large"/>
             <HBox alignment="CENTER">
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" onAction="#showHome" text="BACK"/>
                 <Region styleClass="region-min-width-medium"/>

@@ -4,6 +4,17 @@
     -fx-font-size: 18px;
 }
 
+.body-header-row {
+    -fx-padding: 10px;
+}
+
+.label-border-style {
+    -fx-font-size: 18px;
+    -fx-pref-width: 300px;
+    -fx-pref-height: 40px;
+    -fx-border-radius: 10px;
+}
+
 .btn-medium {
     -fx-pref-height: 45px;
     -fx-pref-width: 200px;
@@ -16,12 +27,13 @@
 }
 
 .btn-img {
-    -fx-font-size: 20px;
+    -fx-min-height: 50px;
 }
 
 
 .container-min-height-small {
     -fx-min-height: 50px;
+    -fx-padding: 8px;
 }
 
 .container-min-height-medium {
@@ -32,10 +44,16 @@
     -fx-min-height: 280px;
 }
 
+.border-mark {
+    -fx-border-radius: 20px;
+    -fx-padding: 30px;
+}
+
 .input-field {
     -fx-font-size: 20px;
     -fx-pref-width: 300px;
-    -fx-pref-height: 36px;
+    -fx-pref-height: 45px;
+    -fx-background-radius: 10px;
 }
 
 .message-font-size {
@@ -66,11 +84,11 @@
 }
 
 .region-min-height-medium {
-    -fx-min-height: 30px;
+    -fx-min-height: 40px;
 }
 
 .region-min-height-large {
-    -fx-min-height: 40px;
+    -fx-min-height: 50px;
 }
 
 

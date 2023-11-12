@@ -4,6 +4,17 @@
     -fx-font-size: 20px;
 }
 
+.body-header-row {
+    -fx-padding: 10px;
+}
+
+.label-border-style {
+    -fx-font-size: 20px;
+    -fx-pref-width: 360px;
+    -fx-pref-height: 50px;
+    -fx-border-radius: 12px;
+}
+
 .btn-medium {
     -fx-font-size: 20px;
     -fx-pref-height: 50px;
@@ -17,11 +28,12 @@
 }
 
 .btn-img {
-    -fx-font-size: 22px;
+    -fx-min-height: 50px;
 }
 
 .container-min-height-small {
     -fx-min-height: 60px;
+    -fx-padding: 10px;
 }
 
 .container-min-height-medium {
@@ -32,10 +44,16 @@
     -fx-min-height: 320px;
 }
 
+.border-mark {
+    -fx-border-radius: 40px;
+    -fx-padding: 30px;
+}
+
 .input-field {
     -fx-font-size: 20px;
     -fx-pref-width: 350px;
     -fx-pref-height: 50px;
+    -fx-background-radius: 12px;
 }
 
 .message-font-size {
@@ -62,13 +80,13 @@
 
 
 .region-min-height-small {
-    -fx-min-height: 35px;
+    -fx-min-height: 30px;
 }
 
 .region-min-height-medium {
-    -fx-min-height: 35px;
+    -fx-min-height: 40px;
 }
 
 .region-min-height-large {
-    -fx-min-height: 40px;
+    -fx-min-height: 50px;
 }

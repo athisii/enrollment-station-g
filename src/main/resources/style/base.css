@@ -2,6 +2,7 @@
     -fx-font-size: 16px;
     -fx-header-footer-bg: #1990EA;
     -fx-background-color: #FFF;
+    -fx-btn-bg-color: darkblue;
 }
 
 .header {
@@ -14,6 +15,27 @@
     -fx-padding: 10px;
 }
 
+.body-header-row {
+    -fx-background-color: darkblue;
+    -fx-padding: 5px;
+}
+
+.label-white-text {
+    -fx-text-fill: #FFF;
+}
+
+.label-darkblue-text {
+    -fx-text-fill: darkblue;
+}
+
+.label-border-style {
+    -fx-font-size: 16px;
+    -fx-border-color: #DAD3D3;
+    -fx-border-style: solid;
+    -fx-pref-width: 220px;
+    -fx-pref-height: 30px;
+    -fx-border-radius: 5px;
+}
 
 .footer {
     -fx-background-color: -fx-header-footer-bg;
@@ -23,7 +45,7 @@
 
 .button {
     -fx-text-fill: #FFF;
-    -fx-background-color: #04127B;
+    -fx-background-color: -fx-btn-bg-color;
     -fx-background-radius: 10px;
 }
 
@@ -38,6 +60,24 @@
     -fx-pref-height: 40px;
     -fx-pref-width: 270px;
     -fx-background-radius: 20px;
+}
+
+.btn-img {
+    -fx-background-color: #FFF;
+    -fx-background-radius: 16px;
+    -fx-min-height: 40px;
+}
+
+
+.btn-progress {
+    -fx-text-fill: #000;
+    -fx-background-color: #BBB5B5;
+    -fx-background-radius: 30px;
+}
+
+.btn-progress-selected {
+    -fx-text-fill: #FFF;
+    -fx-background-color: -fx-btn-bg-color;
 }
 
 .container-min-height-small {
@@ -65,15 +105,17 @@
     -fx-background-radius: 10px;
 }
 
-.border-color {
+.border-mark {
     -fx-border-color: #04127b;
     -fx-border-radius: 10px;
+    -fx-padding: 20px;
 }
 
 .input-field {
     -fx-font-size: 16px;
     -fx-pref-width: 250px;
     -fx-pref-height: 34px;
+    -fx-background-radius: 8px;
 }
 
 .message-font-size {

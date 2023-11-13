@@ -35,9 +35,9 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class BiometricCaptureCompleteController implements BaseController {
+public class BiometricCaptureCompleteControllerAbstract extends AbstractBaseController {
     //For Application Log
-    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricCaptureCompleteController.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricCaptureCompleteControllerAbstract.class);
     private static final String NOT_AVAILABLE = "Not Available";
 
     @FXML
@@ -58,8 +58,6 @@ public class BiometricCaptureCompleteController implements BaseController {
     @FXML
     private ProgressIndicator progressIndicator;
 
-    @FXML
-    private Label version;
     // after submitted successfully/failed, go back to main screen after 10 secs
     private static boolean isStillHere = true;
     private static final Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(10), event -> {
@@ -74,7 +72,6 @@ public class BiometricCaptureCompleteController implements BaseController {
 
     // calls automatically by JavaFx runtime
     public void initialize() {
-        version.setText(App.getAppVersion());
         messageLabel.setText("Please click SUBMIT button and wait....");
     }
 
@@ -204,9 +201,9 @@ public class BiometricCaptureCompleteController implements BaseController {
         Platform.runLater(() -> {
             InputStream inputStream;
             if (success) {
-                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/tick_green.jpg");
+                inputStream = BiometricCaptureCompleteControllerAbstract.class.getResourceAsStream("/img/tick_green.jpg");
             } else {
-                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/red_cross.png");
+                inputStream = BiometricCaptureCompleteControllerAbstract.class.getResourceAsStream("/img/red_cross.png");
             }
             if (inputStream == null) {
                 LOGGER.log(Level.SEVERE, "Image not found for updating the UI image.");

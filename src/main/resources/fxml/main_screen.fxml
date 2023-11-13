@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.PrimaryController">
+            fx:controller="com.cdac.enrollmentstation.controller.PrimaryControllerAbstract">
     <top>
         <HBox styleClass="header">
             <ImageView preserveRatio="true">
@@ -60,7 +60,7 @@
     </center>
     <bottom>
         <HBox styleClass="footer">
-            <Label fx:id="version"/>
+            <Label text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

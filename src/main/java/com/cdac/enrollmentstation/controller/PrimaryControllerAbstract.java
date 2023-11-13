@@ -3,7 +3,6 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -14,11 +13,9 @@ import java.util.logging.Logger;
  * Created on 26/12/22
  */
 
-public class PrimaryController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
+public class PrimaryControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryControllerAbstract.class);
 
-    @FXML
-    private Label version;
 
     @FXML
     private void showEnrollmentHome() {
@@ -43,10 +40,6 @@ public class PrimaryController implements BaseController {
     @FXML
     public void onSettings() throws IOException {
         App.setRoot("admin_auth");
-    }
-
-    public void initialize() {
-        version.setText(App.getAppVersion());
     }
 
 

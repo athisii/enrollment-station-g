@@ -40,8 +40,8 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class IrisController implements BaseController, MIDIrisEnrollCallback {
-    private static final Logger LOGGER = ApplicationLog.getLogger(IrisController.class);
+public class IrisControllerAbstract extends AbstractBaseController implements MIDIrisEnrollCallback {
+    private static final Logger LOGGER = ApplicationLog.getLogger(IrisControllerAbstract.class);
     private static final int IMAGE_COMPRESSION_RATIO = 0;
     private static final int TEMPLATE_COMPRESSION_RATIO = 0;
     private static final ImageFormat IMAGE_FORMAT = ImageFormat.K7;
@@ -87,8 +87,6 @@ public class IrisController implements BaseController, MIDIrisEnrollCallback {
 
     @FXML
     private Button backBtn;
-    @FXML
-    private Label version;
 
     private boolean isDeviceInitialized;
     private boolean isIrisCompleted;
@@ -145,16 +143,15 @@ public class IrisController implements BaseController, MIDIrisEnrollCallback {
         scanBtn.setOnAction(this::scanBtnAction);
         saveIrisBtn.setOnAction(this::saveIrisBtnAction);
 
-        version.setText(App.getAppVersion());
         // loads failure and success images from FS.
-        InputStream inputStream = IrisController.class.getResourceAsStream("/img/red_cross.png");
+        InputStream inputStream = IrisControllerAbstract.class.getResourceAsStream("/img/red_cross.png");
         if (inputStream == null) {
             LOGGER.log(Level.SEVERE, "Received a null inputStream stream while loading failure image from file system.");
             messageLabel.setText(GENERIC_IRIS_ERR_MSG);
             return;
         }
         failureImage = new Image(inputStream, statusImageView.getFitWidth(), statusImageView.getFitHeight(), true, false);
-        inputStream = IrisController.class.getResourceAsStream("/img/tick_green.jpg");
+        inputStream = IrisControllerAbstract.class.getResourceAsStream("/img/tick_green.jpg");
         if (inputStream == null) {
             LOGGER.log(Level.SEVERE, "Received a null inputStream stream while loading success image from file system.");
             messageLabel.setText(GENERIC_IRIS_ERR_MSG);

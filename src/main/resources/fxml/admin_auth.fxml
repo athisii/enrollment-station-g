@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.AdminAuthController">
+            fx:controller="com.cdac.enrollmentstation.controller.AdminAuthControllerAbstract">
     <top>
         <HBox styleClass="header">
             <ImageView preserveRatio="true">
@@ -22,7 +22,7 @@
             </ImageView>
             <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
             <Label fx:id="bodyHeaderLabel" styleClass="container-min-height-small, press-effect, label-border-radius"
-                   text="AUTHENTICATION"/>
+                   text="AUTHENTICATION" focusTraversable="true"/>
         </HBox>
     </left>
     <right>
@@ -40,8 +40,7 @@
                             <Image url="@../img/username.png"/>
                         </ImageView>
                         <Region styleClass="region-min-width-small"/>
-                        <TextField fx:id="username" styleClass="input-field" promptText="Username"
-                                   focusTraversable="false"/>
+                        <TextField fx:id="username" styleClass="input-field" promptText="Username"/>
                     </HBox>
                     <Region styleClass="region-min-height-large"/>
                     <HBox alignment="CENTER">
@@ -51,8 +50,7 @@
                             <Image url="@../img/password.png"/>
                         </ImageView>
                         <Region styleClass="region-min-width-small"/>
-                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"
-                                       focusTraversable="false"/>
+                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"/>
                     </HBox>
                 </VBox>
                 <Region styleClass="region-min-height-small"/>
@@ -68,7 +66,7 @@
     </center>
     <bottom>
         <HBox styleClass="footer">
-            <Label fx:id="version"/>
+            <Label text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

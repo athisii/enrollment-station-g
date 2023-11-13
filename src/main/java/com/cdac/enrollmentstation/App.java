@@ -1,13 +1,9 @@
 package com.cdac.enrollmentstation;
 
 
-import com.cdac.enrollmentstation.constant.ApplicationConstant;
-import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.controller.BaseController;
-import com.cdac.enrollmentstation.exception.GenericException;
+import com.cdac.enrollmentstation.controller.AbstractBaseController;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.DisplayUtil;
-import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -31,7 +27,7 @@ import java.util.logging.Logger;
  */
 public final class App extends Application {
     private static Scene scene;
-    private static BaseController controller;
+    private static AbstractBaseController controller;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
@@ -81,15 +77,6 @@ public final class App extends Application {
 
     public static ExecutorService getThreadPool() {
         return executorService;
-    }
-
-    public static String getAppVersion() {
-        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
-        if (appVersionNumber == null || appVersionNumber.isBlank()) {
-            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        return appVersionNumber;
     }
 
     public static String getCssFileName() {

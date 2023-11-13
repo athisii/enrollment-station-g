@@ -41,8 +41,8 @@ import java.util.logging.Logger;
  * @author athisii, CDAC
  * Created on 05/11/23
  */
-public class SignatureController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(SignatureController.class);
+public class SignatureControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(SignatureControllerAbstract.class);
     private static final int PADDING = 10;
     private static final int RAW_SIZE = 300;
     private static final int DPI = 300;

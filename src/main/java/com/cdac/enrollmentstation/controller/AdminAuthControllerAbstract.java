@@ -29,13 +29,11 @@ import java.util.logging.Logger;
  *
  * @author root
  */
-public class AdminAuthController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
+public class AdminAuthControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthControllerAbstract.class);
 
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;
-    @FXML
-    private Label version;
     @FXML
     private Button backBtn;
     @FXML
@@ -88,7 +86,6 @@ public class AdminAuthController implements BaseController {
     }
 
     public void initialize() {
-        version.setText(App.getAppVersion());
         // restrict the TextField Length
         username.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(username, oldValue, newValue));
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(passwordField, oldValue, newValue));

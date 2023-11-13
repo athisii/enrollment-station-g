@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Line?>
 <BorderPane onKeyTyped="#keyTyped" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentController">
+            fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentControllerAbstract">
     <top>
         <HBox styleClass="header">
             <ImageView preserveRatio="true">
@@ -18,14 +18,14 @@
         <VBox>
             <HBox styleClass="container-min-height-small">
                 <Label styleClass="container-min-height-small, press-effect, label-border-radius"
-                       text="BIOMETRIC ENROLMENT"/>
+                       text="BIOMETRIC ENROLMENT" focusTraversable="true"/>
             </HBox>
             <HBox fx:id="bodyHeaderRow" styleClass="region-min-height-medium, body-header-row" alignment="CENTER">
                 <Label styleClass="label-white-text" text="INPUT e-ARC NUMBER "/>
                 <Line startX="10.0" endX="10.0" endY="${bodyHeaderRow.minHeight + 10}" stroke="white"
                       strokeWidth="5.0"/>
                 <Label styleClass="label-white-text" text=" SCAN BARCODE  "/>
-                <TextField fx:id="arcNumberTextField" styleClass="input-field" focusTraversable="false"/>
+                <TextField fx:id="arcNumberTextField" styleClass="input-field"/>
                 <Region styleClass="region-min-width-small"/>
                 <Button fx:id="showArcBtn" styleClass="btn-img, press-effect">
                     <graphic>
@@ -49,6 +49,8 @@
                         <Button styleClass="btn-progress, press-effect" text="4"/>
                         <Region styleClass="region-min-width-large"/>
                         <Button styleClass="btn-progress, press-effect" text="5"/>
+                        <Region styleClass="region-min-width-large"/>
+                        <Button styleClass="btn-progress, press-effect" text="6"/>
                     </HBox>
                 </StackPane>
             </HBox>
@@ -118,7 +120,7 @@
     </center>
     <bottom>
         <HBox styleClass="footer">
-            <Label fx:id="version"/>
+            <Label text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

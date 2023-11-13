@@ -30,14 +30,14 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
  * @author athisii, CDAC
  * Created on 26/12/22
  */
-public class TokenIssuanceController implements BaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
+public class TokenIssuanceControllerAbstract extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceControllerAbstract.class);
 
     private ContractorCardInfo contractorCardInfo;
 
 
     @FXML
-    private Button showContractBtn;
+    private Button continueBtn;
 
 
     @FXML
@@ -63,11 +63,11 @@ public class TokenIssuanceController implements BaseController {
             asn1EncodedData = startProcedureCall();
         } catch (NoReaderOrCardException | GenericException ex) {
             updateUi(ex.getMessage());
-            enableControls(backBtn, showContractBtn);
+            enableControls(backBtn, continueBtn);
             return;
         } catch (ConnectionTimeoutException ex) {
             updateUi("Something went wrong. Kindly check Card API service.");
-            enableControls(backBtn, showContractBtn);
+            enableControls(backBtn, continueBtn);
             return;
         }
         String contractorName;
@@ -77,12 +77,12 @@ public class TokenIssuanceController implements BaseController {
             contractorId = new String(Asn1CardTokenUtil.extractFromAsn1EncodedStaticData(asn1EncodedData, CardStaticDataIndex.UNIQUE_ID.getValue()), StandardCharsets.UTF_8);
         } catch (GenericException ex) {
             updateUi("Kindly place a valid card and try again.");
-            enableControls(backBtn, showContractBtn);
+            enableControls(backBtn, continueBtn);
             return;
         }
         if (contractorName.isEmpty() || contractorId.isEmpty()) {
             updateUi("No contractor details available in the card.");
-            enableControls(backBtn, showContractBtn);
+            enableControls(backBtn, continueBtn);
             return;
         }
         contractorCardInfo.setContractorName(contractorName);
@@ -94,14 +94,14 @@ public class TokenIssuanceController implements BaseController {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             updateUi("Something went wrong. Contact the system admin.");
-            enableControls(backBtn, showContractBtn);
+            enableControls(backBtn, continueBtn);
         }
     }
 
     @FXML
-    private void showContractsAction() {
+    private void continueBtnAction() {
         messageLabel.setText("Please wait...");
-        disableControls(backBtn, showContractBtn);
+        disableControls(backBtn, continueBtn);
         App.getThreadPool().execute(this::readCardDetails);
     }
 

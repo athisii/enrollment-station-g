@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * Created on 26/12/22
  */
 
-public class ContractController implements BaseController {
+public class ContractControllerAbstract extends AbstractBaseController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     @FXML
     private Button homeBtn;
@@ -64,7 +64,7 @@ public class ContractController implements BaseController {
     @FXML
     TextField searchBox;
 
-    private static final Logger LOGGER = ApplicationLog.getLogger(ContractController.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(ContractControllerAbstract.class);
 
     @FXML
     private void showHome() throws IOException {

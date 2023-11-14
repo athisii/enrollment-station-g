@@ -30,8 +30,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
  * @author athisii, CDAC
  * Created on 29/03/23
  */
-public class BiometricEnrollmentControllerAbstract extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentControllerAbstract.class);
+public class BiometricEnrollmentController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(BiometricEnrollmentController.class);
 
     // *****************************BARCODE SCANNER *************************
     private static final int MIN_ARC_LENGTH = 12; // 00001-A-AA23
@@ -143,6 +143,10 @@ public class BiometricEnrollmentControllerAbstract extends AbstractBaseControlle
             case "IrisCompleted":
                 try {
                     if ("biometric".equalsIgnoreCase(ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getBiometricOptions().trim())) {
+                        if (ArcDetailsHolder.getArcDetailsHolder().getArcDetail().isSignatureRequired()) {
+                            App.setRoot("signature");
+                            return;
+                        }
                         App.setRoot("biometric_capture_complete");
                         return;
                     }

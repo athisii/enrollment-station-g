@@ -5,9 +5,9 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.TokenIssuanceControllerAbstract">
+            fx:controller="com.cdac.enrollmentstation.controller.TokenIssuanceController">
     <top>
-        <HBox styleClass="header">
+        <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
                 <Image url="@../img/navy_logo.png"/>
             </ImageView>
@@ -15,37 +15,38 @@
     </top>
     <center>
         <VBox>
-            <HBox fx:id="headerRow" styleClass="container-min-height-small">
-                <ImageView fitHeight="${headerRow.minHeight}" fitWidth="${headerRow.minHeight}" preserveRatio="true">
-                    <Image url="@../gif/tokens.gif"/>
-                </ImageView>
-                <Label styleClass="container-min-height-small, press-effect, label-border-radius"
-                       text="TOKEN ISSUANCE"/>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../gif/tokens.gif"/>
+                    </ImageView>
+                </HBox>
+                <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="TOKEN ISSUANCE"/>
             </HBox>
-            <HBox styleClass="container-min-height-small" alignment="CENTER">
-                <Label fx:id="messageLabel" styleClass="font-medium, label-darkblue-text"
+            <HBox styleClass="img-container" alignment="CENTER">
+                <Label fx:id="messageLabel"
                        text="Please place the card on the reader and click the 'Continue' button."/>
             </HBox>
-            <Region styleClass="region-min-height-large"/>
-            <HBox fx:id="contMinHeightLarge" styleClass="container-min-height-large" alignment="CENTER">
-                <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}"
+            <Region styleClass="min-height-large"/>
+            <HBox fx:id="_imgContainerXlarge" styleClass="img-container-xlarge" alignment="CENTER">
+                <ImageView fitWidth="${_imgContainerXlarge.prefWidth}" fitHeight="${_imgContainerXlarge.prefHeight}"
                            preserveRatio="true">
                     <Image url="@../gif/card_creader.gif"/>
                 </ImageView>
             </HBox>
-            <Region styleClass="region-min-height-small"/>
-            <Region styleClass="region-min-height-large"/>
+            <Region styleClass="min-height-xlarge"/>
             <HBox alignment="CENTER">
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" onAction="#backBtnAction" text="BACK"/>
-                <Region styleClass="region-min-width-small"/>
+                <Region styleClass="min-width-medium"/>
                 <Button fx:id="continueBtn" styleClass="btn-medium, press-effect" onAction="#continueBtnAction"
                         text="CONTINUE"/>
             </HBox>
         </VBox>
     </center>
     <bottom>
-        <HBox styleClass="footer">
-            <Label text="${controller.appVersion}"/>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

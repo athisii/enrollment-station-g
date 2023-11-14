@@ -53,8 +53,8 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
  * Created on 26/12/22
  */
 
-public class LabourControllerAbstract extends AbstractBaseController implements MIDFingerAuth_Callback {
-    private static final Logger LOGGER = ApplicationLog.getLogger(LabourControllerAbstract.class);
+public class LabourController extends AbstractBaseController implements MIDFingerAuth_Callback {
+    private static final Logger LOGGER = ApplicationLog.getLogger(LabourController.class);
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     @FXML

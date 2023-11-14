@@ -30,8 +30,8 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
  * @author athisii, CDAC
  * Created on 26/12/22
  */
-public class TokenIssuanceControllerAbstract extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceControllerAbstract.class);
+public class TokenIssuanceController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
 
     private ContractorCardInfo contractorCardInfo;
 

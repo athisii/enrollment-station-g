@@ -1,35 +1,26 @@
 .root {
     -fx-font-size: 16px;
-    -fx-header-footer-bg: #1990EA;
     -fx-background-color: #FFF;
     -fx-btn-bg-color: darkblue;
 }
 
-.header {
-    -fx-background-color: -fx-header-footer-bg;
-    -fx-padding: 5px;
-}
-
-.body {
-    -fx-font-size: 16px;
-    -fx-padding: 10px;
-}
-
-.body-header-row {
+.bg-color-darkblue {
     -fx-background-color: darkblue;
-    -fx-padding: 5px;
 }
 
-.label-white-text {
+.bg-color-bright-blue {
+    -fx-background-color: #1990EA;
+}
+
+.text-white {
     -fx-text-fill: #FFF;
 }
 
-.label-darkblue-text {
+.text-darkblue {
     -fx-text-fill: darkblue;
 }
 
 .label-border-style {
-    -fx-font-size: 16px;
     -fx-border-color: #DAD3D3;
     -fx-border-style: solid;
     -fx-pref-width: 220px;
@@ -37,78 +28,133 @@
     -fx-border-radius: 5px;
 }
 
-.footer {
-    -fx-background-color: -fx-header-footer-bg;
-    -fx-alignment: center;
-    -fx-min-height: 40px;
-}
-
 .button {
     -fx-text-fill: #FFF;
     -fx-background-color: -fx-btn-bg-color;
-    -fx-background-radius: 10px;
 }
 
 .btn-medium {
-    -fx-pref-height: 40px;
     -fx-pref-width: 150px;
+    -fx-pref-height: 40px;
     -fx-background-radius: 20px;
 }
 
 .btn-large {
     -fx-font-size: 18px;
-    -fx-pref-height: 40px;
     -fx-pref-width: 270px;
+    -fx-pref-height: 40px;
     -fx-background-radius: 20px;
 }
 
 .btn-img {
     -fx-background-color: #FFF;
-    -fx-background-radius: 16px;
-    -fx-min-height: 40px;
+    -fx-pref-height: 40px;
+    -fx-pref-width: 40px;
+    -fx-padding: 5px;
 }
-
 
 .btn-progress {
     -fx-text-fill: #000;
     -fx-background-color: #BBB5B5;
-    -fx-background-radius: 30px;
+    -fx-background-radius: 20px;
 }
 
-.btn-progress-selected {
+.btn-progress-completed {
     -fx-text-fill: #FFF;
     -fx-background-color: -fx-btn-bg-color;
 }
 
-.container-min-height-small {
-    -fx-min-height: 40px;
+/*  image container */
+.img-container {
+    -fx-pref-width: 40px;
+    -fx-pref-height: 40px;
+}
+
+.img-container-small {
+    -fx-pref-width: 50px;
+    -fx-pref-height: 50px;
+}
+
+.img-container-medium {
+    -fx-pref-width: 60px;
+    -fx-pref-height: 60px;
+}
+
+.img-container-large {
+    -fx-pref-width: 110px;
+    -fx-pref-height: 110px;
+}
+
+.img-container-xlarge {
+    -fx-pref-width: 200px;
+    -fx-pref-height: 200px;
+}
+
+.border-color-darkblue {
+    -fx-border-color: darkblue;
+}
+
+/* padding */
+.padding {
     -fx-padding: 5px;
 }
 
-.container-min-height-medium {
-    -fx-min-height: 100px;
+.padding-small {
+    -fx-padding: 10px;
 }
 
-.container-min-height-large {
-    -fx-min-height: 200px;
+.padding-medium {
+    -fx-padding: 20px;
 }
 
-.font-medium {
+.padding-large {
+    -fx-padding: 30px;
+}
+
+/* border-radius */
+.border-radius {
+    -fx-border-radius: 5px;
+}
+
+.border-radius-small {
+    -fx-border-radius: 10px;
+}
+
+.border-radius-medium {
+    -fx-border-radius: 20px;
+}
+
+.border-radius-large {
+    -fx-border-radius: 30px;
+}
+
+/* background-radius */
+.bg-border-radius {
+    -fx-background-radius: 5px;
+}
+
+.bg-border-radius-small {
+    -fx-background-radius: 10px;
+}
+
+.bg-border-radius-medium {
+    -fx-background-radius: 20px;
+}
+
+.bg-border-radius-large {
+    -fx-background-radius: 30px;
+}
+
+.font-size-medium {
+    -fx-font-size: 18px;
+}
+
+.font-size-large {
     -fx-font-size: 20px;
 }
 
 .press-effect:pressed {
     -fx-background-color: linear-gradient(darkcyan, cyan);
-}
-
-.label-border-radius {
-    -fx-background-radius: 10px;
-}
-
-.border-mark {
-    -fx-border-color: #04127b;
-    -fx-border-radius: 10px;
-    -fx-padding: 20px;
 }
 
 .input-field {
@@ -118,36 +164,45 @@
     -fx-background-radius: 8px;
 }
 
-.message-font-size {
-    -fx-font-size: 16px;
-    -fx-padding: 10px;
-    -fx-alignment: center;
+.min-width {
+    -fx-min-width: 5px;
 }
 
-.region-min-width-small {
+.min-width-small {
+    -fx-min-width: 10px;
+}
+
+.min-width-medium {
     -fx-min-width: 20px;
 }
 
-.region-min-width-medium {
+.min-width-large {
     -fx-min-width: 100px;
 }
 
-.region-min-width-large {
+.min-width-xlarge {
     -fx-min-width: 150px;
 }
 
-.region-min-height-small {
+.min-height {
+    -fx-min-height: 5px;
+}
+
+.min-height-small {
+    -fx-min-height: 10px;
+}
+
+.min-height-medium {
     -fx-min-height: 20px;
 }
 
-.region-min-height-medium {
+.min-height-large {
     -fx-min-height: 30px;
 }
 
-.region-min-height-large {
+.min-height-xlarge {
     -fx-min-height: 40px;
 }
-
 
 #version {
     -fx-text-fill: white;

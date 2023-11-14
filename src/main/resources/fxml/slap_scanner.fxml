@@ -3,230 +3,212 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerControllerAbstract">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerControllerAbstract">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-                        <Image url="@../img/navy_logo.png"/>
+                        <Image url="@../gif/fp.gif"/>
                     </ImageView>
-                </AnchorPane>
-                <Label layoutX="14.0" layoutY="105.0" prefHeight="41.0" prefWidth="297.0" text="FINGERPRINT CAPTURE"
-                       textFill="#04127b">
-                    <font>
-                        <Font size="22.0"/>
-                    </font>
-                </Label>
-                <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-                    <Label fx:id="displayArcLabel" layoutX="18.0" layoutY="19.0" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                </AnchorPane>
+                </HBox>
+                <Label styleClass="padding-small, press-effect, bg-border-radius"
+                       text="FINGERPRINT CAPTURE"/>
+            </HBox>
 
-                <AnchorPane layoutY="214.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #fff;">
-                    <ProgressBar layoutX="127.0" layoutY="22.0" prefHeight="14.0" prefWidth="783.0" progress="0.25"/>
-                    <Circle fill="WHITE" layoutX="125.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="121.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="327.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="323.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="528.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="524.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3"/>
-                    <Circle fill="WHITE" layoutX="722.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="718.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4"/>
-                    <Circle fill="WHITE" layoutX="901.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="897.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5"/>
-                </AnchorPane>
+            <HBox styleClass="padding, bg-color-darkblue">
+                <Label fx:id="displayArcLabel" styleClass="padding, text-white" text="00001-A-AB12"/>
+            </HBox>
+            <HBox alignment="CENTER">
+                <StackPane>
+                    <ProgressBar prefWidth="${progressBareLength.width}" progress="0.20"/>
+                    <HBox fx:id="progressBareLength" styleClass="min-height-xlarge, padding">
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="1"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="2"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="3"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="4"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="5"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="6"/>
+                    </HBox>
+                </StackPane>
+            </HBox>
+            <HBox alignment="CENTER">
+                <VBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
+                    <HBox>
+                        <HBox fx:id="_imgContainerLarge1" styleClass="img-container-large" alignment="CENTER">
+                            <ImageView fitWidth="${_imgContainerLarge1.prefWidth}"
+                                       fitHeight="${_imgContainerLarge1.prefHeight}"
+                                       preserveRatio="true">
+                                <Image url="@../img/left_scan.png"/>
+                            </ImageView>
+                        </HBox>
+                        <VBox styleClass="border-color-darkblue, padding, border-radius-small" alignment="CENTER">
+                            <HBox alignment="CENTER">
+                                <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="leftLittleFingerImageView"
+                                               fitWidth="${_imgContainerMedium1.prefWidth}"
+                                               fitHeight="${_imgContainerMedium1.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                                <Region styleClass="min-width"/>
+                                <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="leftMiddleFingerImageView"
+                                               fitWidth="${_imgContainerMedium2.prefWidth}"
+                                               fitHeight="${_imgContainerMedium2.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
 
-                <AnchorPane layoutX="18.0" layoutY="319.0" prefHeight="177.0" prefWidth="326.0"
-                            style="-fx-border-color: #04127b;">
-                    <ImageView fitHeight="131.0" fitWidth="151.0" layoutX="7.0" layoutY="23.0" pickOnBounds="true"
-                               preserveRatio="true">
-                        <Image url="@../img/left_scan.png"/>
-                    </ImageView>
-                    <ImageView fx:id="leftLittleFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="180.0"
-                               layoutY="9.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="leftMiddleFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="252.0"
-                               layoutY="9.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="leftRingFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="180.0"
-                               layoutY="75.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="leftIndexFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="252.0"
-                               layoutY="75.0" pickOnBounds="true" preserveRatio="true"/>
-                    <Button fx:id="leftScanBtn" disable="true" layoutX="165.0" layoutY="140.0" maxHeight="28.0"
-                            maxWidth="150.0" minHeight="25.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
-                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="LEFT SCAN" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-                    <Line endX="-26.0" endY="113.0" layoutX="170.0" layoutY="60.0" startX="-26.0" startY="-60.0"
-                          stroke="#04127b" strokeWidth="1.5"/>
-                    <Circle fill="WHITE" layoutX="69.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #1990ea;"/>
-                    <Label layoutX="65.0" layoutY="-8.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <AnchorPane layoutX="352.0" layoutY="319.0" prefHeight="176.0" prefWidth="327.0"
-                            style="-fx-border-color: #04127b;">
-
-                    <Button fx:id="rightScanBtn" disable="true" layoutX="163.0" layoutY="142.0" maxHeight="28.0"
-                            maxWidth="150.0" minHeight="25.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
-                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="RIGHT SCAN" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-                    <ImageView fitHeight="131.0" fitWidth="151.0" layoutX="5.0" layoutY="32.0" pickOnBounds="true"
-                               preserveRatio="true">
-
-                        <Image url="@../img/right_scan.png"/>
-
-                    </ImageView>
-                    <ImageView fx:id="rightIndexFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="179.0"
-                               layoutY="10.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="rightMiddleFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="254.0"
-                               layoutY="10.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="rightRingFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="178.0"
-                               layoutY="70.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="rightLittleFingerImageView" fitHeight="56.0" fitWidth="56.0" layoutX="254.0"
-                               layoutY="70.0" pickOnBounds="true" preserveRatio="true"/>
-                    <Line endX="-26.0" endY="113.0" layoutX="168.0" layoutY="59.0" startX="-26.0" startY="-60.0"
-                          stroke="#04127b" strokeWidth="1.5"/>
-                    <Circle fill="WHITE" layoutX="67.0" layoutY="1.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #1990ea;"/>
-                    <Label layoutX="63.0" layoutY="-7.0" prefHeight="16.0" prefWidth="22.0" text="2" textFill="WHITE">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <AnchorPane layoutX="687.0" layoutY="319.0" prefHeight="176.0" prefWidth="321.0"
-                            style="-fx-border-color: #552e75;">
-
-                    <ImageView fitHeight="124.0" fitWidth="131.0" layoutX="8.0" layoutY="38.0" pickOnBounds="true"
-                               preserveRatio="true">
-                        <Image url="@../img/thumb_both.png"/>
-
-                    </ImageView>
-                    <ImageView fx:id="leftThumbImageView" fitHeight="56.0" fitWidth="56.0" layoutX="177.0"
-                               layoutY="45.0" pickOnBounds="true" preserveRatio="true"/>
-                    <ImageView fx:id="rightThumbImageView" fitHeight="56.0" fitWidth="56.0" layoutX="251.0"
-                               layoutY="45.0" pickOnBounds="true" preserveRatio="true"/>
-                    <Button fx:id="thumbScanBtn" disable="true" layoutX="154.0" layoutY="142.0" maxHeight="28.0"
-                            maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false" prefHeight="28.0"
-                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="THUMB SCAN" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-                    <Line endX="-26.0" endY="113.0" layoutX="168.0" layoutY="59.0" startX="-26.0" startY="-60.0"
-                          stroke="#04127b" strokeWidth="1.5"/>
-                    <Circle fill="WHITE" layoutX="80.0" layoutY="1.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #1990ea;"/>
-                    <Label layoutX="80.0" layoutY="-7.0" prefHeight="16.0" prefWidth="22.0" text="3" textFill="WHITE">
-                        <font>
-                            <Font size="14.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <Text fill="#04127b" layoutX="99.0" layoutY="514.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="LEFT HAND FINGERS"/>
-                <Text fill="#04127b" layoutX="424.0" layoutY="513.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="RIGHT HAND FINGERS"/>
-                <Text fill="#04127b" layoutX="780.0" layoutY="513.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="THUMB FINGERS" wrappingWidth="127.85498046875"/>
-                <ImageView fx:id="rawFingerprintImageView" fitHeight="181.0" fitWidth="215.0" layoutX="5.0"
-                           layoutY="525.0" pickOnBounds="true" preserveRatio="true"/>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="106.0" layoutY="544.0" prefHeight="21.0"
-                       prefWidth="740.0" text="Click the SCAN button to start." textAlignment="CENTER">
-                    <font>
-                        <Font name="System Bold" size="17.0"/>
-                    </font>
-                </Label>
-                <Button fx:id="backBtn" layoutX="236.0" layoutY="664.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button fx:id="scanBtn" layoutX="401.0" layoutY="664.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="SCAN"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button fx:id="captureIrisBtn" disable="true" layoutX="568.0" layoutY="664.0" maxHeight="35.0"
-                        maxWidth="150.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false" prefHeight="35.0"
-                        prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="CAPTURE IRIS" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-
-                <AnchorPane fx:id="confirmPane" layoutX="130.0" layoutY="584.0" prefHeight="67.0" prefWidth="773.0"
-                            style="-fx-border-color: #04127b;" visible="false">
-                    <VBox alignment="CENTER" prefWidth="773">
-                        <Text fx:id="confirmText" fill="#04127b"
-                              text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint">
-                            <font>
-                                <Font size="18.0"/>
-                            </font>
-                        </Text>
-                        <Pane>
-                            <Button fx:id="confirmYesBtn" layoutX="212.0" layoutY="10.0" maxHeight="35.0"
-                                    maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false"
-                                    prefHeight="28.0" prefWidth="150.0"
-                                    style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                                    text="Yes" textFill="WHITE">
-                                <font>
-                                    <Font name="System Bold" size="14.0"/>
-                                </font>
-                            </Button>
-                            <Button fx:id="confirmNoBtn" layoutX="401.0" layoutY="10.0" maxHeight="35.0"
-                                    maxWidth="150.0" minHeight="28.0" minWidth="150.0" mnemonicParsing="false"
-                                    prefHeight="28.0" prefWidth="150.0"
-                                    style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="No"
-                                    textFill="WHITE">
-                                <font>
-                                    <Font name="System Bold" size="14.0"/>
-                                </font>
-                            </Button>
-                        </Pane>
+                            </HBox>
+                            <Region styleClass="min-height"/>
+                            <HBox>
+                                <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="leftRingFingerImageView"
+                                               fitWidth="${_imgContainerMedium3.prefWidth}"
+                                               fitHeight="${_imgContainerMedium3.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                                <Region styleClass="min-width"/>
+                                <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="leftIndexFingerImageView"
+                                               fitWidth="${_imgContainerMedium3.prefWidth}"
+                                               fitHeight="${_imgContainerMedium4.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <Button fx:id="leftScanBtn" styleClass="bg-border-radius-small, press-effect" disable="true"
+                            text="LEFT SCAN"/>
+                </VBox>
+                <Region styleClass="min-width-small"/>
+                <VBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
+                    <HBox>
+                        <HBox fx:id="_imgContainerLarge2" styleClass="img-container-large" alignment="CENTER">
+                            <ImageView fitWidth="${_imgContainerLarge2.prefWidth}"
+                                       fitHeight="${_imgContainerLarge2.prefHeight}"
+                                       preserveRatio="true">
+                                <Image url="@../img/right_scan.png"/>
+                            </ImageView>
+                        </HBox>
+                        <VBox styleClass="border-color-darkblue, padding,border-radius-small" alignment="CENTER">
+                            <HBox>
+                                <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="rightMiddleFingerImageView"
+                                               fitWidth="${_imgContainerMedium5.prefWidth}"
+                                               fitHeight="${_imgContainerMedium5.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                                <Region styleClass="min-width"/>
+                                <HBox fx:id="_imgContainerMedium6" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="rightIndexFingerImageView"
+                                               fitWidth="${_imgContainerMedium6.prefWidth}"
+                                               fitHeight="${_imgContainerMedium6.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                            </HBox>
+                            <Region styleClass="min-height"/>
+                            <HBox>
+                                <HBox fx:id="_imgContainerMedium7" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="rightRingFingerImageView"
+                                               fitWidth="${_imgContainerMedium7.prefWidth}"
+                                               fitHeight="${_imgContainerMedium7.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                                <Region styleClass="min-width"/>
+                                <HBox fx:id="_imgContainerMedium8" styleClass="img-container-medium" alignment="CENTER">
+                                    <ImageView fx:id="rightLittleFingerImageView"
+                                               fitWidth="${_imgContainerMedium8.prefWidth}"
+                                               fitHeight="${_imgContainerMedium8.prefHeight}"
+                                               preserveRatio="true"/>
+                                </HBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <Button fx:id="rightScanBtn" styleClass="bg-border-radius-small, press-effect" disable="true"
+                            text="RIGHT SCAN"/>
+                </VBox>
+                <Region styleClass="min-width-small"/>
+                <VBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
+                    <HBox>
+                        <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large" alignment="CENTER">
+                            <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
+                                       fitHeight="${_imgContainerLarge3.prefHeight}" preserveRatio="true">
+                                <Image url="@../img/thumbs_scan.png"/>
+                            </ImageView>
+                        </HBox>
+                        <HBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
+                            <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium" alignment="CENTER">
+                                <ImageView fx:id="leftThumbImageView" fitWidth="${_imgContainerMedium8.prefWidth + 10}"
+                                           fitHeight="${_imgContainerMedium8.prefHeight + 10}"
+                                           preserveRatio="true"/>
+                            </HBox>
+                            <Region styleClass="min-width"/>
+                            <HBox fx:id="_imgContainerMedium10" styleClass="img-container-medium" alignment="CENTER">
+                                <ImageView fx:id="rightThumbImageView"
+                                           fitWidth="${_imgContainerMedium8.prefWidth + 10}"
+                                           fitHeight="${_imgContainerMedium8.prefHeight + 10}"
+                                           preserveRatio="true"/>
+                            </HBox>
+                        </HBox>
+                    </HBox>
+                    <Region styleClass="min-height-large"/>
+                    <Button fx:id="thumbScanBtn" styleClass="bg-border-radius-small, press-effect" disable="true"
+                            text="THUMB SCAN"/>
+                </VBox>
+            </HBox>
+            <Region styleClass="min-height-medium"/>
+            <HBox styleClass="padding" alignment="CENTER">
+                <Label fx:id="messageLabel" text="Click the SCAN button to start. Click the SCAN button to start."/>
+            </HBox>
+            <HBox>
+                <HBox fx:id="_imgContainerXLarge" styleClass="padding, img-container-xlarge" alignment="CENTER">
+                    <ImageView fx:id="rawFingerprintImageView" fitWidth="${_imgContainerXLarge.prefWidth}"
+                               fitHeight="${_imgContainerXLarge.prefHeight}" preserveRatio="true"/>
+                </HBox>
+                <VBox alignment="CENTER">
+                    <VBox fx:id="confirmVbox" styleClass="border-color-darkblue, padding-small, border-radius-medium"
+                          alignment="CENTER"
+                          visible="false">
+                        <Label fx:id="confirmText" styleClass="padding-small"
+                               text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint"/>
+                        <HBox alignment="CENTER">
+                            <Button fx:id="confirmYesBtn" styleClass="bg-border-radius-small, press-effect" text="Yes"/>
+                            <Region styleClass="min-width-medium"/>
+                            <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect" text="No"/>
+                        </HBox>
                     </VBox>
-                </AnchorPane>
-                <AnchorPane layoutY="728.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0"
-                           prefWidth="35.0" textFill="#f8f5f5"/>
-                </AnchorPane>
-            </AnchorPane>
-        </center>
-    </BorderPane>
-</VBox>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER">
+                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
+                <Region styleClass="min-width-medium"/>
+                <Button fx:id="scanBtn" styleClass="btn-medium, press-effect" text="SCAN"/>
+                <Region styleClass="min-width-medium"/>
+                <Button fx:id="captureIrisBtn" styleClass="btn-medium, press-effect" disable="true" text="CAPTURE IRIS">
+                </Button>
+            </HBox>
+            <Region styleClass="min-height-medium"/>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

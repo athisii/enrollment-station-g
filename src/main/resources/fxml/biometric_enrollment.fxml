@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Line?>
 <BorderPane onKeyTyped="#keyTyped" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentControllerAbstract">
+            fx:controller="com.cdac.enrollmentstation.controller.BiometricEnrollmentController">
     <top>
-        <HBox styleClass="header">
+        <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
                 <Image url="@../img/navy_logo.png"/>
             </ImageView>
@@ -16,111 +15,115 @@
     </top>
     <center>
         <VBox>
-            <HBox styleClass="container-min-height-small">
-                <Label styleClass="container-min-height-small, press-effect, label-border-radius"
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../gif/enrollment.gif"/>
+                    </ImageView>
+                </HBox>
+                <Label styleClass="padding-small, bg-border-radius-small, press-effect"
                        text="BIOMETRIC ENROLMENT" focusTraversable="true"/>
             </HBox>
-            <HBox fx:id="bodyHeaderRow" styleClass="region-min-height-medium, body-header-row" alignment="CENTER">
-                <Label styleClass="label-white-text" text="INPUT e-ARC NUMBER "/>
-                <Line startX="10.0" endX="10.0" endY="${bodyHeaderRow.minHeight + 10}" stroke="white"
+            <HBox fx:id="_bodyHeaderRow" styleClass="img-container, padding, bg-color-darkblue" alignment="CENTER">
+                <Label styleClass="text-white" text="INPUT e-ARC NUMBER "/>
+                <Line startX="10.0" endX="10.0" endY="${_bodyHeaderRow.prefHeight}" stroke="white"
                       strokeWidth="5.0"/>
-                <Label styleClass="label-white-text" text=" SCAN BARCODE  "/>
+                <Label styleClass="text-white" text=" SCAN BARCODE  "/>
                 <TextField fx:id="arcNumberTextField" styleClass="input-field"/>
-                <Region styleClass="region-min-width-small"/>
-                <Button fx:id="showArcBtn" styleClass="btn-img, press-effect">
+                <Region styleClass="min-width-small"/>
+                <Button fx:id="showArcBtn" styleClass="btn-img, bg-border-radius-small, press-effect">
                     <graphic>
-                        <ImageView fitHeight="${showArcBtn.minHeight}" fitWidth="${showArcBtn.minHeight}">
+                        <ImageView fitHeight="${showArcBtn.prefHeight}" fitWidth="${showArcBtn.prefHeight}">
                             <Image url="@../img/muted_manual_down.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
             </HBox>
-            <Region styleClass="region-min-height-small"/>
+            <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER">
                 <StackPane>
-                    <ProgressBar prefWidth="${progressBareLength.width}" progress="0.0"/>
-                    <HBox fx:id="progressBareLength" styleClass="container-min-height-small">
-                        <Button styleClass="btn-progress, btn-progress-selected, press-effect" text="1"/>
-                        <Region styleClass="region-min-width-large"/>
+                    <ProgressBar prefWidth="${_progressBareLength.width}" progress="0.0"/>
+                    <HBox fx:id="_progressBareLength" styleClass="min-height-xlarge, padding">
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="1"/>
+                        <Region styleClass="min-width-xlarge"/>
                         <Button styleClass="btn-progress, press-effect" text="2"/>
-                        <Region styleClass="region-min-width-large"/>
+                        <Region styleClass="min-width-xlarge"/>
                         <Button styleClass="btn-progress, press-effect" text="3"/>
-                        <Region styleClass="region-min-width-large"/>
+                        <Region styleClass="min-width-xlarge"/>
                         <Button styleClass="btn-progress, press-effect" text="4"/>
-                        <Region styleClass="region-min-width-large"/>
+                        <Region styleClass="min-width-xlarge"/>
                         <Button styleClass="btn-progress, press-effect" text="5"/>
-                        <Region styleClass="region-min-width-large"/>
+                        <Region styleClass="min-width-xlarge"/>
                         <Button styleClass="btn-progress, press-effect" text="6"/>
                     </HBox>
                 </StackPane>
             </HBox>
-            <Region styleClass="region-min-height-small"/>
+            <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER">
-                <Region styleClass="region-min-width-small"/>
-                <VBox styleClass="border-mark">
+                <VBox styleClass="border-color-darkblue, padding-medium, border-radius-medium">
                     <HBox alignment="CENTER">
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Name"/>
+                            <Label styleClass="text-darkblue" text="Name"/>
                             <Label fx:id="txtName" styleClass="label-border-style"/>
                         </VBox>
-                        <Region styleClass="region-min-width-medium"/>
+                        <Region styleClass="min-width-large"/>
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Rank"/>
+                            <Label styleClass="text-darkblue" text="Rank"/>
                             <Label fx:id="txtRank" styleClass="label-border-style"/>
                         </VBox>
-                        <Region styleClass="region-min-width-medium"/>
+                        <Region styleClass="min-width-large"/>
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Applicant ID"/>
+                            <Label styleClass="text-darkblue" text="Applicant ID"/>
                             <Label fx:id="txtApp" styleClass="label-border-style"/>
                         </VBox>
                     </HBox>
-                    <Region styleClass="region-min-height-medium"/>
+                    <Region styleClass="min-height-medium"/>
                     <HBox alignment="CENTER">
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Unit"/>
+                            <Label styleClass="text-darkblue" text="Unit"/>
                             <Label fx:id="txtUnit" styleClass="label-border-style"/>
                         </VBox>
-                        <Region styleClass="region-min-width-medium"/>
+                        <Region styleClass="min-width-large"/>
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Exceptions in Finger"/>
+                            <Label styleClass="text-darkblue" text="Exceptions in Finger"/>
                             <Label fx:id="txtFinger" styleClass="label-border-style"/>
                         </VBox>
-                        <Region styleClass="region-min-width-medium"/>
+                        <Region styleClass="min-width-large"/>
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Exceptions in Iris"/>
+                            <Label styleClass="text-darkblue" text="Exceptions in Iris"/>
                             <Label fx:id="txtIris" styleClass="label-border-style"/>
                         </VBox>
                     </HBox>
-                    <Region styleClass="region-min-height-medium"/>
+                    <Region styleClass="min-height-medium"/>
                     <HBox alignment="CENTER">
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="Biometric Options"/>
+                            <Label styleClass="text-darkblue" text="Biometric Options"/>
                             <Label fx:id="txtBiometricOptions" styleClass="label-border-style"/>
                         </VBox>
-                        <Region styleClass="region-min-width-medium"/>
+                        <Region styleClass="min-width-large"/>
                         <VBox>
-                            <Label styleClass="label-darkblue-text" text="e-ARC Status"/>
+                            <Label styleClass="text-darkblue" text="e-ARC Status"/>
                             <Label fx:id="txtArcStatus" styleClass="label-border-style"/>
                         </VBox>
                     </HBox>
                 </VBox>
-                <Region styleClass="region-min-width-small"/>
             </HBox>
-            <Region styleClass="region-min-height-medium"/>
+            <Region styleClass="min-height-large"/>
             <HBox alignment="CENTER">
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
-                <Region styleClass="region-min-width-medium"/>
+                <Region styleClass="min-width-large"/>
                 <Button fx:id="continueBtn" styleClass="btn-medium, press-effect" text="CONTINUE" disable="true"/>
             </HBox>
-            <Region styleClass="region-min-height-large"/>
+            <Region styleClass="min-height-xlarge"/>
             <HBox alignment="CENTER">
                 <Label fx:id="messageLabel" text="Enter e-ARC Number and Click Down Arrow Icon or Scan Barcode"/>
             </HBox>
         </VBox>
     </center>
     <bottom>
-        <HBox styleClass="footer">
-            <Label text="${controller.appVersion}"/>
+        <HBox styleClass="bg-color-bright-blue, padding" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

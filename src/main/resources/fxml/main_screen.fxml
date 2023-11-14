@@ -5,62 +5,71 @@
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.PrimaryControllerAbstract">
+            fx:controller="com.cdac.enrollmentstation.controller.PrimaryController">
     <top>
-        <HBox styleClass="header">
+        <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
                 <Image url="@../img/navy_logo.png"/>
             </ImageView>
         </HBox>
     </top>
     <left>
-        <!--  id: contMinHeightSmall!-> only used in fxml expression       -->
-        <HBox fx:id="contMinHeightSmall" styleClass="container-min-height-small">
-            <ImageView fitWidth="${contMinHeightSmall.minHeight}" fitHeight="${contMinHeightSmall.minHeight}"
-                       preserveRatio="true">
-                <Image url="@../img/home_new.png"/>
-            </ImageView>
-            <Label styleClass="container-min-height-small, press-effect, label-border-radius" text="HOME"/>
+        <HBox styleClass="padding">
+            <HBox fx:id="_imgContainer" styleClass="img-container">
+                <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                           preserveRatio="true">
+                    <Image url="@../img/home_new.png"/>
+                </ImageView>
+            </HBox>
+            <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="HOME"/>
         </HBox>
     </left>
     <right>
-        <HBox styleClass="container-min-height-small">
-            <ImageView fitWidth="${contMinHeightSmall.minHeight}" fitHeight="${contMinHeightSmall.minHeight}"
-                       preserveRatio="true">
-                <Image url="@../gif/settings.gif"/>
-            </ImageView>
-            <Button styleClass="container-min-height-small, press-effect" text="SETTINGS"
+        <HBox styleClass="padding">
+            <HBox styleClass="img-container">
+                <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                           preserveRatio="true">
+                    <Image url="@../gif/settings.gif"/>
+                </ImageView>
+            </HBox>
+            <Button styleClass="padding-small, press-effect, bg-border-radius-small" text="SETTINGS"
                     onMouseClicked="#onSettings"/>
         </HBox>
+
     </right>
     <center>
-        <VBox alignment="CENTER">
-            <HBox alignment="CENTER">
-                <!--  id: contMinHeightLarge!-> only used in fxml expression       -->
-                <VBox fx:id="contMinHeightLarge" styleClass="container-min-height-large" alignment="CENTER">
-                    <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}"
+        <HBox alignment="CENTER">
+            <VBox alignment="CENTER">
+                <!--  id: _imgContainerXLarge -> only used in fxml expression       -->
+                <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+                <HBox fx:id="_imgContainerXLarge" styleClass="img-container-xlarge" alignment="CENTER">
+                    <ImageView fitWidth="${_imgContainerXLarge.prefWidth}" fitHeight="${_imgContainerXLarge.prefHeight}"
                                preserveRatio="true">
                         <Image url="@../gif/biometric.gif"/>
                     </ImageView>
-                    <Region styleClass="region-min-height-small"/>
-                    <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"
-                            text="BIOMETRIC ENROLMENT"/>
-                </VBox>
-                <Region styleClass="region-min-width-large"/>
-                <VBox alignment="CENTER">
-                    <ImageView fitHeight="${contMinHeightLarge.minHeight}" fitWidth="${contMinHeightLarge.minHeight}">
+                </HBox>
+                <Region styleClass="min-height-medium"/>
+                <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"
+                        text="BIOMETRIC ENROLMENT"/>
+            </VBox>
+            <Region styleClass="min-width-xlarge"/>
+            <VBox alignment="CENTER">
+                <HBox styleClass="img-container-xlarge" alignment="CENTER">
+                    <!--  reusing id: _imgContainerXLarge    -->
+                    <ImageView fitWidth="${_imgContainerXLarge.prefWidth}"
+                               fitHeight="${_imgContainerXLarge.prefHeight}">
                         <Image url="@../img/token_new.png"/>
                     </ImageView>
-                    <Region styleClass="region-min-height-small"/>
-                    <Button styleClass="btn-large, press-effect" onAction="#showContract"
-                            text="TOKEN ISSUANCE"/>
-                </VBox>
-            </HBox>
-        </VBox>
+                </HBox>
+                <Region styleClass="min-height-medium"/>
+                <Button styleClass="btn-large, press-effect" onAction="#showContract"
+                        text="TOKEN ISSUANCE"/>
+            </VBox>
+        </HBox>
     </center>
     <bottom>
-        <HBox styleClass="footer">
-            <Label text="${controller.appVersion}"/>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
         </HBox>
     </bottom>
 </BorderPane>

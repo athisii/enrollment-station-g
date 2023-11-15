@@ -1,165 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cdac.enrollmentstation.controller.IrisController">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="618.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.IrisController">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png"/>
-
+                        <Image url="@../gif/iris.gif"/>
                     </ImageView>
-                </AnchorPane>
-                <Button fx:id="saveIrisBtn" disable="true" layoutX="604.0" layoutY="680.0" maxHeight="36.0"
-                        maxWidth="163.0" minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0"
-                        prefWidth="163.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="SAVE IRIS" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button fx:id="scanBtn" layoutX="430.0" layoutY="680.0" maxHeight="36.0" maxWidth="150.0"
-                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
-                        style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="SCAN"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Pane layoutX="544.0" layoutY="367.0" prefHeight="183.0" prefWidth="200.0"
-                      style="-fx-border-color: #000000; -fx-border-width: 2px;">
-
-                    <ImageView fx:id="rightIrisImageView" fitHeight="177.0" fitWidth="188.0" layoutX="10.0"
-                               layoutY="5.0" pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/iris.jpg"/>
+                </HBox>
+                <Label styleClass="padding-small, bg-border-radius-small, press-effect"
+                       text="IRIS CAPTURE" focusTraversable="true"/>
+            </HBox>
+            <HBox styleClass="padding, bg-color-darkblue">
+                <Label fx:id="arcLabel" styleClass="padding, text-white" text="00001-A-AB12"/>
+            </HBox>
+            <HBox alignment="CENTER">
+                <StackPane>
+                    <ProgressBar prefWidth="${progressBareLength.width}" progress="0.40"/>
+                    <HBox fx:id="progressBareLength" styleClass="min-height-xlarge, padding">
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="1"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="2"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, btn-progress-completed, press-effect" text="3"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="4"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="5"/>
+                        <Region styleClass="min-width-xlarge"/>
+                        <Button styleClass="btn-progress, press-effect" text="6"/>
+                    </HBox>
+                </StackPane>
+            </HBox>
+            <HBox styleClass="img-container" alignment="CENTER">
+                <Label text="Press SCAN button, hold the IRIS scanner correctly and keep eyes wide open."/>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER" styleClass="padding">
+                <Region styleClass="min-width-xlarge"/>
+                <HBox styleClass="padding, border-color-darkblue, border-radius-small" alignment="CENTER">
+                    <HBox fx:id="_imgContainerXlarge1"
+                          styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
+                          alignment="CENTER">
+                        <ImageView fx:id="leftIrisImageView" fitWidth="${_imgContainerXlarge1.prefWidth}"
+                                   fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
+                            <Image url="@../img/iris.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-width-medium"/>
+                    <HBox fx:id="_imgContainerXlarge2"
+                          styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
+                          alignment="CENTER">
+                        <ImageView fx:id="rightIrisImageView" fitWidth="${_imgContainerXlarge2.prefWidth}"
+                                   fitHeight="${_imgContainerXlarge2.prefHeight}" preserveRatio="true">
+                            <Image url="@../img/iris.png"/>
+                        </ImageView>
+                    </HBox>
+                </HBox>
+                <Region styleClass="min-width-medium"/>
+                <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium" alignment="CENTER">
+                    <ImageView fx:id="statusImageView" fitWidth="${_imgContainerMedium1.prefWidth}"
+                               fitHeight="${_imgContainerMedium1.prefHeight}" preserveRatio="true"/>
+                </HBox>
+                <Region styleClass="min-width-medium"/>
+                <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large" alignment="CENTER">
+                    <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
+                               fitHeight="${_imgContainerLarge3.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/iris_image.png"/>
                     </ImageView>
-
-                </Pane>
-                <Pane layoutX="266.0" layoutY="368.0" prefHeight="183.0" prefWidth="200.0"
-                      style="-fx-border-width: 2px; -fx-border-color: #000000;">
-
-                    <ImageView fx:id="leftIrisImageView" fitHeight="177.0" fitWidth="188.0" layoutX="9.0" layoutY="3.0"
-                               pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/iris.jpg"/>
-                    </ImageView>
-
-                </Pane>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="149.0" layoutY="561.0" prefHeight="25.0"
-                       prefWidth="739.0">
-                    <font>
-                        <Font name="System Bold" size="16.0"/>
-                    </font>
-                </Label>
-                <Button fx:id="backBtn" layoutX="257.0" layoutY="680.0" maxHeight="36.0" maxWidth="150.0"
-                        minHeight="36.0" minWidth="150.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="150.0"
-                        style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="BACK"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fitHeight="116.0" fitWidth="118.0" layoutX="841.0" layoutY="293.0" pickOnBounds="true"
-                           preserveRatio="true">
-
-                    <Image url="@../img/iris_image.png"/>
-                </ImageView>
-                <ImageView fx:id="statusImageView" fitHeight="116.0" fitWidth="118.0" layoutX="800.0" layoutY="435.0"
-                           pickOnBounds="true" preserveRatio="true"/>
-
-                <AnchorPane layoutY="742.0" prefHeight="40.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-                    <Label fx:id="version" alignment="CENTER" contentDisplay="CENTER" layoutX="474.0" prefHeight="37.0"
-                           prefWidth="35.0" textFill="#f8f5f5"/>
-                </AnchorPane>
-                <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-
-                    <Label fx:id="arcLabel" layoutX="21.0" layoutY="19.0" text="ARCNo : " textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <Label layoutX="16.0" layoutY="103.0" prefHeight="45.0" prefWidth="278.0" text="IRIS CAPTURE"
-                       textFill="#04127b">
-                    <font>
-                        <Font size="22.0"/>
-                    </font>
-                </Label>
-
-                <AnchorPane layoutY="227.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #fff;">
-                    <ProgressBar layoutX="136.0" layoutY="23.0" prefHeight="14.0" prefWidth="783.0" progress="0.5"/>
-                    <Circle fill="WHITE" layoutX="134.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="130.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="1" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="336.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="332.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="2" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="537.0" layoutY="29.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #04127b;"/>
-                    <Label layoutX="533.0" layoutY="22.0" prefHeight="16.0" prefWidth="22.0" text="3" textFill="WHITE"/>
-                    <Circle fill="WHITE" layoutX="735.0" layoutY="32.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="731.0" layoutY="25.0" prefHeight="16.0" prefWidth="22.0" text="4"/>
-                    <Circle fill="WHITE" layoutX="910.0" layoutY="31.0" radius="14.0" stroke="BLACK" strokeType="INSIDE"
-                            strokeWidth="0.0" style="-fx-fill: #bbb5b5;"/>
-                    <Label layoutX="906.0" layoutY="24.0" prefHeight="16.0" prefWidth="22.0" text="5"/>
-
-                </AnchorPane>
-                <Label alignment="CENTER" layoutX="145.0" layoutY="322.0" prefHeight="21.0" prefWidth="690.0"
-                       text="Press SCAN button, hold the IRIS scanner correctly and keep eyes wide open "
-                       textAlignment="CENTER">
-                    <font>
-                        <Font name="System Bold" size="15.0"/>
-                    </font>
-                </Label>
-                <AnchorPane fx:id="confirmPane" layoutX="117.0" layoutY="599.0" prefHeight="67.0" prefWidth="798.0"
-                            style="-fx-border-color: #04127b;" visible="false">
-
-                    <Button layoutX="206.0" layoutY="32.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0"
-                            minWidth="150.0" mnemonicParsing="false" onAction="#goBack" prefHeight="28.0"
-                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="Yes" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-                    <Text fill="#04127b" layoutX="129.0" layoutY="24.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                          text="Click 'Yes' to capture fingerprint or 'No' to Scan IRIS" textAlignment="JUSTIFY">
-                        <font>
-                            <Font size="18.0"/>
-                        </font>
-                    </Text>
-                    <Button layoutX="395.0" layoutY="31.0" maxHeight="35.0" maxWidth="150.0" minHeight="28.0"
-                            minWidth="150.0" mnemonicParsing="false" onAction="#stayBack" prefHeight="28.0"
-                            prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                            text="No" textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-
-                    <opaqueInsets>
-                        <Insets top="-9.0"/>
-                    </opaqueInsets>
-                </AnchorPane>
-
-            </AnchorPane>
-        </center>
-    </BorderPane>
-
-</VBox>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox styleClass="padding-medium" alignment="CENTER">
+                <Label fx:id="messageLabel"/>
+            </HBox>
+            <HBox alignment="CENTER">
+                <VBox fx:id="confirmVbox" styleClass="border-color-darkblue, padding-small, border-radius-medium"
+                      alignment="CENTER"
+                      visible="false">
+                    <Label styleClass="padding-small"
+                           text="Click 'Yes' to capture fingerprint or 'No' to Scan IRIS"/>
+                    <HBox alignment="CENTER">
+                        <Button fx:id="confirmYesBtn" styleClass="bg-border-radius-small, press-effect" text="Yes"/>
+                        <Region styleClass="min-width-medium"/>
+                        <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect" text="No"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
+                <Region styleClass="min-width-medium"/>
+                <Button fx:id="scanBtn" styleClass="btn-medium, press-effect" text="SCAN"/>
+                <Region styleClass="min-width-medium"/>
+                <Button fx:id="saveIrisBtn" styleClass="btn-medium, press-effect" disable="true" text="SAVE IRIS"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

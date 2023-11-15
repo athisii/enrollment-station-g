@@ -33,7 +33,7 @@ public class DeviceStatusController extends AbstractBaseController {
 
     static {
         RED_CROSS_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/red_cross.png")));
-        GREEN_TICK_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/tick_green.jpg")));
+        GREEN_TICK_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/tick_green_old.jpg")));
     }
 
     @FXML

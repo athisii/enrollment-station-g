@@ -44,7 +44,7 @@
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="420.0" layoutY="341.0" pickOnBounds="true"
                            preserveRatio="true">
 
-                    <Image url="@../img/iris.jpg"/>
+                    <Image url="@../img/iris_old.jpg"/>
 
                 </ImageView>
                 <ImageView fitHeight="150.0" fitWidth="200.0" layoutX="657.0" layoutY="341.0" pickOnBounds="true"

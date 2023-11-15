@@ -17,7 +17,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.core.Point;
@@ -75,7 +75,7 @@ public class CameraController extends AbstractBaseController {
             PYTHON_IMAGE_PROCESSOR_COMMAND = requireNonBlank(PropertyFile.getProperty(PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND), PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND);
             // loads --> /img/
             NO_MASK_IMAGE = loadFileFromImgDirectory("no_mask.png");
-            NO_GLASSES_IMAGE = loadFileFromImgDirectory("no_goggles.jpg");
+            NO_GLASSES_IMAGE = loadFileFromImgDirectory("no_goggles.png");
             // loads --> /facecode
             OUT_OF_FRAME_IMAGE = loadFileFromFaceCodeDirectory("out_of_frame_color.png");
             CLOCK_COLOR_IMAGE = loadFileFromFaceCodeDirectory("clock_color.png");
@@ -84,7 +84,7 @@ public class CameraController extends AbstractBaseController {
             LEFT_ROTATE_COLOR_IMAGE = loadFileFromFaceCodeDirectory("left_rotate_color.png");
             CHIN_DOWN_COLORED_IMAGE = loadFileFromFaceCodeDirectory("chin_down_colored.png");
             CHIN_UP_COLOR_IMAGE = loadFileFromFaceCodeDirectory("chin_up_color.png");
-            TICK_GREEN_IMAGE = loadFileFromFaceCodeDirectory("tick_green.jpg");
+            TICK_GREEN_IMAGE = loadFileFromFaceCodeDirectory("tick.png");
         } catch (Exception ex) {
             throw new GenericException(ex.getMessage());
         }
@@ -101,7 +101,7 @@ public class CameraController extends AbstractBaseController {
     private ImageView iconFrame;
     @FXML
 
-    private AnchorPane confirmPane;
+    private VBox confirmVbox;
     @FXML
     private Label confirmPaneLbl;
     @FXML
@@ -151,7 +151,7 @@ public class CameraController extends AbstractBaseController {
 
 
     private void confirmYes(ActionEvent actionEvent) {
-        confirmPane.setVisible(false);
+        confirmVbox.setVisible(false);
         savePhotoBtn.setDisable(!validImage);
         enableControls(startStopCameraBtn, backBtn);
         try {
@@ -168,14 +168,14 @@ public class CameraController extends AbstractBaseController {
     }
 
     private void confirmNo(ActionEvent actionEvent) {
-        confirmPane.setVisible(false);
+        confirmVbox.setVisible(false);
         savePhotoBtn.setDisable(!validImage);
         enableControls(startStopCameraBtn, backBtn);
     }
 
     // action for back button
     private void back(ActionEvent actionEvent) {
-        confirmPane.setVisible(true);
+        confirmVbox.setVisible(true);
         ArcDetailsHolder holder = getArcDetailsHolder();
         // Added For Biometric Options
         if (holder.getArcDetail().getBiometricOptions().trim().equalsIgnoreCase("Photo")) {
@@ -401,7 +401,7 @@ public class CameraController extends AbstractBaseController {
             Platform.runLater(() -> {
                 // camSlider.setVisible(true)
                 // brightness.setVisible(true)
-                messageLabel.setText("Valid image. Restart Camera if photo is not good.");
+                messageLabel.setText("Click 'Restart Camera' button if the photo is not satisfactory");
                 startStopCameraBtn.setText("Restart Camera");
                 enableControls(startStopCameraBtn, backBtn, savePhotoBtn);
             });

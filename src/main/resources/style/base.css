@@ -12,6 +12,10 @@
     -fx-background-color: #1990EA;
 }
 
+.bg-color-white {
+    -fx-background-color: #FFF;
+}
+
 .text-white {
     -fx-text-fill: #FFF;
 }
@@ -76,13 +80,13 @@
 }
 
 .img-container-medium {
-    -fx-pref-width: 60px;
-    -fx-pref-height: 60px;
+    -fx-pref-width: 70px;
+    -fx-pref-height: 70px;
 }
 
 .img-container-large {
-    -fx-pref-width: 110px;
-    -fx-pref-height: 110px;
+    -fx-pref-width: 140px;
+    -fx-pref-height: 140px;
 }
 
 .img-container-xlarge {
@@ -204,6 +208,7 @@
     -fx-min-height: 40px;
 }
 
-#version {
-    -fx-text-fill: white;
+.confirm-box {
+    -fx-background-color: #01DADA;
+    -fx-background-radius: 10px;
 }

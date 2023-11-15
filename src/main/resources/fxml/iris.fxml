@@ -49,39 +49,40 @@
                 <Label text="Press SCAN button, hold the IRIS scanner correctly and keep eyes wide open."/>
             </HBox>
             <Region styleClass="min-height-small"/>
-            <HBox alignment="CENTER" styleClass="padding">
-                <Region styleClass="min-width-xlarge"/>
-                <HBox styleClass="padding, border-color-darkblue, border-radius-small" alignment="CENTER">
-                    <HBox fx:id="_imgContainerXlarge1"
-                          styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
-                          alignment="CENTER">
-                        <ImageView fx:id="leftIrisImageView" fitWidth="${_imgContainerXlarge1.prefWidth}"
-                                   fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
-                            <Image url="@../img/iris.png"/>
-                        </ImageView>
+            <HBox alignment="CENTER">
+                <HBox styleClass="padding-small, border-color-darkblue, border-radius-small" alignment="CENTER">
+                    <HBox>
+                        <HBox fx:id="_imgContainerXlarge1"
+                              styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
+                              alignment="CENTER">
+                            <ImageView fx:id="leftIrisImageView" fitWidth="${_imgContainerXlarge1.prefWidth}"
+                                       fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
+                                <Image url="@../img/iris.png"/>
+                            </ImageView>
+                        </HBox>
+                        <Region styleClass="min-width-medium"/>
+                        <HBox fx:id="_imgContainerXlarge2"
+                              styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
+                              alignment="CENTER">
+                            <ImageView fx:id="rightIrisImageView" fitWidth="${_imgContainerXlarge2.prefWidth}"
+                                       fitHeight="${_imgContainerXlarge2.prefHeight}" preserveRatio="true">
+                                <Image url="@../img/iris.png"/>
+                            </ImageView>
+                        </HBox>
                     </HBox>
                     <Region styleClass="min-width-medium"/>
-                    <HBox fx:id="_imgContainerXlarge2"
-                          styleClass="img-container-xlarge, padding, border-color-darkblue, border-radius-small"
-                          alignment="CENTER">
-                        <ImageView fx:id="rightIrisImageView" fitWidth="${_imgContainerXlarge2.prefWidth}"
-                                   fitHeight="${_imgContainerXlarge2.prefHeight}" preserveRatio="true">
-                            <Image url="@../img/iris.png"/>
+                    <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="statusImageView" fitWidth="${_imgContainerMedium1.prefWidth}"
+                                   fitHeight="${_imgContainerMedium1.prefHeight}" preserveRatio="true"/>
+                    </HBox>
+                    <Region styleClass="min-width-medium"/>
+                    <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
+                                   fitHeight="${_imgContainerLarge3.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../gif/iris_hold.gif"/>
                         </ImageView>
                     </HBox>
-                </HBox>
-                <Region styleClass="min-width-medium"/>
-                <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium" alignment="CENTER">
-                    <ImageView fx:id="statusImageView" fitWidth="${_imgContainerMedium1.prefWidth}"
-                               fitHeight="${_imgContainerMedium1.prefHeight}" preserveRatio="true"/>
-                </HBox>
-                <Region styleClass="min-width-medium"/>
-                <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large" alignment="CENTER">
-                    <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
-                               fitHeight="${_imgContainerLarge3.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/iris_image.png"/>
-                    </ImageView>
                 </HBox>
             </HBox>
             <Region styleClass="min-height-small"/>
@@ -89,7 +90,7 @@
                 <Label fx:id="messageLabel"/>
             </HBox>
             <HBox alignment="CENTER">
-                <VBox fx:id="confirmVbox" styleClass="border-color-darkblue, padding-small, border-radius-medium"
+                <VBox fx:id="confirmVbox" styleClass="padding-small, confirm-box"
                       alignment="CENTER"
                       visible="false">
                     <Label styleClass="padding-small"

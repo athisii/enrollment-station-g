@@ -154,26 +154,26 @@
                         </HBox>
                         <HBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
                             <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium" alignment="CENTER">
-                                <ImageView fx:id="leftThumbImageView" fitWidth="${_imgContainerMedium8.prefWidth + 10}"
-                                           fitHeight="${_imgContainerMedium8.prefHeight + 10}"
+                                <ImageView fx:id="leftThumbImageView" fitWidth="${_imgContainerMedium8.prefWidth}"
+                                           fitHeight="${_imgContainerMedium8.prefHeight}"
                                            preserveRatio="true"/>
                             </HBox>
                             <Region styleClass="min-width"/>
                             <HBox fx:id="_imgContainerMedium10" styleClass="img-container-medium" alignment="CENTER">
                                 <ImageView fx:id="rightThumbImageView"
-                                           fitWidth="${_imgContainerMedium8.prefWidth + 10}"
-                                           fitHeight="${_imgContainerMedium8.prefHeight + 10}"
+                                           fitWidth="${_imgContainerMedium8.prefWidth}"
+                                           fitHeight="${_imgContainerMedium8.prefHeight}"
                                            preserveRatio="true"/>
                             </HBox>
                         </HBox>
                     </HBox>
-                    <Region styleClass="min-height-large"/>
+                    <Region styleClass="min-height"/>
                     <Button fx:id="thumbScanBtn" styleClass="bg-border-radius-small, press-effect" disable="true"
                             text="THUMB SCAN"/>
                 </VBox>
             </HBox>
-            <Region styleClass="min-height-medium"/>
-            <HBox styleClass="padding" alignment="CENTER">
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
                 <Label fx:id="messageLabel" text="Click the SCAN button to start. Click the SCAN button to start."/>
             </HBox>
             <HBox>
@@ -181,18 +181,24 @@
                     <ImageView fx:id="rawFingerprintImageView" fitWidth="${_imgContainerXLarge.prefWidth}"
                                fitHeight="${_imgContainerXLarge.prefHeight}" preserveRatio="true"/>
                 </HBox>
-                <VBox alignment="CENTER">
-                    <VBox fx:id="confirmVbox" styleClass="border-color-darkblue, padding-small, border-radius-medium"
-                          alignment="CENTER"
-                          visible="false">
-                        <Label fx:id="confirmText" styleClass="padding-small"
-                               text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint"/>
-                        <HBox alignment="CENTER">
-                            <Button fx:id="confirmYesBtn" styleClass="bg-border-radius-small, press-effect" text="Yes"/>
-                            <Region styleClass="min-width-medium"/>
-                            <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect" text="No"/>
-                        </HBox>
-                    </VBox>
+                <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                    <HBox alignment="CENTER">
+                        <VBox fx:id="confirmVbox"
+                              styleClass="padding-small,confirm-box"
+                              alignment="CENTER"
+                              visible="false">
+                            <Label fx:id="confirmText" styleClass="padding-small"
+                                   text="Click 'Yes' if you want to cancel biometric process or 'No' to capture Fingerprint"/>
+                            <HBox alignment="CENTER">
+                                <Button fx:id="confirmYesBtn"
+                                        styleClass="bg-border-radius-small,press-effect"
+                                        text="Yes"/>
+                                <Region styleClass="min-width-medium"/>
+                                <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect"
+                                        text="No"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
                 </VBox>
             </HBox>
             <HBox alignment="CENTER">

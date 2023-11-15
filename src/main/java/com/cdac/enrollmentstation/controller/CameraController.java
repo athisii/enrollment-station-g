@@ -399,9 +399,7 @@ public class CameraController extends AbstractBaseController {
             updateImageView(msgIcon, null);
             updateImageView(sunGlassIcon, null);
             Platform.runLater(() -> {
-                // camSlider.setVisible(true)
-                // brightness.setVisible(true)
-                messageLabel.setText("Click 'Restart Camera' button if the photo is not satisfactory");
+                messageLabel.setText("Press 'Restart Camera' button if the photo is unclear.");
                 startStopCameraBtn.setText("Restart Camera");
                 enableControls(startStopCameraBtn, backBtn, savePhotoBtn);
             });

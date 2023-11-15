@@ -70,11 +70,6 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         }
     }));
 
-    // calls automatically by JavaFx runtime
-    public void initialize() {
-        messageLabel.setText("Please click SUBMIT button and wait....");
-    }
-
     @FXML
     private void homeBtnAction() {
         isStillHere = false;
@@ -201,7 +196,7 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         Platform.runLater(() -> {
             InputStream inputStream;
             if (success) {
-                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/tick_green.jpg");
+                inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/tick.png");
             } else {
                 inputStream = BiometricCaptureCompleteController.class.getResourceAsStream("/img/red_cross.png");
             }

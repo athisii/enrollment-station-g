@@ -51,14 +51,14 @@
             <HBox alignment="CENTER">
                 <HBox styleClass="padding-medium, border-color-darkblue, border-radius-medium" alignment="CENTER">
                     <HBox fx:id="_imgContainerLarge1" styleClass="img-container-large" alignment="CENTER">
-                        <ImageView fx:id="resultImageView" fitWidth="${_imgContainerLarge1.prefWidth + 30}"
-                                   fitHeight="${_imgContainerLarge1.prefHeight + 30}" preserveRatio="true"/>
+                        <ImageView fx:id="resultImageView" fitWidth="${_imgContainerLarge1.prefWidth}"
+                                   fitHeight="${_imgContainerLarge1.prefHeight}" preserveRatio="true"/>
                     </HBox>
                     <Region styleClass="min-width-large"/>
                     <VBox alignment="CENTER" styleClass="padding, border-radius-small, border-color-darkblue">
                         <HBox fx:id="_imgContainerXlarge2" styleClass="img-container-xlarge" alignment="CENTER">
-                            <ImageView fx:id="liveImageView" fitWidth="${_imgContainerXlarge2.prefWidth - 20}"
-                                       fitHeight="${_imgContainerXlarge2.prefHeight - 20}"
+                            <ImageView fx:id="liveImageView" fitWidth="${_imgContainerXlarge2.prefWidth}"
+                                       fitHeight="${_imgContainerXlarge2.prefHeight}"
                                        preserveRatio="true">
                                 <Image url="@../img/webcam.png"/>
                             </ImageView>
@@ -94,7 +94,7 @@
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
-                <VBox fx:id="confirmVbox" styleClass="border-color-darkblue, padding-small, border-radius-medium"
+                <VBox fx:id="confirmVbox" styleClass="padding-small, confirm-box"
                       alignment="CENTER"
                       visible="false">
                     <Label fx:id="confirmPaneLbl" styleClass="padding-small"/>

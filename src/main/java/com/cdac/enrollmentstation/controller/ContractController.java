@@ -16,7 +16,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
 import java.io.IOException;
@@ -46,15 +45,6 @@ public class ContractController extends AbstractBaseController {
     @FXML
     private Label contractorNameLabel;
 
-    @FXML
-    private TableColumn<Contract, String> contractIdTableColumn;
-
-    @FXML
-    private TableColumn<Contract, String> contractValidFromTableColumn;
-
-    @FXML
-    private TableColumn<Contract, String> contractValidUptoTableColumn;
-
 
     List<Contract> contracts;
 
@@ -72,8 +62,8 @@ public class ContractController extends AbstractBaseController {
     }
 
     private void fetchDetails() {
-        contractorIdLabel.setText(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId());
-        contractorNameLabel.setText(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorName());
+        contractorIdLabel.setText("CONTRACTOR ID: " + TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId());
+        contractorNameLabel.setText("CONTRACTOR NAME: " + TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorName());
 
         ContractResDto contractResDto;
         try {
@@ -96,12 +86,6 @@ public class ContractController extends AbstractBaseController {
             return;
         }
         contracts = new ArrayList<>(contractResDto.getContracts());
-
-        //for property bindings
-        contractIdTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractId"));
-        contractValidFromTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractValidFrom"));
-        contractValidUptoTableColumn.setCellValueFactory(new PropertyValueFactory<>("contractValidUpto"));
-
         int extraPage;
         if (contracts.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
             extraPage = 0;

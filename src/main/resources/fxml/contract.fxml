@@ -1,125 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.cdac.enrollmentstation.controller.ContractController">
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.ContractController">
+    <!--    TableView to used by Pagination-->
+    <fx:define>
+        <TableView fx:id="tableView" prefWidth="${_tableContainer.prefWidth}"
+                   prefHeight="${_tableContainer.prefHeight}">
+            <columns>
+                <TableColumn text="CONTRACT ID" styleClass="table-view-column-width">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="contractId"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="VALID FROM" styleClass="table-view-column-width">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="contractValidFrom"/>
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn text="VALID UPTO" styleClass="table-view-column-width">
+                    <cellValueFactory>
+                        <PropertyValueFactory property="contractValidUpto"/>
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </fx:define>
 
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-
-
-                <Text fill="#04127b" layoutX="40.0" layoutY="132.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="LIST OF CONTRACTS" wrappingWidth="296.4150390625">
-                    <font>
-                        <Font size="22.0"/>
-                    </font>
-                </Text>
-                <Button fx:id="homeBtn" layoutX="439.0" layoutY="627.0" maxHeight="35.0" maxWidth="150.0"
-                        minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#showHome" prefHeight="35.0"
-                        prefWidth="150.0" style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="HOME" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <AnchorPane layoutY="738.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png"/>
-
+                        <Image url="@../gif/signature.gif"/>
                     </ImageView>
-                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"
-                           style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;"
-                           text="INS INDIA" textAlignment="CENTER" visible="false"/>
-
-                </AnchorPane>
-                <TextField fx:id="searchBox" layoutX="604.0" layoutY="238.0" promptText="Enter search term"
-                           style="-fx-border-color: #04127b;"/>
-                <ImageView fitHeight="26.0" fitWidth="29.0" layoutX="574.0" layoutY="238.0" pickOnBounds="true"
-                           preserveRatio="true">
-
-                    <Image url="@../img/search_icon.png"/>
-
-                </ImageView>
-                <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-
-                    <Label layoutX="44.0" layoutY="14.0" prefHeight="20.0" prefWidth="168.0" text="CONTRACTOR ID :"
-                           textAlignment="RIGHT" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="486.0" layoutY="14.0" prefHeight="20.0" prefWidth="183.0" text="CONTRACTOR NAME  :"
-                           textAlignment="RIGHT" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label fx:id="contractorIdLabel" layoutX="210.0" layoutY="14.0" text="111" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label fx:id="contractorNameLabel" layoutX="684.0" layoutY="14.0" text="John" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <Pagination fx:id="pagination" layoutX="41.0" layoutY="271.0" prefHeight="349.0" prefWidth="736.0">
-                    <fx:define>
-                        <VBox fx:id="vboxtable">
-
-                            <javafx.scene.control.TableView fx:id="tableView" prefHeight="350.0" prefWidth="741.0"
-                                                            stylesheets="@style.css">
-                                <columns>
-                                    <javafx.scene.control.TableColumn fx:id="contractIdTableColumn" prefWidth="234.0"
-                                                                      text="CONTRACT ID"/>
-                                    <javafx.scene.control.TableColumn fx:id="contractValidFromTableColumn"
-                                                                      prefWidth="236.0"
-                                                                      text="VALID FROM"/> <!--text="CONTRACT NAME" -->
-                                    <javafx.scene.control.TableColumn fx:id="contractValidUptoTableColumn"
-                                                                      prefWidth="270.0"
-                                                                      text="VALID UPTO"/> <!--text="WORK ORDER NUMBER"-->
-                                </columns>
-                            </javafx.scene.control.TableView>
-
-                        </VBox>
-
-                    </fx:define>
-                </Pagination>
-                <ImageView fitHeight="116.0" fitWidth="215.0" layoutX="801.0" layoutY="345.0" pickOnBounds="true"
-                           preserveRatio="true">
-
-                    <Image url="@../img/labour_list_click.jpg"/>
-
-                </ImageView>
-                <Label alignment="CENTER" layoutX="799.0" layoutY="457.0" prefHeight="44.0" prefWidth="225.0"
-                       text="Double Click on a row to go to next screen" textAlignment="CENTER" wrapText="true">
-                    <font>
-                        <Font name="System Bold Italic" size="14.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="243.0" layoutY="675.0" prefHeight="25.0"
-                       prefWidth="518.0">
-                    <font>
-                        <Font name="System Bold" size="17.0"/>
-                    </font>
-                </Label>
-
-            </AnchorPane>
-        </center>
-    </BorderPane>
-
-</VBox>
+                </HBox>
+                <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="LIST OF CONTRACTS"/>
+            </HBox>
+            <HBox styleClass="padding-medium, bg-color-darkblue" alignment="CENTER">
+                <Label fx:id="contractorIdLabel" styleClass="text-white" text="CONTRACTOR ID: 111"/>
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                    <Label fx:id="contractorNameLabel" styleClass="text-white" text="CONTRACTOR NAME: John"/>
+                </HBox>
+            </HBox>
+            <HBox alignment="CENTER" styleClass="padding-small">
+                <HBox fx:id="_tableContainer" alignment="CENTER"
+                      styleClass="table-container">
+                    <Pagination fx:id="pagination" prefWidth="${_tableContainer.prefWidth}"
+                                prefHeight="${_tableContainer.prefHeight}"/>
+                </HBox>
+                <VBox alignment="CENTER" styleClass="padding-small">
+                    <HBox>
+                        <TextField fx:id="searchBox" styleClass="font-size-small, input-field"
+                                   promptText="Search by contract/validity"/>
+                    </HBox>
+                    <HBox fx:id="_imgContainerXlarge1" styleClass="img-container-xlarge" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerXlarge1.prefWidth}"
+                                   fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
+                            <Image url="@../img/contract_list.png"/>
+                        </ImageView>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <Label styleClass="font-size" textAlignment="CENTER" text="Double click on a row to select."
+                               wrapText="true"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER" styleClass="padding-medium">
+                <Label fx:id="messageLabel"/>
+            </HBox>
+            <HBox alignment="CENTER" styleClass="padding-medium">
+                <Button fx:id="homeBtn" styleClass="btn-medium, press-effect" onAction="#showHome"
+                        text="HOME"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

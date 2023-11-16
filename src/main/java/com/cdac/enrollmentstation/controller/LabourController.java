@@ -27,7 +27,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
@@ -85,21 +84,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     @FXML
     private ImageView fingerprintImageView;
 
-
     @FXML
-    private TableView<LabourDetailsTableRow> tableview;
-
-    @FXML
-    private TableColumn<LabourDetailsTableRow, String> labourName;
-
-    @FXML
-    private TableColumn<LabourDetailsTableRow, String> labourId;
-
-    @FXML
-    public TableColumn<LabourDetailsTableRow, String> dateOfBirth;
-
-    @FXML
-    private TableColumn<LabourDetailsTableRow, String> strStatus;
+    private TableView<LabourDetailsTableRow> tableView;
 
     @FXML
     private TextField searchBox;
@@ -216,22 +202,11 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             }
             return createPage(pageIndex);
         });
-
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableview.setItems(filterList(labourDetailsTableRows, newValue)));
-
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(labourDetailsTableRows, newValue)));
         ObservableList<LabourDetailsTableRow> observablelist = FXCollections.observableArrayList(labourDetailsTableRows);
-
-        labourName.setCellValueFactory(new PropertyValueFactory<>("labourName"));
-        labourId.setCellValueFactory(new PropertyValueFactory<>("labourId"));
-        dateOfBirth.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
-        strStatus.setCellValueFactory(new PropertyValueFactory<>("strStatus"));
-
-        tableview.setStyle(".table-row-cell {-fx-font-size: 12pt ;}");
-        tableview.setFixedCellSize(35.0);
-        tableview.setItems(observablelist);
-        tableview.refresh();
-
-        tableview.setRowFactory(tv -> {
+        tableView.setItems(observablelist);
+        tableView.refresh();
+        tableView.setRowFactory(tv -> {
             TableRow<LabourDetailsTableRow> row = new TableRow<>() {
                 @Override
                 public void updateItem(LabourDetailsTableRow item, boolean empty) {
@@ -270,7 +245,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             captureBtn.setDisable(false);
             return;
         }
-        if (tableview.getSelectionModel().getSelectedItem() == null) {
+        if (tableView.getSelectionModel().getSelectedItem() == null) {
             messageLabel.setText("Kindly select a labour");
         } else {
             jniErrorCode = midFingerAuth.StartCapture(MIN_QUALITY, (int) TimeUnit.SECONDS.toMillis(FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC));
@@ -284,7 +259,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     // runs in worker thread spawned by OnComplete() callback
     private void matchFingerprintTemplate(byte[] fingerData) {
-        LabourDetailsTableRow labourDetailsTableRowRow = tableview.getSelectionModel().getSelectedItem();
+        LabourDetailsTableRow labourDetailsTableRowRow = tableView.getSelectionModel().getSelectedItem();
         if (labourDetailsTableRowRow == null) {
             updateUi("Kindly select a labour.");
             return;
@@ -368,16 +343,16 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
         updateUi("Kindly collect the token.");
         LOGGER.log(Level.INFO, "Token dispensed successfully.");
-        Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableview.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
+        Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
 
         LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
 
         labourDetailsTableRow.setStrStatus("token issued"); // not really import now
 
-        tableview.getItems().remove(labourDetailsTableRow); // remove for now
-        tableview.refresh();
+        tableView.getItems().remove(labourDetailsTableRow); // remove for now
+        tableView.refresh();
 
-        if (tableview.getItems().isEmpty()) {
+        if (tableView.getItems().isEmpty()) {
             Platform.runLater(() -> {
                 try {
                     App.setRoot("contract");
@@ -498,9 +473,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private Node createPage(int pageIndex) {
         int fromIndex = pageIndex * 8;
         int toIndex = Math.min(fromIndex + 8, labourDetailsTableRows.size());
-        tableview.setFixedCellSize(30.0);
-        tableview.setItems(FXCollections.observableArrayList(labourDetailsTableRows.subList(fromIndex, toIndex)));
-        return tableview;
+        tableView.setFixedCellSize(30.0);
+        tableView.setItems(FXCollections.observableArrayList(labourDetailsTableRows.subList(fromIndex, toIndex)));
+        return tableView;
     }
 
     private ObservableList<LabourDetailsTableRow> filterList(List<LabourDetailsTableRow> labourDetailsTableRowList, String searchText) {

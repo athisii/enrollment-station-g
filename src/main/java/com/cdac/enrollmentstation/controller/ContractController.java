@@ -119,7 +119,6 @@ public class ContractController extends AbstractBaseController {
             return row;
 
         });
-        tableView.setFixedCellSize(35.0);
         ObservableList<Contract> observablelist = FXCollections.observableArrayList(contracts);
         tableView.setItems(observablelist);
         tableView.refresh();
@@ -136,7 +135,15 @@ public class ContractController extends AbstractBaseController {
 
 
     public void initialize() {
+        test();
         fetchDetails();
+    }
+
+    private void test() {
+        ContractorCardInfo contractorCardInfo = new ContractorCardInfo();
+        contractorCardInfo.setContractorName("Athisii Ekhe");
+        contractorCardInfo.setContractorId("0000012");
+        TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
     }
 
     private ObservableList<Contract> filterList(List<Contract> list, String searchText) {

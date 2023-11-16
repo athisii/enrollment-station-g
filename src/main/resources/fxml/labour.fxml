@@ -1,144 +1,114 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.LabourController">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <bottom>
-            <AnchorPane prefHeight="768.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-
-                <AnchorPane layoutX="772.0" layoutY="470.0" prefHeight="217.0" prefWidth="191.0"
-                            style="-fx-background-color: #fff; -fx-border-color: #04127b;">
-
-                    <ImageView fx:id="fingerprintImageView" fitHeight="125.0" fitWidth="100.0" layoutX="46.0"
-                               layoutY="29.0" pickOnBounds="true" preserveRatio="true">
-
-                        <Image url="@../img/single_finger.jpeg"/>
-
-                    </ImageView>
-                    <Button fx:id="captureBtn" layoutX="21.0" layoutY="162.0" maxHeight="35.0" maxWidth="150.0"
-                            minHeight="35.0" minWidth="150.0" mnemonicParsing="false" onAction="#captureBtnAction"
-                            prefHeight="35.0" prefWidth="150.0"
-                            style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAPTURE"
-                            textFill="WHITE">
-                        <font>
-                            <Font name="System Bold" size="14.0"/>
-                        </font>
-                    </Button>
-
-                </AnchorPane>
-
-                <Text fill="#04127b" layoutX="49.0" layoutY="130.0" strokeType="OUTSIDE" strokeWidth="0.0"
-                      text="LIST OF WORKERS" wrappingWidth="237.38671875">
-                    <font>
-                        <Font size="22.0"/>
-                    </font>
-                </Text>
-                <Button fx:id="selectNextContractorBtn" layoutX="288.0" layoutY="634.0" maxHeight="35.0"
-                        maxWidth="236.0" minHeight="35.0" minWidth="150.0" mnemonicParsing="false"
-                        onAction="#showContractBtnAction" prefHeight="35.0" prefWidth="236.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="SELECT NEXT CONTRACT" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <AnchorPane fx:id="foot" layoutY="739.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.LabourController">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png"/>
-
+                        <Image url="@../gif/signature.gif"/>
                     </ImageView>
-                    <Label alignment="CENTER" layoutX="876.0" layoutY="42.0" prefHeight="31.0" prefWidth="108.0"
-                           style="-fx-background-color: #fff; -fx-background-radius: 0 20 20 0; -fx-border-width: 1; -fx-border-color: #00aaff; -fx-border-radius: 0 20 20 0;"
-                           text="INS INDIA" textAlignment="CENTER" visible="false"/>
-
-                </AnchorPane>
-                <TextField fx:id="searchBox" layoutX="565.0" layoutY="238.0" promptText="Enter Search term"
-                           style="-fx-border-color: #04127b;"/>
-                <ImageView fitHeight="29.0" fitWidth="38.0" layoutX="531.0" layoutY="237.0" pickOnBounds="true"
-                           preserveRatio="true">
-
-                    <Image url="@../img/search_icon.png"/>
-
-                </ImageView>
-                <AnchorPane layoutY="151.0" prefHeight="60.0" prefWidth="1024.0" style="-fx-background-color: #04127b;">
-
-                    <Label layoutX="47.0" layoutY="17.0" prefHeight="20.0" prefWidth="187.0" text="CONTRACTOR NAME :"
-                           textAlignment="RIGHT" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label layoutX="524.0" layoutY="17.0" prefHeight="20.0" prefWidth="130.0" text="CONTRACT ID :"
-                           textAlignment="RIGHT" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label fx:id="lblContractorName" layoutX="240.0" layoutY="17.0" text="Manish" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-                    <Label fx:id="lblContractName" layoutX="666.0" layoutY="17.0" text="CONTRACT002" textFill="WHITE">
-                        <font>
-                            <Font size="16.0"/>
-                        </font>
-                    </Label>
-
-                </AnchorPane>
-                <Pagination fx:id="pagination" layoutX="52.0" layoutY="275.0" prefHeight="317.0" prefWidth="686.0">
-                    <fx:define>
-                        <VBox fx:id="labourVBox">
-
-                            <javafx.scene.control.TableView fx:id="tableview" layoutX="32.0" layoutY="271.0"
-                                                            prefHeight="350.0" prefWidth="740.0"
-                                                            stylesheets="@style.css">
+                </HBox>
+                <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="LIST OF WORKERS"/>
+            </HBox>
+            <HBox styleClass="padding-small, bg-color-darkblue" alignment="CENTER">
+                <Label fx:id="lblContractorName" styleClass="text-white" text="CONTRACTOR NAME: John"/>
+                <HBox HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT">
+                    <Label fx:id="lblContractName" styleClass="text-white" text="CONTRACTOR ID: 101010"/>
+                </HBox>
+            </HBox>
+            <HBox styleClass="padding-medium" alignment="CENTER">
+                <HBox fx:id="_tableContainer" alignment="CENTER"
+                      styleClass="table-container-4-cols">
+                    <Pagination fx:id="pagination" prefWidth="${_tableContainer.prefWidth}"
+                                prefHeight="${_tableContainer.prefHeight}">
+                        <fx:define>
+                            <TableView fx:id="tableView" prefWidth="${_tableContainer.prefWidth}"
+                                       prefHeight="${_tableContainer.prefHeight}">
                                 <columns>
-                                    <javafx.scene.control.TableColumn fx:id="labourName" prefWidth="267.0"
-                                                                      text="LABOUR NAME"/>
-                                    <javafx.scene.control.TableColumn fx:id="labourId" prefWidth="177.0"
-                                                                      text="LABOUR ID"/>
-                                    <javafx.scene.control.TableColumn fx:id="dateOfBirth" prefWidth="267.0"
-                                                                      text="DATE OF BIRTH"/>
-                                    <javafx.scene.control.TableColumn fx:id="strStatus" prefWidth="267.0"
-                                                                      text="STATUS"/>
+                                    <TableColumn text="LABOUR NAME" styleClass="table-view-column-width">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="labourName"/>
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn text="LABOUR ID" styleClass="table-view-column-width">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="labourId"/>
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn text="DATE OF BIRTH" styleClass="table-view-column-width">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="dateOfBirth"/>
+                                        </cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn text="STATUS" styleClass="table-view-column-width">
+                                        <cellValueFactory>
+                                            <PropertyValueFactory property="strStatus"/>
+                                        </cellValueFactory>
+                                    </TableColumn>
                                 </columns>
-                            </javafx.scene.control.TableView>
+                            </TableView>
+                        </fx:define>
+                    </Pagination>
+                </HBox>
+                <VBox alignment="CENTER" styleClass="padding-small">
+                    <HBox alignment="CENTER">
+                        <TextField fx:id="searchBox" styleClass="font-size-small, input-field"
+                                   promptText="Search by labour name/id/dob"/>
+                    </HBox>
+                    <HBox fx:id="_imgContainerXlarge1" styleClass="img-container-xlarge" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerXlarge1.prefWidth}"
+                                   fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
+                            <Image url="@../img/laborers.png"/>
+                        </ImageView>
+                    </HBox>
+                    <HBox>
+                        <Label styleClass="font-size" textAlignment="CENTER"
+                               text="Double click on a row to select labour and press 'Capture' button."
+                               wrapText="true"/>
+                    </HBox>
+                    <HBox alignment="CENTER">
+                        <VBox styleClass="padding, border-color-darkblue, border-radius-medium">
+                            <HBox fx:id="_imgContainerMedium" styleClass="padding, img-container-medium"
+                                  alignment="CENTER">
+                                <ImageView fx:id="fingerprintImageView" fitWidth="${_imgContainerMedium.prefWidth}"
+                                           fitHeight="${_imgContainerMedium.prefHeight}">
+                                    <Image url="@../img/fingerprint_single.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Button fx:id="captureBtn" onAction="#captureBtnAction" disable="true"
+                                    styleClass="btn-medium, press-effect" text="CAPTURE"/>
                         </VBox>
-                    </fx:define>
-                </Pagination>
-                <ImageView fitHeight="128.0" fitWidth="239.0" layoutX="772.0" layoutY="298.0" pickOnBounds="true"
-                           preserveRatio="true">
+                    </HBox>
+                </VBox>
+            </HBox>
+            <HBox alignment="CENTER">
+                <Label fx:id="messageLabel"/>
+            </HBox>
+            <HBox alignment="CENTER" styleClass="padding-small">
+                <Button fx:id="selectNextContractorBtn" styleClass="btn-large, press-effect"
+                        onAction="#showContractBtnAction"
+                        text="SELECT NEXT CONTRACT"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>
 
-                    <Image url="@../img/table.png"/>
-
-                </ImageView>
-                <Label layoutX="781.0" layoutY="404.0" prefHeight="41.0" prefWidth="228.0"
-                       text="Click on a row to select labour and press capture button" wrapText="true">
-                    <font>
-                        <Font size="14.0"/>
-                    </font>
-                </Label>
-                <Label fx:id="messageLabel" alignment="CENTER" layoutX="91.0" layoutY="681.0" prefHeight="25.0"
-                       prefWidth="619.0">
-                    <font>
-                        <Font name="System Bold" size="17.0"/>
-                    </font>
-                </Label>
-
-            </AnchorPane>
-        </bottom>
-    </BorderPane>
-
-</VBox>

@@ -222,10 +222,17 @@
 }
 
 /* table style */
+.table-view { /* default table */
+    -fx-fixed-cell-size: 40px;
+}
 
-.table-container {
-    -fx-pref-width: 602px;
-    -fx-pref-height: 700px;
+.table-container-3-cols {
+    -fx-pref-width: 600px;
+    -fx-pref-height: 400px;
+}
+.table-container-4-cols {
+    -fx-pref-width: 650px;
+    -fx-pref-height: 400px;
 }
 
 .column-header {

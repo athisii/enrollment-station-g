@@ -26,7 +26,7 @@
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="SERVER CONFIGURATION"/>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-medium">
-                <Label fx:id="messageLabel" text="This is a sample message."/>
+                <Label fx:id="messageLabel"/>
             </HBox>
             <HBox alignment="CENTER">
                 <HBox styleClass="border-color-darkblue, border-radius-medium, padding-medium" alignment="CENTER">

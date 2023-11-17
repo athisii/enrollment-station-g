@@ -19,7 +19,7 @@
                 <HBox fx:id="_imgContainer" styleClass="img-container">
                     <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-                        <Image url="@../img/checked.png"/>
+                        <Image url="@../gif/server_status.gif"/>
                     </ImageView>
                 </HBox>
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small"
@@ -28,14 +28,14 @@
             <HBox styleClass="padding-small, bg-color-darkblue">
                 <Region HBox.hgrow="ALWAYS" styleClass="min-width-large"/>
                 <HBox>
-                    <Label styleClass="font-size-medium, text-white" text="USB CONNECTION STATUS"/>
-                    <Region styleClass="min-width-medium"/>
-                    <Label styleClass="font-size-medium, text-white" text="SDK CONNECTION STATUS"/>
-                    <Region styleClass="min-width-medium"/>
+                    <Label styleClass="font-size-medium, text-white" text="USB CONNECTION"/>
+                    <Region styleClass="min-width-large"/>
+                    <Label styleClass="font-size-medium, text-white" text="SDK CONNECTION"/>
+                    <Region styleClass="min-width-large"/>
                 </HBox>
             </HBox>
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, bg-border-radius-small, pref-width-medium"
+                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, bg-border-radius-small, pref-width-medium"
                        text="FINGERPRINT SCANNER" alignment="CENTER"/>
                 <Region styleClass="min-width-xlarge"/>
                 <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium">
@@ -56,7 +56,7 @@
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
                        text="IRIS SCANNER" alignment="CENTER"/>
                 <Region styleClass="min-width-xlarge"/>
                 <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium">
@@ -77,7 +77,7 @@
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
                        text="CAMERA" alignment="CENTER"/>
                 <Region styleClass="min-width-xlarge"/>
                 <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium">
@@ -98,7 +98,7 @@
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
                        text="BARCODE SCANNER" alignment="CENTER"/>
                 <Region styleClass="min-width-xlarge"/>
                 <HBox fx:id="_imgContainerMedium7" styleClass="img-container-medium">
@@ -119,7 +119,7 @@
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
                        text="SERVER URL" alignment="CENTER"/>
                 <Region styleClass="min-width-xlarge"/>
                 <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium">

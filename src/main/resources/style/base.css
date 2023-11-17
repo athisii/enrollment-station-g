@@ -16,8 +16,8 @@
     -fx-background-color: #FFF;
 }
 
-.bg-color-cyan-gradient {
-    -fx-background-color: linear-gradient(darkcyan, cyan);
+.bg-color-greenish-blue {
+    -fx-background-color: #00c79c;
 }
 
 
@@ -209,6 +209,10 @@
     -fx-min-width: 150px;
 }
 
+.min-width-xx-large {
+    -fx-min-width: 500px; /* used in license info */
+}
+
 .min-height {
     -fx-min-height: 5px;
 }
@@ -234,6 +238,13 @@
     -fx-background-radius: 10px;
 }
 
+.canvas-container {
+    -fx-pref-width: 500px;
+    -fx-pref-height: 300px;
+    -fx-border-color: black;
+    -fx-border-width: 2;
+    -fx-border-style: solid;
+}
 
 /* table style */
 .table-view { /* default table */

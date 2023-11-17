@@ -196,6 +196,13 @@ public class SignatureController extends AbstractBaseController {
             // to make square box
             int width = (int) (maxX - minX);
             int height = (int) (maxY - minY);
+
+            // just a check to ensure valid/big signature is provided.
+            if (width < 20 || height < 20) {
+                messageLabel.setText("Kindly provide a valid or larger signature.");
+                return;
+            }
+
             if (width >= height) {
                 int extra = (width - height) / 2;
                 minY -= extra;

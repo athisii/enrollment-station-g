@@ -51,9 +51,9 @@
                 <Label fx:id="messageLabel" text="Kindly sign in the centre of the black box"/>
             </HBox>
             <HBox alignment="CENTER">
-                <HBox prefHeight="300.0" prefWidth="500.0"
-                      style=" -fx-border-color:black; -fx-border-width: 2; -fx-border-style: solid;">
-                    <Canvas fx:id="canvas" height="300.0" width="500.0"/>
+                <HBox fx:id="_canvasContainer" styleClass="canvas-container">
+                    <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
+                            height="${_canvasContainer.prefHeight}"/>
                 </HBox>
             </HBox>
             <Region styleClass="min-height-small"/>

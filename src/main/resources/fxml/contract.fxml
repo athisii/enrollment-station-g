@@ -20,7 +20,7 @@
                 <HBox fx:id="_imgContainer" styleClass="img-container">
                     <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-                        <Image url="@../gif/signature.gif"/>
+                        <Image url="@../img/contracts.png"/>
                     </ImageView>
                 </HBox>
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="LIST OF CONTRACTS"/>

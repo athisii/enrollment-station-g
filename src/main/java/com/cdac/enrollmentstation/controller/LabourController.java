@@ -473,7 +473,6 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private Node createPage(int pageIndex) {
         int fromIndex = pageIndex * 8;
         int toIndex = Math.min(fromIndex + 8, labourDetailsTableRows.size());
-        tableView.setFixedCellSize(30.0);
         tableView.setItems(FXCollections.observableArrayList(labourDetailsTableRows.subList(fromIndex, toIndex)));
         return tableView;
     }

@@ -27,36 +27,36 @@
             <Region styleClass="min-height-large"/>
             <HBox alignment="CENTER" styleClass="padding-medium">
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium, padding-small"
+                    <HBox fx:id="_imgContainerLarge1" styleClass="img-container-large, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerMedium1.prefWidth}"
-                                   fitHeight="${_imgContainerMedium1.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerLarge1.prefWidth}"
+                                   fitHeight="${_imgContainerLarge1.prefHeight}"
                                    preserveRatio="true">
-                            <Image url="@../img/settings_new.png"/>
+                            <Image url="@../gif/server_config.gif"/>
                         </ImageView>
                     </HBox>
                     <Button styleClass="btn-large, press-effect" onAction="#serverConfig" text="SERVER CONFIG"/>
                 </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium, padding-small"
+                    <HBox fx:id="_imgContainerLarge2" styleClass="img-container-large, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerMedium2.prefWidth}"
-                                   fitHeight="${_imgContainerMedium2.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerLarge2.prefWidth}"
+                                   fitHeight="${_imgContainerLarge2.prefHeight}"
                                    preserveRatio="true">
-                            <Image url="@../img/navy_blue_check.png"/>
+                            <Image url="@../gif/devices_check"/>
                         </ImageView>
                     </HBox>
                     <Button styleClass="btn-large, press-effect" onAction="#deviceCheck" text="DEVICE CHECK"/>
                 </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium, padding-small"
+                    <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerMedium3.prefWidth}"
-                                   fitHeight="${_imgContainerMedium3.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
+                                   fitHeight="${_imgContainerLarge3.prefHeight}"
                                    preserveRatio="true">
-                            <Image url="@../img/licence_info.png"/>
+                            <Image url="@../gif/license.gif"/>
                         </ImageView>
                     </HBox>
                     <Button styleClass="btn-large, press-effect" onAction="#licenseInfo" text="LICENSE INFO"/>
@@ -65,12 +65,12 @@
             <Region styleClass="min-height-large"/>
             <HBox alignment="CENTER" styleClass="padding-medium">
                 <VBox alignment="BOTTOM_CENTER">
-                    <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium, padding-small"
+                    <HBox fx:id="_imgContainerLarge4" styleClass="img-container-large, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerMedium4.prefWidth}"
-                                   fitHeight="${_imgContainerMedium4.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerLarge4.prefWidth}"
+                                   fitHeight="${_imgContainerLarge4.prefHeight}"
                                    preserveRatio="true">
-                            <Image url="@../img/logout.png"/>
+                            <Image url="@../gif/logout.gif"/>
                         </ImageView>
                     </HBox>
                     <Button styleClass="btn-large, press-effect" onAction="#logOut" text="LOGOUT"/>

@@ -3,163 +3,154 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<VBox alignment="CENTER" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/11.0.14-internal"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cdac.enrollmentstation.controller.DeviceStatusController">
-
-    <BorderPane prefHeight="778.0" prefWidth="1024.0">
-        <center>
-            <AnchorPane prefHeight="607.0" prefWidth="1024.0" style="-fx-background-color: #fff;"
-                        BorderPane.alignment="CENTER">
-
-                <Button layoutX="235.0" layoutY="216.0" maxHeight="35.0" maxWidth="209.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="209.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="FINGERPRINT SCANNER" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button layoutX="235.0" layoutY="295.0" maxHeight="35.0" maxWidth="210.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="210.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="IRIS SCANNER"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fx:id="slapUsbImage" fitHeight="52.0" fitWidth="61.0" layoutX="555.0" layoutY="207.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-                </ImageView>
-                <ImageView fx:id="irisUsbImage" fitHeight="52.0" fitWidth="61.0" layoutX="555.0" layoutY="281.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-                </ImageView>
-                <Button layoutX="235.0" layoutY="375.0" maxHeight="35.0" maxWidth="213.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="213.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="CAMERA"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fx:id="cameraImage" fitHeight="52.0" fitWidth="61.0" layoutX="555.0" layoutY="361.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-                </ImageView>
-                <Button layoutX="255.0" layoutY="623.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" onAction="#back" prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="BACK"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <Button layoutX="235.0" layoutY="455.0" maxHeight="35.0" maxWidth="217.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="217.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;"
-                        text="BARCODE SCANNER" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fx:id="barcodeImage" fitHeight="52.0" fitWidth="61.0" layoutX="555.0" layoutY="441.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-                </ImageView>
-                <Button layoutX="235.0" layoutY="535.0" maxHeight="35.0" maxWidth="216.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="216.0"
-                        style="-fx-background-color: #04127b; -fx-background-radius: 20 20 20 20;" text="SERVER URL"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fx:id="mafisUrlImage" fitHeight="52.0" fitWidth="61.0" layoutX="555.0" layoutY="521.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-                </ImageView>
-                <AnchorPane fx:id="footer" layoutY="738.0" prefHeight="40.0" prefWidth="1024.0"
-                            style="-fx-background-color: #1990ea;"/>
-                <AnchorPane prefHeight="100.0" prefWidth="1024.0" style="-fx-background-color: #1990ea;">
-
-                    <ImageView fitHeight="91.0" fitWidth="363.0" layoutX="20.0" layoutY="10.0" pickOnBounds="true"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.DeviceStatusController">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <center>
+        <VBox>
+            <HBox styleClass="padding">
+                <HBox fx:id="_imgContainer" styleClass="img-container">
+                    <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
                                preserveRatio="true">
-
-                        <Image url="@../img/navy_logo.png"/>
-
+                        <Image url="@../img/checked.png"/>
                     </ImageView>
-
-                </AnchorPane>
-                <Label layoutX="10.0" layoutY="109.0" prefHeight="47.0" prefWidth="414.0"
-                       text="MAFIS SERVER AND DEVICES STATUS CHECK" textFill="#04127b">
-                    <font>
-                        <Font size="16.0"/>
-                    </font>
-                </Label>
-                <Button layoutX="435.0" layoutY="623.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" onAction="#refresh" prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #3eb650; -fx-background-radius: 20 20 20 20;" text="REFRESH"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fx:id="irisSdkImage" fitHeight="52.0" fitWidth="61.0" layoutX="661.0" layoutY="281.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-
-                </ImageView>
-                <ImageView fx:id="slapSdkImage" fitHeight="52.0" fitWidth="61.0" layoutX="661.0" layoutY="207.0"
-                           pickOnBounds="true" preserveRatio="true">
-
-                    <Image url="@../img/red_cross.png"/>
-
-                </ImageView>
-                <Label layoutX="502.0" layoutY="165.0" prefHeight="28.0" prefWidth="128.0" text="Usb Connection Status"
-                       textFill="#04127b">
-                    <font>
-                        <Font size="11.0"/>
-                    </font>
-                </Label>
-                <Label layoutX="638.0" layoutY="165.0" prefHeight="28.0" prefWidth="129.0" text="Sdk Connection Status"
-                       textFill="#04127b">
-                    <font>
-                        <Font size="11.0"/>
-                    </font>
-                </Label>
-                <Button layoutX="622.0" layoutY="623.0" maxHeight="35.0" maxWidth="150.0" minHeight="35.0"
-                        minWidth="150.0" mnemonicParsing="false" onAction="#home" prefHeight="35.0" prefWidth="150.0"
-                        style="-fx-background-color: #f7a304; -fx-background-radius: 20 20 20 20;" text="HOME"
-                        textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="14.0"/>
-                    </font>
-                </Button>
-                <ImageView fitHeight="52.0" fitWidth="61.0" layoutX="661.0" layoutY="361.0" pickOnBounds="true"
-                           preserveRatio="true">
-                    <Image url="@../img/not_available.png"/>
-
-                </ImageView>
-                <ImageView fitHeight="52.0" fitWidth="61.0" layoutX="661.0" layoutY="441.0" pickOnBounds="true"
-                           preserveRatio="true">
-                    <Image url="@../img/not_available.png"/>
-
-                </ImageView>
-                <ImageView fitHeight="52.0" fitWidth="61.0" layoutX="661.0" layoutY="521.0" pickOnBounds="true"
-                           preserveRatio="true">
-                    <Image url="@../img/not_available.png"/>
-                </ImageView>
-
-            </AnchorPane>
-        </center>
-    </BorderPane>
-
-</VBox>
+                </HBox>
+                <Label styleClass="press-effect, padding-small, bg-border-radius-small"
+                       text="MAFIS SERVER AND DEVICES STATUS CHECK"/>
+            </HBox>
+            <HBox styleClass="padding-small, bg-color-darkblue">
+                <Region HBox.hgrow="ALWAYS" styleClass="min-width-large"/>
+                <HBox>
+                    <Label styleClass="font-size-medium, text-white" text="USB CONNECTION STATUS"/>
+                    <Region styleClass="min-width-medium"/>
+                    <Label styleClass="font-size-medium, text-white" text="SDK CONNECTION STATUS"/>
+                    <Region styleClass="min-width-medium"/>
+                </HBox>
+            </HBox>
+            <HBox alignment="CENTER">
+                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, bg-border-radius-small, pref-width-medium"
+                       text="FINGERPRINT SCANNER" alignment="CENTER"/>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium">
+                    <ImageView fx:id="slapUsbImage" fitWidth="${_imgContainerMedium1.prefWidth}"
+                               fitHeight="${_imgContainerMedium1.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium">
+                    <ImageView fx:id="slapSdkImage" fitWidth="${_imgContainerMedium2.prefWidth}"
+                               fitHeight="${_imgContainerMedium2.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                       text="IRIS SCANNER" alignment="CENTER"/>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium">
+                    <ImageView fx:id="irisUsbImage" fitWidth="${_imgContainerMedium3.prefWidth}"
+                               fitHeight="${_imgContainerMedium3.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium">
+                    <ImageView fx:id="irisSdkImage" fitWidth="${_imgContainerMedium4.prefWidth}"
+                               fitHeight="${_imgContainerMedium4.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                       text="CAMERA" alignment="CENTER"/>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium">
+                    <ImageView fx:id="cameraImage" fitWidth="${_imgContainerMedium5.prefWidth}"
+                               fitHeight="${_imgContainerMedium5.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium6" styleClass="img-container-medium">
+                    <ImageView fitWidth="${_imgContainerMedium6.prefWidth}"
+                               fitHeight="${_imgContainerMedium6.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/not_available.png"/>
+                    </ImageView>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                       text="BARCODE SCANNER" alignment="CENTER"/>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium7" styleClass="img-container-medium">
+                    <ImageView fx:id="barcodeImage" fitWidth="${_imgContainerMedium7.prefWidth}"
+                               fitHeight="${_imgContainerMedium7.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium8" styleClass="img-container-medium">
+                    <ImageView fitWidth="${_imgContainerMedium8.prefWidth}"
+                               fitHeight="${_imgContainerMedium8.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/not_available.png"/>
+                    </ImageView>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <Label styleClass="bg-color-cyan-gradient, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                       text="SERVER URL" alignment="CENTER"/>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium">
+                    <ImageView fx:id="mafisUrlImage" fitWidth="${_imgContainerMedium9.prefWidth}"
+                               fitHeight="${_imgContainerMedium9.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/red_cross.png"/>
+                    </ImageView>
+                </HBox>
+                <Region styleClass="min-width-xlarge"/>
+                <HBox fx:id="_imgContainerMedium10" styleClass="img-container-medium">
+                    <ImageView fitWidth="${_imgContainerMedium10.prefWidth}"
+                               fitHeight="${_imgContainerMedium10.prefHeight}"
+                               preserveRatio="true">
+                        <Image url="@../img/not_available.png"/>
+                    </ImageView>
+                </HBox>
+            </HBox>
+            <Region styleClass="min-height-xlarge"/>
+            <HBox alignment="CENTER">
+                <Button styleClass="btn-medium, press-effect" onAction="#back" text="BACK"/>
+                <Region styleClass="min-width-medium"/>
+                <Button styleClass="btn-medium, press-effect" onAction="#refresh" text="REFRESH"/>
+                <Region styleClass="min-width-medium"/>
+                <Button styleClass="btn-medium, press-effect" onAction="#home" text="HOME"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

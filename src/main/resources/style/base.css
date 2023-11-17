@@ -16,12 +16,25 @@
     -fx-background-color: #FFF;
 }
 
+.bg-color-cyan-gradient {
+    -fx-background-color: linear-gradient(darkcyan, cyan);
+}
+
+
 .text-white {
     -fx-text-fill: #FFF;
 }
 
 .text-darkblue {
     -fx-text-fill: darkblue;
+}
+
+.pref-width-small {
+    -fx-pref-width: 100px;
+}
+
+.pref-width-medium {
+    -fx-pref-width: 250px;
 }
 
 .label-border-style {
@@ -221,6 +234,7 @@
     -fx-background-radius: 10px;
 }
 
+
 /* table style */
 .table-view { /* default table */
     -fx-fixed-cell-size: 40px;
@@ -230,6 +244,7 @@
     -fx-pref-width: 600px;
     -fx-pref-height: 400px;
 }
+
 .table-container-4-cols {
     -fx-pref-width: 650px;
     -fx-pref-height: 400px;

@@ -46,7 +46,7 @@ public class SignatureController extends AbstractBaseController {
     private static final int PADDING = 10;
     private static final int RAW_SIZE = 300;
     private static final int DPI = 300;
-    private static final int COMPRESSED_SIZE = 100;
+    private static final int COMPRESSED_SIZE = 64;
     private static final String IMG_SIGNATURE_FILE;
     private static final String IMG_SIGNATURE_COMPRESSED_FILE;
 
@@ -215,8 +215,8 @@ public class SignatureController extends AbstractBaseController {
             BufferedImage filteredOri = resampleOpOri.filter(boundedBox, null);
             BufferedImageOp resampleOpCompressed = new ResampleOp(COMPRESSED_SIZE, COMPRESSED_SIZE, ResampleOp.FILTER_LANCZOS);
             BufferedImage filteredCompressed = resampleOpCompressed.filter(boundedBox, null);
-            ImageIO.write(filteredCompressed, "png", new File(IMG_SIGNATURE_COMPRESSED_FILE));
-            setMetadataAndSave(filteredOri);
+            setMetadataAndSave(filteredOri, IMG_SIGNATURE_FILE);
+            setMetadataAndSave(filteredCompressed, IMG_SIGNATURE_COMPRESSED_FILE);
 
             SaveEnrollmentDetail saveEnrollmentDetail = ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetail();
             saveEnrollmentDetail.setSignature(Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(IMG_SIGNATURE_FILE))));
@@ -230,8 +230,8 @@ public class SignatureController extends AbstractBaseController {
         }
     }
 
-    private void setMetadataAndSave(BufferedImage bufferedImage) {
-        try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(IMG_SIGNATURE_FILE))) {
+    private void setMetadataAndSave(BufferedImage bufferedImage, String outputFile) {
+        try (ImageOutputStream imageOutputStream = ImageIO.createImageOutputStream(new File(outputFile))) {
             ImageWriter imageWriter = ImageIO.getImageWritersByFormatName("png").next();
             ImageWriteParam imageWriterDefaultWriteParam = imageWriter.getDefaultWriteParam();
             ImageTypeSpecifier imageTypeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_INT_RGB);

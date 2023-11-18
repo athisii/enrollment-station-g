@@ -17,7 +17,6 @@ public class DisplayUtil {
 
     public static final int[] SCREEN_SD = {1024, 768}; //default
     public static final int[] SCREEN_HD = {1440, 1080};
-    public static final int[] SCREEN_FHD = {1920, 1080};
     public static final int SCREEN_WIDTH;
     public static final int SCREEN_HEIGHT;
 

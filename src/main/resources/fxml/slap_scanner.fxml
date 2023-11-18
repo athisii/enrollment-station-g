@@ -144,7 +144,7 @@
                             text="RIGHT SCAN"/>
                 </VBox>
                 <Region styleClass="min-width-small"/>
-                <VBox alignment="CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
+                <VBox alignment="BOTTOM_CENTER" styleClass="border-color-darkblue, padding, border-radius-small">
                     <HBox>
                         <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large" alignment="CENTER">
                             <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"

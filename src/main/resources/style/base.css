@@ -242,7 +242,7 @@
     -fx-pref-width: 500px;
     -fx-pref-height: 300px;
     -fx-border-color: black;
-    -fx-border-width: 2;
+    -fx-border-width: 2px;
     -fx-border-style: solid;
 }
 

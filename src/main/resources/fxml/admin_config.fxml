@@ -44,7 +44,7 @@
                         <ImageView fitWidth="${_imgContainerLarge2.prefWidth}"
                                    fitHeight="${_imgContainerLarge2.prefHeight}"
                                    preserveRatio="true">
-                            <Image url="@../gif/devices_check"/>
+                            <Image url="@../gif/devices_check.gif"/>
                         </ImageView>
                     </HBox>
                     <Button styleClass="btn-large, press-effect" onAction="#deviceCheck" text="DEVICE CHECK"/>

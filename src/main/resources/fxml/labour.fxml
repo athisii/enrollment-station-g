@@ -72,7 +72,7 @@
                     <HBox fx:id="_imgContainerXlarge1" styleClass="img-container-xlarge" alignment="CENTER">
                         <ImageView fitWidth="${_imgContainerXlarge1.prefWidth}"
                                    fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true">
-                            <Image url="@../img/laborers.png"/>
+                            <Image url="@../img/laborers_click.png"/>
                         </ImageView>
                     </HBox>
                     <HBox>

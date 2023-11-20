@@ -81,7 +81,7 @@ public final class App extends Application {
 
     public static String getCssFileName() {
         // if width >= 1440 and height >= 1080
-        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_HD[0]) {
+        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_HD[0] && DisplayUtil.SCREEN_HEIGHT >= DisplayUtil.SCREEN_HD[1]) {
             return "/style/screen_hd.css";
         }
         return "/style/base.css";

@@ -276,3 +276,9 @@
 .table-view-column-width {
     -fx-pref-width: 200px;
 }
+
+.combo-box {
+    -fx-background-radius: 5px;
+    -fx-background-color: #CC99ff;
+    -fx-pref-width: 200px;
+}

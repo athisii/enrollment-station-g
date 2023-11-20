@@ -26,7 +26,7 @@
             </HBox>
             <HBox styleClass="img-container" alignment="CENTER">
                 <Label fx:id="messageLabel"
-                       text="Please place the card on the reader and click the 'Continue' button."/>
+                       text="Please place the card on the reader and click the 'CONTINUE' button."/>
             </HBox>
             <Region styleClass="min-height-large"/>
             <HBox fx:id="_imgContainerXlarge" styleClass="img-container-xlarge" alignment="CENTER">

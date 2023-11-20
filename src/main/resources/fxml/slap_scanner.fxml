@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerControllerAbstract">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="RealScan.SlapScannerController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">

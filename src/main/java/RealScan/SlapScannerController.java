@@ -49,8 +49,8 @@ import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHol
  * Created on 29/03/23
  */
 
-public class SlapScannerControllerAbstract extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerControllerAbstract.class);
+public class SlapScannerController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(SlapScannerController.class);
     private static final int TIME_TO_WAIT_FOR_NEXT_CAPTURE_IN_SEC = 1; // to be on safe side
     private static final int TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS = 100;
     // range: 0~7

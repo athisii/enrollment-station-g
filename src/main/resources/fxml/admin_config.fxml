@@ -25,12 +25,12 @@
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="ADMIN SETTINGS"/>
             </HBox>
             <Region styleClass="min-height-large"/>
-            <HBox alignment="CENTER" styleClass="padding-medium">
+            <HBox alignment="CENTER" styleClass="padding-small">
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerLarge1" styleClass="img-container-large, padding-small"
+                    <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerLarge1.prefWidth}"
-                                   fitHeight="${_imgContainerLarge1.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerMedium1.prefWidth}"
+                                   fitHeight="${_imgContainerMedium1.prefHeight}"
                                    preserveRatio="true">
                             <Image url="@../gif/server_config.gif"/>
                         </ImageView>
@@ -39,10 +39,10 @@
                 </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerLarge2" styleClass="img-container-large, padding-small"
+                    <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerLarge2.prefWidth}"
-                                   fitHeight="${_imgContainerLarge2.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerMedium2.prefWidth}"
+                                   fitHeight="${_imgContainerMedium2.prefHeight}"
                                    preserveRatio="true">
                             <Image url="@../gif/devices_check.gif"/>
                         </ImageView>
@@ -51,10 +51,10 @@
                 </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
-                    <HBox fx:id="_imgContainerLarge3" styleClass="img-container-large, padding-small"
+                    <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerLarge3.prefWidth}"
-                                   fitHeight="${_imgContainerLarge3.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerMedium3.prefWidth}"
+                                   fitHeight="${_imgContainerMedium3.prefHeight}"
                                    preserveRatio="true">
                             <Image url="@../gif/license.gif"/>
                         </ImageView>
@@ -62,13 +62,13 @@
                     <Button styleClass="btn-large, press-effect" onAction="#licenseInfo" text="LICENSE INFO"/>
                 </VBox>
             </HBox>
-            <Region styleClass="min-height-large"/>
+            <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER" styleClass="padding-medium">
                 <VBox alignment="BOTTOM_CENTER">
-                    <HBox fx:id="_imgContainerLarge4" styleClass="img-container-large, padding-small"
+                    <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium, padding-small"
                           alignment="CENTER">
-                        <ImageView fitWidth="${_imgContainerLarge4.prefWidth}"
-                                   fitHeight="${_imgContainerLarge4.prefHeight}"
+                        <ImageView fitWidth="${_imgContainerMedium4.prefWidth}"
+                                   fitHeight="${_imgContainerMedium4.prefHeight}"
                                    preserveRatio="true">
                             <Image url="@../gif/logout.gif"/>
                         </ImageView>

@@ -25,118 +25,117 @@
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small"
                        text="MAFIS SERVER AND DEVICES STATUS CHECK"/>
             </HBox>
-            <HBox styleClass="padding-small, bg-color-darkblue">
-                <Region HBox.hgrow="ALWAYS" styleClass="min-width-large"/>
-                <HBox>
-                    <Label styleClass="font-size-medium, text-white" text="USB CONNECTION"/>
-                    <Region styleClass="min-width-large"/>
-                    <Label styleClass="font-size-medium, text-white" text="SDK CONNECTION"/>
-                    <Region styleClass="min-width-large"/>
-                </HBox>
-            </HBox>
+
             <HBox alignment="CENTER">
-                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, bg-border-radius-small, pref-width-medium"
-                       text="FINGERPRINT SCANNER" alignment="CENTER"/>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium">
-                    <ImageView fx:id="slapUsbImage" fitWidth="${_imgContainerMedium1.prefWidth}"
-                               fitHeight="${_imgContainerMedium1.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium">
-                    <ImageView fx:id="slapSdkImage" fitWidth="${_imgContainerMedium2.prefWidth}"
-                               fitHeight="${_imgContainerMedium2.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-            </HBox>
-            <Region styleClass="min-height-small"/>
-            <HBox alignment="CENTER">
-                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
-                       text="IRIS SCANNER" alignment="CENTER"/>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium">
-                    <ImageView fx:id="irisUsbImage" fitWidth="${_imgContainerMedium3.prefWidth}"
-                               fitHeight="${_imgContainerMedium3.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium">
-                    <ImageView fx:id="irisSdkImage" fitWidth="${_imgContainerMedium4.prefWidth}"
-                               fitHeight="${_imgContainerMedium4.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-            </HBox>
-            <Region styleClass="min-height-small"/>
-            <HBox alignment="CENTER">
-                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
-                       text="CAMERA" alignment="CENTER"/>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium">
-                    <ImageView fx:id="cameraImage" fitWidth="${_imgContainerMedium5.prefWidth}"
-                               fitHeight="${_imgContainerMedium5.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium6" styleClass="img-container-medium">
-                    <ImageView fitWidth="${_imgContainerMedium6.prefWidth}"
-                               fitHeight="${_imgContainerMedium6.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/not_available.png"/>
-                    </ImageView>
-                </HBox>
-            </HBox>
-            <Region styleClass="min-height-small"/>
-            <HBox alignment="CENTER">
-                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
-                       text="BARCODE SCANNER" alignment="CENTER"/>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium7" styleClass="img-container-medium">
-                    <ImageView fx:id="barcodeImage" fitWidth="${_imgContainerMedium7.prefWidth}"
-                               fitHeight="${_imgContainerMedium7.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium8" styleClass="img-container-medium">
-                    <ImageView fitWidth="${_imgContainerMedium8.prefWidth}"
-                               fitHeight="${_imgContainerMedium8.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/not_available.png"/>
-                    </ImageView>
-                </HBox>
-            </HBox>
-            <Region styleClass="min-height-small"/>
-            <HBox alignment="CENTER">
-                <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
-                       text="SERVER URL" alignment="CENTER"/>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium">
-                    <ImageView fx:id="mafisUrlImage" fitWidth="${_imgContainerMedium9.prefWidth}"
-                               fitHeight="${_imgContainerMedium9.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/red_cross.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-width-xlarge"/>
-                <HBox fx:id="_imgContainerMedium10" styleClass="img-container-medium">
-                    <ImageView fitWidth="${_imgContainerMedium10.prefWidth}"
-                               fitHeight="${_imgContainerMedium10.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../img/not_available.png"/>
-                    </ImageView>
-                </HBox>
+                <VBox>
+                    <Region styleClass="min-height-xlarge"/>
+                    <Label styleClass="bg-color-greenish-blue, text-white, padding-small, bg-border-radius-small, pref-width-medium"
+                           text="FINGERPRINT SCANNER" alignment="CENTER"/>
+                    <Region styleClass="min-height-xlarge"/>
+                    <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                           text="IRIS SCANNER" alignment="CENTER"/>
+                    <Region styleClass="min-height-xlarge"/>
+                    <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                           text="CAMERA" alignment="CENTER"/>
+                    <Region styleClass="min-height-xlarge"/>
+                    <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                           text="BARCODE SCANNER" alignment="CENTER"/>
+                    <Region styleClass="min-height-xlarge"/>
+                    <Label styleClass="bg-color-greenish-blue, text-white, padding-small, pref-width-medium, bg-border-radius-small"
+                           text="SERVER URL" alignment="CENTER"/>
+                </VBox>
+                <Region styleClass="min-width-large"/>
+                <VBox>
+                    <HBox alignment="CENTER">
+                        <Label styleClass="font-size-medium" text="USB CONNECTION"/>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="slapUsbImage" fitWidth="${_imgContainerMedium1.prefWidth}"
+                                   fitHeight="${_imgContainerMedium1.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium3" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="irisUsbImage" fitWidth="${_imgContainerMedium3.prefWidth}"
+                                   fitHeight="${_imgContainerMedium3.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="cameraImage" fitWidth="${_imgContainerMedium5.prefWidth}"
+                                   fitHeight="${_imgContainerMedium5.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium7" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="barcodeImage" fitWidth="${_imgContainerMedium7.prefWidth}"
+                                   fitHeight="${_imgContainerMedium7.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/not_available.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium9" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="mafisUrlImage" fitWidth="${_imgContainerMedium9.prefWidth}"
+                                   fitHeight="${_imgContainerMedium9.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                </VBox>
+                <Region styleClass="min-width-large"/>
+                <VBox>
+                    <HBox alignment="CENTER">
+                        <Label styleClass="font-size-medium" text="SDK CONNECTION"/>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium2" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="slapSdkImage" fitWidth="${_imgContainerMedium2.prefWidth}"
+                                   fitHeight="${_imgContainerMedium2.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium4" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fx:id="irisSdkImage" fitWidth="${_imgContainerMedium4.prefWidth}"
+                                   fitHeight="${_imgContainerMedium4.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/red_cross.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium6" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerMedium6.prefWidth}"
+                                   fitHeight="${_imgContainerMedium6.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/not_available.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium8" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerMedium8.prefWidth}"
+                                   fitHeight="${_imgContainerMedium8.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/not_available.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height"/>
+                    <HBox fx:id="_imgContainerMedium10" styleClass="img-container-medium" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerMedium10.prefWidth}"
+                                   fitHeight="${_imgContainerMedium10.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../img/not_available.png"/>
+                        </ImageView>
+                    </HBox>
+                </VBox>
             </HBox>
             <Region styleClass="min-height-xlarge"/>
             <HBox alignment="CENTER">

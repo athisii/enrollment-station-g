@@ -15,8 +15,9 @@ public class DisplayUtil {
         throw new AssertionError("The DisplayUtil methods must be accessed statically.");
     }
 
-    public static final int[] SCREEN_SD = {1024, 768}; //default
-    public static final int[] SCREEN_HD = {1440, 1080};
+    public static final int[] SCREEN_SD = {1024, 768}; //default FES
+    public static final int[] SCREEN_1400X1050 = {1400, 1050};
+    public static final int[] SCREEN_1600X1200 = {1600, 1200};
     public static final int SCREEN_WIDTH;
     public static final int SCREEN_HEIGHT;
 
@@ -25,7 +26,7 @@ public class DisplayUtil {
         try {
             String[] resolution = Arrays.stream(Files.readAllLines(Path.of(PropertyFile.getProperty(PropertyName.SYSTEM_DISPLAY_RESOLUTION_FILE)))
                             .stream()
-                            .filter(line -> line.contains("--mode"))
+                            .filter(line -> line.contains("--mode") && !line.contains("#"))
                             .reduce((first, second) -> second) // get the last line
                             .orElseThrow(() -> new GenericException(errorMessage))
                             .split("\\s")) // split by white space

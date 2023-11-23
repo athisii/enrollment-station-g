@@ -135,15 +135,7 @@ public class ContractController extends AbstractBaseController {
 
 
     public void initialize() {
-        test();
         fetchDetails();
-    }
-
-    private void test() {
-        ContractorCardInfo contractorCardInfo = new ContractorCardInfo();
-        contractorCardInfo.setContractorName("Athisii Ekhe");
-        contractorCardInfo.setContractorId("0000012");
-        TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
     }
 
     private ObservableList<Contract> filterList(List<Contract> list, String searchText) {

@@ -80,9 +80,12 @@ public final class App extends Application {
     }
 
     public static String getCssFileName() {
-        // if width >= 1440 and height >= 1080
-        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_HD[0] && DisplayUtil.SCREEN_HEIGHT >= DisplayUtil.SCREEN_HD[1]) {
-            return "/style/screen_hd.css";
+        // if width >= 1600 and height >= 1200
+        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_1600X1200[0] && DisplayUtil.SCREEN_HEIGHT >= DisplayUtil.SCREEN_1600X1200[1]) {
+            return "/style/screen_1600x1200.css";
+        }// if width >= 1400 and height >= 1050
+        if (DisplayUtil.SCREEN_WIDTH >= DisplayUtil.SCREEN_1400X1050[0] && DisplayUtil.SCREEN_HEIGHT >= DisplayUtil.SCREEN_1400X1050[1]) {
+            return "/style/screen_1400x1050.css";
         }
         return "/style/base.css";
     }

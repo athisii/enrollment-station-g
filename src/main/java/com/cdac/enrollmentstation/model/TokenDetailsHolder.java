@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TokenDetailsHolder {
     ContractorCardInfo contractorCardInfo; // sets by ContractorTokenIssuanceController and ContractController

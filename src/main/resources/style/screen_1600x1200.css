@@ -1,0 +1,226 @@
+@import "base.css";
+
+.root {
+    -fx-font-size: 24px;
+}
+
+.pref-width-small {
+    -fx-pref-width: 150px;
+}
+
+.pref-width-medium {
+    -fx-pref-width: 375px;
+}
+
+.label-border-style {
+    -fx-pref-width: 330px;
+    -fx-pref-height: 45px;
+    -fx-border-radius: 7px;
+}
+
+.btn-medium {
+    -fx-pref-width: 225px;
+    -fx-pref-height: 60px;
+    -fx-background-radius: 30px;
+}
+
+.btn-large {
+    -fx-font-size: 27px;
+    -fx-pref-width: 405px;
+    -fx-pref-height: 60px;
+    -fx-background-radius: 30px;
+}
+
+.btn-img {
+    -fx-pref-height: 60px;
+    -fx-pref-width: 60px;
+    -fx-padding: 7px;
+}
+
+.btn-progress {
+    -fx-background-radius: 30px;
+}
+
+.btn-progress-completed {
+    -fx-background-color: -fx-btn-bg-color;
+}
+
+/*  image container */
+.img-container {
+    -fx-pref-width: 60px;
+    -fx-pref-height: 60px;
+}
+
+.img-container-small {
+    -fx-pref-width: 75px;
+    -fx-pref-height: 75px;
+}
+
+.img-container-medium {
+    -fx-pref-width: 105px;
+    -fx-pref-height: 105px;
+}
+
+.img-container-large {
+    -fx-pref-width: 210px;
+    -fx-pref-height: 210px;
+}
+
+.img-container-xlarge {
+    -fx-pref-width: 300px;
+    -fx-pref-height: 300px;
+}
+
+/* padding */
+.padding {
+    -fx-padding: 7px;
+}
+
+.padding-small {
+    -fx-padding: 15px;
+}
+
+.padding-medium {
+    -fx-padding: 30px;
+}
+
+.padding-large {
+    -fx-padding: 45px;
+}
+
+/* border-radius */
+.border-radius {
+    -fx-border-radius: 7px;
+}
+
+.border-radius-small {
+    -fx-border-radius: 15px;
+}
+
+.border-radius-medium {
+    -fx-border-radius: 30px;
+}
+
+.border-radius-large {
+    -fx-border-radius: 45px;
+}
+
+/* background-radius */
+.bg-border-radius {
+    -fx-background-radius: 7px;
+}
+
+.bg-border-radius-small {
+    -fx-background-radius: 15px;
+}
+
+.bg-border-radius-medium {
+    -fx-background-radius: 30px;
+}
+
+.bg-border-radius-large {
+    -fx-background-radius: 45px;
+}
+
+.font-size {
+    -fx-font-size: 21px;
+}
+
+.font-size-small {
+    -fx-font-size: 24px;
+}
+
+.font-size-medium {
+    -fx-font-size: 27px;
+}
+
+.font-size-large {
+    -fx-font-size: 30px;
+}
+
+.input-field {
+    -fx-font-size: 24px;
+    -fx-pref-width: 375px;
+    -fx-pref-height: 51px;
+    -fx-background-radius: 12px;
+}
+
+.min-width {
+    -fx-min-width: 7px;
+}
+
+.min-width-small {
+    -fx-min-width: 15px;
+}
+
+.min-width-medium {
+    -fx-min-width: 30px;
+}
+
+.min-width-large {
+    -fx-min-width: 150px;
+}
+
+.min-width-xlarge {
+    -fx-min-width: 225px;
+}
+
+.min-width-xx-large {
+    -fx-min-width: 750px;
+}
+
+.min-height {
+    -fx-min-height: 7px;
+}
+
+.min-height-small {
+    -fx-min-height: 15px;
+}
+
+.min-height-medium {
+    -fx-min-height: 30px;
+}
+
+.min-height-large {
+    -fx-min-height: 45px;
+}
+
+.min-height-xlarge {
+    -fx-min-height: 60px;
+}
+
+.confirm-box {
+    -fx-background-radius: 15px;
+}
+
+.canvas-container {
+    -fx-pref-width: 750px;
+    -fx-pref-height: 450px;
+    -fx-border-color: black;
+    -fx-border-width: 3px;
+    -fx-border-style: solid;
+}
+
+/* table style */
+.table-view { /* default table */
+    -fx-fixed-cell-size: 60px;
+}
+
+.table-container-3-cols {
+    -fx-pref-width: 900px;
+    -fx-pref-height: 600px;
+}
+
+.table-container-4-cols {
+    -fx-pref-width: 975px;
+    -fx-pref-height: 600px;
+}
+
+.table-view-column-width {
+    -fx-pref-width: 300px;
+}
+
+.combo-box {
+    -fx-background-radius: 7px;
+    -fx-pref-width: 300px;
+}

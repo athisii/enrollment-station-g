@@ -926,6 +926,7 @@ public class SlapScannerController extends AbstractBaseController {
         } else if (!thumbScanBtn.isDisable()) {
             currentEnabledButton = thumbScanBtn;
         } else {
+            // when license check fails
             LOGGER.log(Level.SEVERE, "No button is enabled.");
             throw new GenericException("At least one button should be enabled.");
         }
@@ -951,11 +952,17 @@ public class SlapScannerController extends AbstractBaseController {
                     releaseDevice(leftFpDeviceHandler);
                     releaseDevice(rightFpDeviceHandler);
                 }
-                App.setRoot("biometric_enrollment");
-            } catch (IOException | InterruptedException ex) {
-                if (ex instanceof InterruptedException) {
-                    Thread.currentThread().interrupt();
-                }
+                Platform.runLater(() -> {
+                    try {
+                        App.setRoot("biometric_enrollment");
+                    } catch (IOException ex) {
+                        LOGGER.log(Level.SEVERE, ex.getMessage());
+                        confirmText.setText(GENERIC_ERR_MSG);
+                        enableControls(confirmNoBtn, confirmYesBtn);
+                    }
+                });
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
                 LOGGER.log(Level.SEVERE, ex.getMessage());
                 Platform.runLater(() -> confirmText.setText(GENERIC_ERR_MSG));
                 enableControls(confirmNoBtn, confirmYesBtn);

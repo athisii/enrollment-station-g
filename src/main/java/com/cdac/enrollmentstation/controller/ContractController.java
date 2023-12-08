@@ -77,6 +77,7 @@ public class ContractController extends AbstractBaseController {
         }
 
         if (contractResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + contractResDto.getErrorCode());
             messageLabel.setText(contractResDto.getDesc());
             return;
         }

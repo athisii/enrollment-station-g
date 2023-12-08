@@ -151,27 +151,27 @@ public class Asn1CardTokenUtil {
         USER_CATEGORY_ID(3),
         NAME(4),
         SERVICE(5),
-        EMPTY(6),
-        PN(7),
-        UNIQUE_ID(8), // used for civilian
-        RANK(9),
-        DESIGNATION(10),
-        GROUP(11),
-        DATE_OF_BIRTH(12),
-        UNIT(13),
-        ZONE_ACCESS(14),
-        DATE_ISSUED(15),
-        PLACE_ISSUED(16),
-        BLOOD_GROUP(17),
-        NATIONALITY(18),
-        ISSUED_BY(19),
-        FIRMS_NAME(20),
-        GENDER(21),
-        SPONSOR_PHONE_NUMBER(22),
-        SPONSOR_NAME(23),
-        SPONSOR_RANK(24),
-        SPONSORS_UNIT(25),
-        RELATION(26);
+        //        EMPTY(6), // need to confirm
+        PN(6),
+        UNIQUE_ID(7), // used for civilian
+        RANK(8),
+        DESIGNATION(9),
+        GROUP(10),
+        DATE_OF_BIRTH(11),
+        UNIT(12),
+        ZONE_ACCESS(13),
+        DATE_ISSUED(14),
+        PLACE_ISSUED(15),
+        BLOOD_GROUP(16),
+        NATIONALITY(17),
+        ISSUED_BY(18),
+        FIRMS_NAME(19),
+        GENDER(20),
+        SPONSOR_PHONE_NUMBER(21),
+        SPONSOR_NAME(22),
+        SPONSOR_RANK(23),
+        SPONSORS_UNIT(24),
+        RELATION(25);
         private final int value;
 
         CardStaticDataIndex(int val) {
@@ -252,15 +252,15 @@ public class Asn1CardTokenUtil {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
             // ORDER MUST BE FOLLOWED
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(dynamicFile.getUserCategoryId()).trim())));
-            derSequenceGenerator.addObject(new DERPrintableString(nonNull(dynamicFile.getLabourName())));
+            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(return0IfNull(dynamicFile.getUserCategoryId(), "userCategoryId").trim())));
+            derSequenceGenerator.addObject(new DERPrintableString(returnDefaultStringIfNull(dynamicFile.getLabourName(), "labourName")));
             derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getGenderId()));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getDateOfBirth())));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(dynamicFile.getDateOfBirth(), "dateOfBirth")));
             derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getBloodGroupId()));
             derSequenceGenerator.addObject(new ASN1Integer(dynamicFile.getNationalityId()));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getIssuanceUnit())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getLabourId())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(dynamicFile.getContractorId())));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(dynamicFile.getIssuanceUnit(), "issuanceUnit")));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(dynamicFile.getLabourId(), "labourId")));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(dynamicFile.getContractorId(), "contractorId")));
             derSequenceGenerator.close(); // must close it
             bytes = byteArrayOutputStream.toByteArray();
         } catch (Exception ex) {
@@ -274,10 +274,27 @@ public class Asn1CardTokenUtil {
         storeBufferedData(handle, CardTokenFileType.DYNAMIC_FILE, bytes);
     }
 
-    private static String nonNull(String string) {
+    private static String returnDefaultStringIfNull(String string, String name) {
         if (string == null) {
-            LOGGER.log(Level.SEVERE, "Received null data from server.");
-            throw new GenericException("Received invalid data from server.");
+            LOGGER.log(Level.SEVERE, () -> "Received null value from server for: " + name);
+            return "received null value from server";
+        }
+        return string;
+    }
+
+    private static String returnDefaultBase64StringIfNull(String string, String name) {
+        if (string == null) {
+            LOGGER.log(Level.SEVERE, () -> "Received null value from server for: " + name);
+            // received null value from server
+            return "cmVjZWl2ZWQgbnVsbCB2YWx1ZSBmcm9tIHNlcnZlcg==";
+        }
+        return string;
+    }
+
+    private static String return0IfNull(String string, String name) {
+        if (string == null) {
+            LOGGER.log(Level.SEVERE, () -> "Received null value from server for: " + name);
+            return "0";
         }
         return string;
     }
@@ -294,8 +311,8 @@ public class Asn1CardTokenUtil {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
             // ORDER MUST BE FOLLOWED
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(defaultValidityFile.getValidFrom())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(defaultValidityFile.getValidTo())));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(defaultValidityFile.getValidFrom(), "defaultValidFrom")));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(defaultValidityFile.getValidTo(), "defaultValidityFile")));
             derSequenceGenerator.close(); // must close it
             bytes = byteArrayOutputStream.toByteArray();
         } catch (Exception ex) {
@@ -322,8 +339,8 @@ public class Asn1CardTokenUtil {
             ASN1EncodableVector set = new ASN1EncodableVector();
             for (LabourFp fp : fps) {
                 ASN1EncodableVector asn1EncodableVector = new ASN1EncodableVector();
-                asn1EncodableVector.add(new DERIA5String(nonNull(fp.getFpPos())));
-                asn1EncodableVector.add(new DEROctetString(Base64.getDecoder().decode(nonNull(fp.getFpData()))));
+                asn1EncodableVector.add(new DERIA5String(returnDefaultStringIfNull(fp.getFpPos(), "fpPos")));
+                asn1EncodableVector.add(new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(fp.getFpData(), "fpData"))));
                 DERSequence sequence = new DERSequence(asn1EncodableVector);
                 set.add(sequence);
             }
@@ -350,7 +367,7 @@ public class Asn1CardTokenUtil {
     public static void encodeAndStorePhotoFile(int handle, String base64EncodedPhoto) {
         byte[] bytes;
         try {
-            bytes = new DEROctetString(Base64.getDecoder().decode(nonNull(base64EncodedPhoto))).getEncoded();
+            bytes = new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(base64EncodedPhoto, "photo"))).getEncoded();
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while encoding photo file.");
@@ -373,7 +390,7 @@ public class Asn1CardTokenUtil {
     public static void encodeAndStoreSignFile1(int handle, String signFile1) {
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(signFile1);
+            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile1, "signFile1"));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding signature file1.");
@@ -395,7 +412,7 @@ public class Asn1CardTokenUtil {
     public static void encodeAndStoreSignFile3(int handle, String signFile3) {
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(signFile3);
+            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile3, "signFile3"));
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding signature file3.");
@@ -419,11 +436,11 @@ public class Asn1CardTokenUtil {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
             DERSequenceGenerator derSequenceGenerator = new DERSequenceGenerator(byteArrayOutputStream);
             // ORDER MUST BE FOLLOWED
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getUnitCode()).trim())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getZoneId()).trim())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(accessFile.getFromDate())));
-            derSequenceGenerator.addObject(new DERIA5String(nonNull(accessFile.getToDate())));
-            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(nonNull(accessFile.getWorkingHourCode().trim()))));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(accessFile.getUnitCode(), "unitCode").trim()));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(accessFile.getZoneId(), "zoneId").trim()));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(accessFile.getFromDate(), "fromDate")));
+            derSequenceGenerator.addObject(new DERIA5String(returnDefaultStringIfNull(accessFile.getToDate(), "toDate")));
+            derSequenceGenerator.addObject(new ASN1Integer(Integer.parseUnsignedInt(return0IfNull(accessFile.getWorkingHourCode(), "workingHourCode").trim())));
             derSequenceGenerator.close(); // must close it
             bytes = byteArrayOutputStream.toByteArray();
         } catch (Exception ex) {

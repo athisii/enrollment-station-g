@@ -32,7 +32,7 @@
                 <HBox styleClass="border-color-darkblue, border-radius-medium, padding-medium" alignment="CENTER">
                     <VBox styleClass="padding-medium">
                         <HBox alignment="CENTER">
-                            <Label text="Mafis API Server URL :"/>
+                            <Label text="Mafis API Server URL :" focusTraversable="true"/>
                             <Region styleClass="min-width-small"/>
                             <TextField fx:id="mafisUrlTextField" styleClass="input-field" disable="true"/>
                         </HBox>

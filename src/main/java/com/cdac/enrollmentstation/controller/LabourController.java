@@ -138,8 +138,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     public void fetchLabourList() {
         TokenDetailsHolder tokenDetailsHolder = TokenDetailsHolder.getDetailsHolder();
-        lblContractorName.setText(tokenDetailsHolder.getContractorCardInfo().getContractorName());
-        lblContractName.setText(tokenDetailsHolder.getContractorCardInfo().getContractId());
+        lblContractorName.setText("CONTRACTOR NAME: " + tokenDetailsHolder.getContractorCardInfo().getContractorName());
+        lblContractName.setText("CONTRACT ID: " + tokenDetailsHolder.getContractorCardInfo().getContractId());
 
         ContractorCardInfo contractDetails = tokenDetailsHolder.getContractorCardInfo();
         LabourResDto labourResDto;
@@ -154,6 +154,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (labourResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + labourResDto.getErrorCode());
             messageLabel.setText(labourResDto.getDesc());
             return;
         }
@@ -337,7 +338,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (resDto.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> "Error Desc: " + resDto.getDesc());
+            LOGGER.log(Level.SEVERE, () -> "***ServerErrorCode: " + resDto.getErrorCode());
+            LOGGER.log(Level.SEVERE, () -> "***ServerErrorDesc: " + resDto.getDesc());
             updateUi(resDto.getDesc());
             return;
         }
@@ -370,10 +372,6 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         // DeInitialize and start over again.
 
         /*
-            DeInitialize
-            Initialize
-            waitForConnect - card
-            selectApp - card
             waitForConnect - token
             selectApp - token
             read data(static) - token
@@ -389,28 +387,6 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                   6. signature 1
                   7. signature 3
          */
-        Asn1CardTokenUtil.deInitialize();
-        Asn1CardTokenUtil.initialize();
-        // setup reader; need to add a delay for some milliseconds
-        try {
-            Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
-            Thread.currentThread().interrupt();
-        }
-        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
-        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
-        if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
-            LOGGER.log(Level.INFO, () -> "****CSNError: Decoded bytes size not matched with response length.");
-            throw new GenericException("Decoded bytes size not matched with response length.");
-        }
-        if (!TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardChipSerialNo().equals(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase())) {
-            LOGGER.log(Level.INFO, () -> "****Current CSN not matched with the saved CSN.");
-            throw new GenericException("No game. Please use the previous contractor card.");
-        }
-        int cardHandle = crWaitForConnectResDto.getHandle();
-        Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, cardHandle);
-
         // setup writer; need to add a delay for some milliseconds
         try {
             Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
@@ -426,8 +402,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             Thread.currentThread().interrupt();
         }
 
-        crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
-        decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
+        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
             LOGGER.log(Level.INFO, () -> "CSNError: Decoded bytes size not matched with response length.");
             throw new GenericException("Decoded bytes size not matched with response length.");
@@ -439,9 +415,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         String tokenNumber = new String(extractFromAsn1EncodedStaticData(asn1EncodedTokenStaticData, 1), StandardCharsets.UTF_8);
 
         // read cert now
-        byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(cardHandle, CardTokenFileType.SYSTEM_CERTIFICATE);
+        byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle(), CardTokenFileType.SYSTEM_CERTIFICATE);
         Asn1CardTokenUtil.verifyCertificate(tokenHandle, WHICH_TRUST, WHICH_CERTIFICATE, systemCertificate);
-        Asn1CardTokenUtil.pkiAuth(tokenHandle, cardHandle);
+        Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
         Asn1CardTokenUtil.encodeAndStoreDynamicFile(tokenHandle, labour.getDynamicFile());
         Asn1CardTokenUtil.encodeAndStoreDefaultValidityFile(tokenHandle, labour.getDefaultValidityFile());

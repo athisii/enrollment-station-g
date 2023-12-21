@@ -70,13 +70,17 @@ public class AdminAuthController extends AbstractBaseController {
     private void authenticateUser() {
         try {
             if (AuthUtil.authenticate(username.getText(), passwordField.getText())) {
-                App.setRoot("admin_config");
+                try {
+                    App.setRoot("admin_config");
+                } catch (IOException ex) {
+                    throw new GenericException(ex.getMessage());
+                }
                 isDone = true;
                 return;
             }
             LOGGER.log(Level.INFO, "Incorrect username or password.");
             updateUi("Wrong username or password.");
-        } catch (GenericException | IOException ex) {
+        } catch (GenericException ex) {
             updateUi(ex.getMessage());
         }
         isDone = true;

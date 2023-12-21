@@ -89,13 +89,15 @@ public class TokenIssuanceController extends AbstractBaseController {
         contractorCardInfo.setContractorId(contractorId);
 
         TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
-        try {
-            App.setRoot("contract");
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            updateUi("Something went wrong. Contact the system admin.");
-            enableControls(backBtn, continueBtn);
-        }
+        Platform.runLater(() -> {
+            try {
+                App.setRoot("contract");
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                messageLabel.setText("Something went wrong. Contact the system admin.");
+                enableControls(backBtn, continueBtn);
+            }
+        });
     }
 
     @FXML

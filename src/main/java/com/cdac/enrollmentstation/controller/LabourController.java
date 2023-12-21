@@ -355,6 +355,12 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         tableView.refresh();
 
         if (tableView.getItems().isEmpty()) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                Thread.currentThread().interrupt();
+            }
             Platform.runLater(() -> {
                 try {
                     App.setRoot("contract");
@@ -408,7 +414,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             LOGGER.log(Level.INFO, () -> "CSNError: Decoded bytes size not matched with response length.");
             throw new GenericException("Decoded bytes size not matched with response length.");
         }
-        String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn));
+        String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase();
         int tokenHandle = crWaitForConnectResDto.getHandle();
         Asn1CardTokenUtil.selectApp(TOKEN_TYPE_NUMBER, tokenHandle);
         byte[] asn1EncodedTokenStaticData = Asn1CardTokenUtil.readBufferedData(tokenHandle, CardTokenFileType.STATIC);

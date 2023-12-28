@@ -374,10 +374,15 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     }
 
     private TokenReqDto startProcedureCall(Labour labour) {
+
         // If user removes the contractor card, the handle will change, so to be on the safe, lets
         // DeInitialize and start over again.
 
         /*
+            DeInitialize
+            Initialize
+            waitForConnect - card
+            selectApp - card
             waitForConnect - token
             selectApp - token
             read data(static) - token
@@ -393,6 +398,29 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                   6. signature 1
                   7. signature 3
          */
+        Asn1CardTokenUtil.deInitialize();
+        Asn1CardTokenUtil.initialize();
+        // setup reader; need to add a delay for some milliseconds
+        try {
+            Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
+        } catch (InterruptedException e) {
+            LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
+            Thread.currentThread().interrupt();
+        }
+        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
+            LOGGER.log(Level.INFO, () -> "****CSNError: Decoded bytes size not matched with response length.");
+            throw new GenericException("Decoded bytes size not matched with response length.");
+        }
+        if (!TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardChipSerialNo().equals(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase())) {
+            LOGGER.log(Level.INFO, () -> "****Current CSN not matched with the saved CSN.");
+            throw new GenericException("No game. Please use the previous contractor card.");
+        }
+        int cardHandle = crWaitForConnectResDto.getHandle();
+        TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().setCardHandle(cardHandle);
+        Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, cardHandle);
+
         // setup writer; need to add a delay for some milliseconds
         try {
             Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
@@ -408,13 +436,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             Thread.currentThread().interrupt();
         }
 
-        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
-        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
+        decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
             LOGGER.log(Level.INFO, () -> "CSNError: Decoded bytes size not matched with response length.");
             throw new GenericException("Decoded bytes size not matched with response length.");
         }
-        String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase();
+        String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn));
         int tokenHandle = crWaitForConnectResDto.getHandle();
         Asn1CardTokenUtil.selectApp(TOKEN_TYPE_NUMBER, tokenHandle);
         byte[] asn1EncodedTokenStaticData = Asn1CardTokenUtil.readBufferedData(tokenHandle, CardTokenFileType.STATIC);

@@ -1,6 +1,8 @@
 package com.cdac.enrollmentstation.model;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 @Getter
@@ -12,4 +14,5 @@ public class LabourDetailsTableRow {
     String dateOfBirth;
     String photo;
     String strStatus;
+    int count;
 }

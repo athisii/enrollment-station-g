@@ -56,6 +56,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private static final Logger LOGGER = ApplicationLog.getLogger(LabourController.class);
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    private static final int LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT = 6;
+    private int labour_fp_auth_count = 0;
     @FXML
     private Button selectNextContractorBtn;
     private int jniErrorCode;
@@ -224,14 +226,20 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             row.setOnMouseClicked(event -> {
                 // check for non-empty rows, double-click with the primary button of the mouse
                 if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
-                    messageLabel.setText("");
                     fingerprintImageView.setImage(null);
+                    LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
+                    if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                        updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                        return;
+                    }
+                    messageLabel.setText("");
                     captureBtn.setDisable(false);
                 }
             });
             return row;
         });
     }
+
 
     @FXML
     private void showContractBtnAction() throws IOException {
@@ -300,29 +308,44 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (!matchFound) {
-            updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
-            return;
+            LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
+            selectedLabour.setCount(selectedLabour.getCount() + 1);
+            if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                dispenseToken(labour, false);
+            } else if (selectedLabour.getCount() < 3) {
+                updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
+            } else {
+                updateUi("The remaining attempt(s) for " + selectedLabour.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - selectedLabour.getCount()));
+            }
+            return; // return since fingerprint auth failed
         }
         updateUi("Fingerprint matched for labour id: " + labourDetailsTableRowRow.getLabourId());
         //now match found.
-        dispenseToken(labour);
+        dispenseToken(labour, true);
     }
 
-    private void dispenseToken(Labour labour) {
-        //dispenses token on card writer
-        if (!TokenDispenserUtil.dispenseToken()) {
-            updateUi("Kindly check the Token Dispenser and try again.");
-            return;
-        }
+    private void dispenseToken(Labour labour, boolean issueToken) {
         TokenReqDto tokenReqDto;
-        try {
-            tokenReqDto = startProcedureCall(labour);
-        } catch (GenericException | NoReaderOrCardException ex) {
-            updateUi(ex.getMessage());
-            return;
-        } catch (ConnectionTimeoutException ex) {
-            updateUi("Something went wrong. Kindly check Card API service.");
-            return;
+        if (issueToken) {
+            //dispenses token on card writer
+            if (!TokenDispenserUtil.dispenseToken()) {
+                updateUi("Kindly check the Token Dispenser and try again.");
+                return;
+            }
+            try {
+                tokenReqDto = startProcedureCall(labour);
+            } catch (GenericException | NoReaderOrCardException ex) {
+                updateUi(ex.getMessage());
+                return;
+            } catch (ConnectionTimeoutException ex) {
+                updateUi("Something went wrong. Kindly check Card API service.");
+                return;
+            }
+        } else {
+            tokenReqDto = createTokenReqDto(labour.getDynamicFile().getLabourId(), "0", "0");
+            tokenReqDto.setLabourStatus("Unsuccess");
+            tokenReqDto.setTokenIssuanceStatus("Pending");
         }
 
         CommonResDto resDto;
@@ -343,6 +366,12 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             updateUi(resDto.getDesc());
             return;
         }
+
+        if (!issueToken) {
+            updateUi("The allowed number of attempts for Labor id: " + labour.getDynamicFile().getLabourId() + " has been exhausted.");
+            return;
+        }
+
         updateUi("Kindly collect the token.");
         LOGGER.log(Level.INFO, "Token dispensed successfully.");
         Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
@@ -475,6 +504,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         tokenReqDto.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
         tokenReqDto.setTokenId(tokenNumber);
         tokenReqDto.setVerifyFpSerialNo(deviceInfo.SerialNo);
+        tokenReqDto.setLabourStatus("Success");
+        tokenReqDto.setTokenIssuanceStatus("Issued");
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         tokenReqDto.setTokenIssuanceDate(dtf.format(LocalDateTime.now()));
         return tokenReqDto;

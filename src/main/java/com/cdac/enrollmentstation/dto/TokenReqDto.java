@@ -19,4 +19,6 @@ public class TokenReqDto {
     String enrollmentStationUnitId;
     String tokenId;
     String verifyFpSerialNo;
+    String labourStatus;
+    String tokenIssuanceStatus;
 }

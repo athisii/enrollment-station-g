@@ -287,9 +287,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         boolean matchFound = false;
         int fpMatchMinThreshold;
         try {
-            fpMatchMinThreshold = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_MATCH_MIN_THRESHOLD).trim());
+            fpMatchMinThreshold = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_MATCH_MIN_THRESHOLD_TOKEN_ISSUANCE).trim());
         } catch (NumberFormatException | GenericException ex) {
-            LOGGER.log(Level.SEVERE, () -> "Not a number or no entry for '" + PropertyName.FP_MATCH_MIN_THRESHOLD + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            LOGGER.log(Level.SEVERE, () -> "Not a number or no entry for '" + PropertyName.FP_MATCH_MIN_THRESHOLD_TOKEN_ISSUANCE + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
             throw new GenericException(GENERIC_ERR_MSG);
         }
 

@@ -29,7 +29,8 @@ public class PropertyName {
     public static final String JKS_PASSWORD = "jks.password";
     public static final String JKS_ALIAS_MANTRA = "jks.alias.mantra";
     public static final String JKS_ALIAS_TECHM = "jks.alias.techm";
-    public static final String FP_MATCH_MIN_THRESHOLD = "fp.match.min.threshold";
+    public static final String FP_MATCH_MIN_THRESHOLD_ENROLLMENT = "fp.match.min.threshold.enrollment";
+    public static final String FP_MATCH_MIN_THRESHOLD_TOKEN_ISSUANCE = "fp.match.min.threshold.token.issuance";
     public static final String ADMIN_PASSWD = "admin.passwd";
     public static final String PYTHON_IMAGE_PROCESSOR_COMMAND = "python.image.processor.command";
     public static final String IMG_PHOTO_INPUT_FILE = "img.photo.input.file";

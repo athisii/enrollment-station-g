@@ -53,6 +53,7 @@ public class PropertyName {
     public static final String MAFIS_API_URL = "mafis.api.url";
     public static final String ENROLLMENT_STATION_ID = "enrollment.station.id";
     public static final String ENROLLMENT_STATION_UNIT_ID = "enrollment.station.unit.id";
+    public static final String ENROLLMENT_STATION_UNIT_CAPTION = "enrollment.station.unit.caption";
     public static final String FINGERPRINT_LIVENESS_MAX = "fingerprint.liveness.max";
     public static final String FINGERPRINT_LIVENESS_MIN = "fingerprint.liveness.min";
     public static final String FINGERPRINT_LIVENESS_VALUE = "fingerprint.liveness.value";

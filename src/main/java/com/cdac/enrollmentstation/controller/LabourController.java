@@ -57,7 +57,6 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     private static final int LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT = 6;
-    private int labour_fp_auth_count = 0;
     @FXML
     private Button selectNextContractorBtn;
     private int jniErrorCode;
@@ -312,7 +311,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             selectedLabour.setCount(selectedLabour.getCount() + 1);
             if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                 updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
-                dispenseToken(labour, false);
+                if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                    dispenseToken(labour, false);
+                }
             } else if (selectedLabour.getCount() < 3) {
                 updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
             } else {
@@ -368,7 +369,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (!issueToken) {
-            updateUi("The allowed number of attempts for Labor id: " + labour.getDynamicFile().getLabourId() + " has been exhausted.");
+            // already updated the UI for failed max attempt
             return;
         }
 

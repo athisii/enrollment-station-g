@@ -311,9 +311,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             selectedLabour.setCount(selectedLabour.getCount() + 1);
             if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                 updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
-                if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                    dispenseToken(labour, false);
-                }
+                dispenseToken(labour, false);
             } else if (selectedLabour.getCount() < 3) {
                 updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
             } else {
@@ -368,20 +366,17 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
 
-        if (!issueToken) {
-            // already updated the UI for failed max attempt
-            return;
-        }
 
-        updateUi("Kindly collect the token.");
-        LOGGER.log(Level.INFO, "Token dispensed successfully.");
         Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
-
         LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
 
-        labourDetailsTableRow.setStrStatus("token issued"); // not really import now
+        if (issueToken) {
+            updateUi("Kindly collect the token.");
+            labourDetailsTableRow.setStrStatus("token issued"); // not really import now
+            LOGGER.log(Level.INFO, "Token dispensed successfully.");
+        } // for auth fp auth failure, already updated on UI
 
-        tableView.getItems().remove(labourDetailsTableRow); // remove for now
+        tableView.getItems().remove(labourDetailsTableRow);
         tableView.refresh();
 
         if (tableView.getItems().isEmpty()) {

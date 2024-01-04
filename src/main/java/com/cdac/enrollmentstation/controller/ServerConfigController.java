@@ -95,7 +95,6 @@ public class ServerConfigController extends AbstractBaseController {
         PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_ID, unit.getValue());
         PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION, unit.getCaption());
         messageLabel.setText("Updated successfully.");
-
     }
 
 
@@ -109,6 +108,7 @@ public class ServerConfigController extends AbstractBaseController {
         messageLabel.setText("Fetching units...");
         disableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
         enrollmentStationUnitIdsComboBox.setItems(FXCollections.observableArrayList());
+        enrollmentStationUnitIdsComboBox.setValue(null); // selected value
         App.getThreadPool().execute(this::fetchUnits);
     }
 
@@ -122,7 +122,6 @@ public class ServerConfigController extends AbstractBaseController {
         } catch (ConnectionTimeoutException ex) {
             Platform.runLater(() -> {
                 messageLabel.setText("Connection timeout. Please try again.");
-                enrollmentStationUnitIdsComboBox.getItems().clear();
                 enableControls(backBtn, homeBtn, editBtn, fetchUnitsBtn);
             });
             return;

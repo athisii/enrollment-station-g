@@ -10,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -43,16 +42,12 @@ public class AdminConfigController extends AbstractBaseController {
     @FXML
     private Button liveFpBtn;
 
-    @FXML
-    private AnchorPane confirmPane;
-
     /**
      * Automatically called by JavaFX runtime.
      */
     public void initialize() {
         liveFpTextField.setText(String.valueOf(fingerprintLivenessValue));
         liveFpBtn.setOnAction(event -> liveFpBtnAction());
-
     }
 
     private void liveFpBtnAction() {
@@ -105,38 +100,6 @@ public class AdminConfigController extends AbstractBaseController {
     @FXML
     public void logOut() throws IOException {
         App.setRoot("admin_auth");
-
-    }
-
-    @FXML
-    public void restartSystem() {
-        confirmPane.setVisible(true);
-    }
-
-    @FXML
-    private void restart() {
-        restartSys();
-    }
-
-    @FXML
-    private void stayBack() {
-        confirmPane.setVisible(false);
-    }
-
-    private void restartSys() {
-        try {
-            LOGGER.log(Level.INFO, "System restarting..");
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.command("bash", "-c", "init 6");
-            Process process = processBuilder.start();
-            int exitCode = process.waitFor();
-            LOGGER.log(Level.INFO, () -> "Exited with error code : " + exitCode);
-        } catch (IOException | InterruptedException ex) {
-            if (ex instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            LOGGER.log(Level.INFO, ex.getMessage());
-        }
     }
 
 

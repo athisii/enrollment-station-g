@@ -3,8 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
-            xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cdac.enrollmentstation.controller.AdminAuthController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
@@ -18,14 +17,14 @@
             <!--  id: _imgContainer -> only used in fxml expression       -->
             <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
             <HBox fx:id="_imgContainer" styleClass="img-container">
-                <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                <ImageView fitHeight="${_imgContainer.prefHeight}" fitWidth="${_imgContainer.prefWidth}"
                            preserveRatio="true">
                     <Image url="@../gif/authentication.gif"/>
                 </ImageView>
             </HBox>
             <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
-            <Label fx:id="bodyHeaderLabel" styleClass="padding-small, bg-border-radius-small, press-effect"
-                   text="AUTHENTICATION" focusTraversable="true"/>
+            <Label fx:id="bodyHeaderLabel" focusTraversable="true"
+                   styleClass="padding-small, bg-border-radius-small, press-effect" text="AUTHENTICATION"/>
         </HBox>
     </left>
     <!--   will place the content in the middle -->
@@ -35,33 +34,31 @@
     </right>
     <center>
         <VBox alignment="CENTER">
-            <VBox styleClass="border-color-darkblue, border-radius-medium" alignment="CENTER">
+            <VBox alignment="CENTER" styleClass="border-color-darkblue, border-radius-medium">
                 <VBox>
                     <Region styleClass="min-height-large"/>
                     <HBox alignment="CENTER">
                         <!--  id: _imgContainer1 -> only used in fxml expression       -->
                         <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
                         <HBox fx:id="_imgContainer1" styleClass="img-container">
-                            <ImageView fitWidth="${_imgContainer1.prefWidth}"
-                                       fitHeight="${_imgContainer1.prefHeight}"
+                            <ImageView fitHeight="${_imgContainer1.prefHeight}" fitWidth="${_imgContainer1.prefWidth}"
                                        preserveRatio="true">
                                 <Image url="@../img/username.png"/>
                             </ImageView>
                         </HBox>
                         <Region styleClass="min-width-medium"/>
-                        <TextField fx:id="username" styleClass="input-field" promptText="Username"/>
+                        <TextField fx:id="username" promptText="Username" styleClass="input-field"/>
                     </HBox>
                     <Region styleClass="min-height-medium"/>
                     <HBox alignment="CENTER">
                         <HBox fx:id="_imgContainer2" styleClass="img-container">
-                            <ImageView fitWidth="${_imgContainer2.prefWidth}"
-                                       fitHeight="${_imgContainer2.prefHeight}"
+                            <ImageView fitHeight="${_imgContainer2.prefHeight}" fitWidth="${_imgContainer2.prefWidth}"
                                        preserveRatio="true">
                                 <Image url="@../img/password.png"/>
                             </ImageView>
                         </HBox>
                         <Region styleClass="min-width-medium"/>
-                        <PasswordField fx:id="passwordField" styleClass="input-field" promptText="Password"/>
+                        <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
                     </HBox>
                 </VBox>
                 <Region styleClass="min-height-small"/>
@@ -70,14 +67,14 @@
             </VBox>
             <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER">
-                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" onAction="#showHome" text="BACK"/>
+                <Button fx:id="backBtn" onAction="#showHome" styleClass="btn-medium, press-effect" text="BACK"/>
                 <Region styleClass="min-width-large"/>
-                <Button fx:id="loginBtn" styleClass="btn-medium, press-effect" onAction="#serverConfig" text="LOGIN"/>
+                <Button fx:id="loginBtn" onAction="#loginBtnAction" styleClass="btn-medium, press-effect" text="LOGIN"/>
             </HBox>
         </VBox>
     </center>
     <bottom>
-        <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">
+        <HBox alignment="CENTER" styleClass="padding, bg-color-bright-blue">
             <Label styleClass="text-white" text="${controller.appVersion}"/>
         </HBox>
     </bottom>

@@ -54,7 +54,7 @@ public class AdminAuthController extends AbstractBaseController {
 
 
     @FXML
-    public void serverConfig() {
+    public void loginBtnAction() {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             if (!isDone) {
                 statusMsg.setText("The server is taking more time than expected. Kindly try again.");
@@ -70,17 +70,20 @@ public class AdminAuthController extends AbstractBaseController {
     private void authenticateUser() {
         try {
             if (AuthUtil.authenticate(username.getText(), passwordField.getText())) {
-                try {
-                    App.setRoot("admin_config");
-                } catch (IOException ex) {
-                    throw new GenericException(ex.getMessage());
-                }
+                // must set on JavaFX thread.
+                Platform.runLater(() -> {
+                    try {
+                        App.setRoot("admin_config");
+                    } catch (IOException ex) {
+                        throw new GenericException(ex.getMessage());
+                    }
+                });
                 isDone = true;
                 return;
             }
             LOGGER.log(Level.INFO, "Incorrect username or password.");
             updateUi("Wrong username or password.");
-        } catch (GenericException ex) {
+        } catch (Exception ex) {
             updateUi(ex.getMessage());
         }
         isDone = true;
@@ -106,7 +109,7 @@ public class AdminAuthController extends AbstractBaseController {
         });
         passwordField.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
-                serverConfig();
+                loginBtnAction();
             }
         });
     }

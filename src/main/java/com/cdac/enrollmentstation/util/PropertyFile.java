@@ -36,7 +36,11 @@ public class PropertyFile {
 
     // also return null values
     public static String getProperty(String propertyName) {
-        return properties.getProperty(propertyName);
+        String property = properties.getProperty(propertyName);
+        if (property == null || property.isBlank()) {
+            throw new GenericException("Property name: " + propertyName + " not found in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        return property;
     }
 
     public static synchronized void changePropertyValue(String propertyName, String value) {

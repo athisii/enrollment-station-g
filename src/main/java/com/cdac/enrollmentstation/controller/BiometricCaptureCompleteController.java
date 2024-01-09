@@ -121,6 +121,7 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         }
 
         if (!arcDetail.isSignatureRequired()) {
+            saveEnrollmentDetail.setSignatureRequired(false);
             saveEnrollmentDetail.setSignature(NOT_AVAILABLE);
             saveEnrollmentDetail.setSignatureCompressed(NOT_AVAILABLE);
         }

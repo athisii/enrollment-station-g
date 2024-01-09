@@ -21,8 +21,8 @@ public class ArcDetail {
     String rank;
     String applicantId;
     String unit;
-    @JsonProperty("isSignatureRequired")
-    boolean isSignatureRequired;
+    @JsonProperty("signatureReqd")
+    boolean signatureRequired;
     List<String> fingers;
     List<String> iris;
     String detailLink;

@@ -226,6 +226,7 @@ public class SignatureController extends AbstractBaseController {
             setMetadataAndSave(filteredCompressed, IMG_SIGNATURE_COMPRESSED_FILE);
 
             SaveEnrollmentDetail saveEnrollmentDetail = ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetail();
+            saveEnrollmentDetail.setSignatureRequired(true);
             saveEnrollmentDetail.setSignature(Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(IMG_SIGNATURE_FILE))));
             saveEnrollmentDetail.setSignatureCompressed(Base64.getEncoder().encodeToString(Files.readAllBytes(Path.of(IMG_SIGNATURE_COMPRESSED_FILE))));
             saveEnrollmentDetail.setEnrollmentStatus("SignatureCompleted");

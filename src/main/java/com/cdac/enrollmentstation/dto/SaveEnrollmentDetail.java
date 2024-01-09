@@ -1,5 +1,6 @@
 package com.cdac.enrollmentstation.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,4 +32,6 @@ public class SaveEnrollmentDetail {
     String biometricOptions;
     String signature;
     String signatureCompressed;
+    @JsonProperty("signatureReqd")
+    boolean signatureRequired;
 }

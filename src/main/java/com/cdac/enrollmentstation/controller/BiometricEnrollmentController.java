@@ -71,6 +71,8 @@ public class BiometricEnrollmentController extends AbstractBaseController {
     private Label txtIris;
     @FXML
     private Label txtArcStatus;
+    @FXML
+    private Label txtSignatureRequired;
 
     @FXML
     private Label txtBiometricOptions;
@@ -298,6 +300,11 @@ public class BiometricEnrollmentController extends AbstractBaseController {
             }
             txtBiometricOptions.setText(arcDetail.getBiometricOptions());
             txtArcStatus.setText(arcDetail.getArcStatus());
+            if (arcDetail.isSignatureRequired()) {
+                txtSignatureRequired.setText("YES");
+            } else {
+                txtSignatureRequired.setText("NO");
+            }
         });
     }
 

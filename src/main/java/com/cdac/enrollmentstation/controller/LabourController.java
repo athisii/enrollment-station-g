@@ -578,4 +578,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         selectNextContractorBtn.setDisable(false);
         updateUi("Received an invalid data from the server.");
     }
+
+    @FXML
+    private void home() throws IOException {
+        App.setRoot("main_screen");
+    }
 }

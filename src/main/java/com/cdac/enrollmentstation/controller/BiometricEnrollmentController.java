@@ -222,13 +222,17 @@ public class BiometricEnrollmentController extends AbstractBaseController {
             return;
         }
         if (arcDetail.getErrorCode() != 0) {
-            LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetail.getDesc());
+            LOGGER.log(Level.INFO, () -> "ServerErrorCode: " + arcDetail.getErrorCode());
+            LOGGER.log(Level.INFO, () -> "ServerErrorDesc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);
             updateUiDynamicLabelText(null);
+            // should handle based on error code but not maintained
             if (-9999 == arcDetail.getErrorCode() || "null".equals(arcDetail.getDesc())) { // very common error when server's dependencies are not available
                 updateUi("Received an unexpected response from server. Kindly try again.");
             } else if (arcDetail.getDesc().toLowerCase().contains("not found")) {
                 updateUi("Details not found for e-ARC: " + tempArc);
+            } else if (arcDetail.getDesc().toLowerCase().contains("unable to process")) {
+                updateUi("Unable to process due to server response failed. Kindly try again.");
             } else {
                 updateUi(arcDetail.getDesc());
             }

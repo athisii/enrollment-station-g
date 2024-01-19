@@ -78,7 +78,12 @@ public class ContractController extends AbstractBaseController {
 
         if (contractResDto.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + contractResDto.getErrorCode());
-            messageLabel.setText(contractResDto.getDesc());
+            LOGGER.log(Level.INFO, () -> "***ServerErrorDesc: " + contractResDto.getDesc());
+            if (contractResDto.getDesc().toLowerCase().contains("unable to process")) {
+                messageLabel.setText("Unable to process due to server response failed. Kindly try again.");
+            } else {
+                messageLabel.setText(contractResDto.getDesc());
+            }
             return;
         }
 

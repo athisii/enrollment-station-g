@@ -156,7 +156,12 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         if (labourResDto.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + labourResDto.getErrorCode());
-            messageLabel.setText(labourResDto.getDesc());
+            LOGGER.log(Level.INFO, () -> "***ServerErrorDesc: " + labourResDto.getDesc());
+            if (labourResDto.getDesc().toLowerCase().contains("unable to process")) {
+                messageLabel.setText("Unable to process due to server response failed. Kindly try again.");
+            } else {
+                messageLabel.setText(labourResDto.getDesc());
+            }
             return;
         }
         if (labourResDto.getLabours() == null || labourResDto.getLabours().isEmpty()) {
@@ -362,7 +367,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         if (resDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "***ServerErrorCode: " + resDto.getErrorCode());
             LOGGER.log(Level.SEVERE, () -> "***ServerErrorDesc: " + resDto.getDesc());
-            updateUi(resDto.getDesc());
+            if (resDto.getDesc().toLowerCase().contains("not found")) {
+                updateUi("No labour with id: " + labour.getDynamicFile().getLabourId() + " found in server.");
+            }
+            if (resDto.getDesc().toLowerCase().contains("already") || resDto.getDesc().toLowerCase().contains("token no. '0'")) {
+                updateUi("The status for labour: " + labour.getDynamicFile().getLabourId() + " has already been updated.");
+            } else {
+                updateUi("Received an unexpected response from the server. Kindly try again.");
+            }
             return;
         }
 

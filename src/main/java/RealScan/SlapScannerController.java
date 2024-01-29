@@ -495,15 +495,6 @@ public class SlapScannerController extends AbstractBaseController {
             enableControls(backBtn, button);
             return;
         }
-
-        int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
-        if (nistQuality > FP_NFIQ_VALUE) {
-            LOGGER.log(Level.INFO, () -> "Quality too poor (NFIQ): " + nistQuality);
-            updateUi("Quality too poor. Please try again.");
-            enableControls(backBtn, button);
-            return;
-        }
-
         // check LFD only when value is non-zero
         if (fingerprintLivenessValue != 0) {
             try {
@@ -581,7 +572,7 @@ public class SlapScannerController extends AbstractBaseController {
         jniReturnedCode = RS_GetLFDResult(deviceHandler, rsLfdResult);
         if (jniReturnedCode != RS_SUCCESS) {
             LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-            throw new GenericException(GENERIC_RS_ERR_MSG);
+            throw new GenericException("Error occurred while checking LFD. Kindly try again.");
         }
         Map<String, Integer> mFingersToScanSeqMap;
         if (FingerSetType.LEFT == fingerSetTypeToScan) {
@@ -650,7 +641,7 @@ public class SlapScannerController extends AbstractBaseController {
         jniReturnedCode = RS_SetCaptureMode(deviceHandler, captureMode, RS_AUTO_SENSITIVITY_NORMAL, true);
 
         if (jniReturnedCode != RS_SUCCESS) {
-            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            LOGGER.log(Level.SEVERE, () -> "***RS_SetCaptureModeError: " + RS_GetErrString(jniReturnedCode));
             throw new GenericException(GENERIC_RS_ERR_MSG);
         }
 
@@ -667,7 +658,7 @@ public class SlapScannerController extends AbstractBaseController {
 
         jniReturnedCode = RS_GetLastError();
         if (jniReturnedCode != RS_SUCCESS) {
-            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            LOGGER.log(Level.SEVERE, () -> "***RS_SetMinimumFingerError: " + RS_GetErrString(jniReturnedCode));
             throw new GenericException(GENERIC_RS_ERR_MSG);
         }
 
@@ -683,7 +674,7 @@ public class SlapScannerController extends AbstractBaseController {
          */
             jniReturnedCode = RS_SetLFDLevel(deviceHandler, fingerprintLivenessValue);
             if (jniReturnedCode != RS_SUCCESS) {
-                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                LOGGER.log(Level.SEVERE, () -> "***RS_SetLFDLevel: " + RS_GetErrString(jniReturnedCode));
                 throw new GenericException(GENERIC_RS_ERR_MSG);
             }
         }
@@ -709,18 +700,23 @@ public class SlapScannerController extends AbstractBaseController {
         jniReturnedCode = RS_TakeImageData(deviceHandler, 10000, imageInfo);
         if (jniReturnedCode != RS_SUCCESS) {
             if (jniReturnedCode == RS_ERR_SENSOR_DIRTY || jniReturnedCode == RS_ERR_FINGER_EXIST) {
-                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataError: " + RS_GetErrString(jniReturnedCode));
                 throw new GenericException("Sensor is too dirty or a finger exists on the sensor. Please try again.");
             }
             if (jniReturnedCode == RS_ERR_CAPTURE_TIMEOUT) {
-                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataError: " + RS_GetErrString(jniReturnedCode));
                 throw new GenericException("Capture timeout. Kindly try again.");
             }
             if (jniReturnedCode == RS_WRN_TOO_POOR_QUALITY) {
-                LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+                LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataError: " + RS_GetErrString(jniReturnedCode));
                 throw new GenericException("Quality too poor. Kindly try again.");
             }
-            LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
+            if (jniReturnedCode == -223) { // Not enough fingers
+                LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataError: " + RS_GetErrString(jniReturnedCode));
+                throw new GenericException("Finger count different than specified. Please try again.");
+            }
+            LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataErrorCode: " + jniReturnedCode);
+            LOGGER.log(Level.SEVERE, () -> "***RS_TakeImageDataError: " + RS_GetErrString(jniReturnedCode));
             throw new GenericException(GENERIC_RS_ERR_MSG);
         }
         processCapturedFp(deviceHandler, jniReturnedCode, imageInfo.pbyImgBuf, imageInfo.imageWidth, imageInfo.imageHeight);
@@ -907,7 +903,12 @@ public class SlapScannerController extends AbstractBaseController {
             RSImageInfo rsImageInfoTemp = imageInfoArray[counter.get()];
             if (rsImageInfoTemp.pbyImgBuf == null || rsImageInfoTemp.imageWidth == 0 || rsImageInfoTemp.imageHeight == 0) {
                 LOGGER.log(Level.SEVERE, "Received a null value for RsImageInfo buffer.");
-                throw new GenericException(GENERIC_RS_ERR_MSG);
+                throw new GenericException("Error occurred while segmenting fingerprint image. Kindly try again.");
+            }
+            int nFIQ = RS_GetQualityScore(rsImageInfoTemp.pbyImgBuf, rsImageInfoTemp.imageWidth, rsImageInfoTemp.imageHeight);
+            if (nFIQ > FP_NFIQ_VALUE) {
+                LOGGER.log(Level.INFO, () -> "Quality too poor for finger: " + finger + ". NFIQ: " + nFIQ);
+                throw new GenericException("Quality too poor. Please try again.");
             }
             mFingerTypeRsImageInfoMap.put(slapInfoArray[counter.get()].fingerType, rsImageInfoTemp);
             counter.getAndIncrement();

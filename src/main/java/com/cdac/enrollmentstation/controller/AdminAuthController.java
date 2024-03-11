@@ -70,13 +70,20 @@ public class AdminAuthController implements BaseController {
     private void authenticateUser() {
         try {
             if (AuthUtil.authenticate(textField.getText(), passwordField.getText())) {
-                App.setRoot("admin_config");
+                // must set on JavaFX thread.
+                Platform.runLater(() -> {
+                    try {
+                        App.setRoot("admin_config");
+                    } catch (IOException ex) {
+                        throw new GenericException(ex.getMessage());
+                    }
+                });
                 isDone = true;
                 return;
             }
             LOGGER.log(Level.INFO, "Incorrect username or password.");
             updateUi("Wrong username or password.");
-        } catch (GenericException | IOException ex) {
+        } catch (Exception ex) {
             updateUi(ex.getMessage());
         }
         isDone = true;

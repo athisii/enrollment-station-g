@@ -511,14 +511,6 @@ public class SlapScannerController implements BaseController {
             return;
         }
 
-        int nistQuality = RS_GetQualityScore(imageData, imageWidth, imageHeight);
-        if (nistQuality > FP_NIST_VALUE) {
-            LOGGER.log(Level.INFO, () -> "Quality too poor (NFIQ): " + nistQuality);
-            updateUi("Quality too poor. Please try again.");
-            enableControls(backBtn, button);
-            return;
-        }
-
         // only check LFD when value is non-zero
         if (fingerprintLivenessValue != 0) {
             try {
@@ -617,7 +609,7 @@ public class SlapScannerController implements BaseController {
                 if (rsLfdResult.nResult[i] == RS_LFD_FAKE) {
                     int j = i; // used in lambda
                     LOGGER.log(Level.SEVERE, () -> "Fake fingerprint detected. Score: " + rsLfdResult.nScore[j]);
-                    throw new GenericException("Quality standard not met or captured fake fingerprint. Kindly try again.");
+                    throw new GenericException("Captured fake fingerprint. Kindly try again.");
                 }
             }
         }
@@ -920,6 +912,11 @@ public class SlapScannerController implements BaseController {
             if (rsImageInfoTemp.pbyImgBuf == null || rsImageInfoTemp.imageWidth == 0 || rsImageInfoTemp.imageHeight == 0) {
                 LOGGER.log(Level.SEVERE, "Received a null value for RsImageInfo buffer.");
                 throw new GenericException(GENERIC_RS_ERR_MSG);
+            }
+            int nistQuality = RS_GetQualityScore(rsImageInfoTemp.pbyImgBuf, rsImageInfoTemp.imageWidth, rsImageInfoTemp.imageHeight);
+            if (nistQuality > FP_NIST_VALUE) {
+                LOGGER.log(Level.INFO, () -> "Quality too poor (NIST): " + nistQuality);
+                throw new GenericException("Quality too poor. Please try again.");
             }
             mFingerTypeRsImageInfoMap.put(slapInfoArray[counter.get()].fingerType, rsImageInfoTemp);
             counter.getAndIncrement();

@@ -25,6 +25,7 @@ public class AdminConfigController extends AbstractBaseController {
     private static final int FINGERPRINT_LIVENESS_MAX;
     private static final int FINGERPRINT_LIVENESS_MIN;
     private final int fingerprintLivenessValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FINGERPRINT_LIVENESS_VALUE).trim());
+    private final int nfiqValue = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_NFIQ_VALUE).trim());
 
     static {
         try {
@@ -34,6 +35,11 @@ public class AdminConfigController extends AbstractBaseController {
             throw new GenericException("Invalid max or min fingerprint liveness value. It must be a number.");
         }
     }
+
+    @FXML
+    private TextField nfiqTextField;
+    @FXML
+    private Button nfiqBtn;
 
     @FXML
     private Label messageLabel;
@@ -48,7 +54,42 @@ public class AdminConfigController extends AbstractBaseController {
     public void initialize() {
         liveFpTextField.setText(String.valueOf(fingerprintLivenessValue));
         liveFpBtn.setOnAction(event -> liveFpBtnAction());
+
+        nfiqBtn.setOnAction(event -> nfiqBtnAction());
+        nfiqTextField.setText(String.valueOf(nfiqValue));
     }
+    private void nfiqBtnAction() {
+        // check how text on edit button should be displayed
+        if (nfiqTextField.isEditable()) {
+            String inputValue = nfiqTextField.getText();
+            String displayMessage = "Please enter a number from 1 to 5.";
+            if (inputValue.isBlank()) {
+                messageLabel.setText(displayMessage);
+                return;
+            }
+            int number;
+            try {
+                number = Integer.parseInt(inputValue);
+                if (number < 1 || number > 5) {
+                    throw new NumberFormatException("Invalid NFIQ value.");
+                }
+            } catch (NumberFormatException ex) {
+                nfiqTextField.setText("");
+                messageLabel.setText(displayMessage);
+                return;
+            }
+            PropertyFile.changePropertyValue(PropertyName.FP_NFIQ_VALUE, String.valueOf(number));
+            nfiqBtn.setText("EDIT"); // shows as edit
+            messageLabel.setText("NFIQ value updated successfully.");
+        } else {
+            messageLabel.setText("");
+            nfiqBtn.setText("UPDATE");
+        }
+        // toggles the edit-ability
+        nfiqTextField.setEditable(!nfiqTextField.isEditable());
+
+    }
+
 
     private void liveFpBtnAction() {
         // check how text on edit button should be displayed

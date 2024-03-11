@@ -86,6 +86,17 @@
                     </HBox>
                     <Button fx:id="liveFpBtn" styleClass="btn-large, press-effect" text="EDIT"/>
                 </VBox>
+                <Region styleClass="min-width-medium"/>
+                <VBox alignment="BOTTOM_CENTER">
+                    <HBox alignment="CENTER">
+                        <Label text="NFIQ"/>
+                    </HBox>
+                    <HBox styleClass="input-field, padding-small" alignment="CENTER">
+                        <TextField fx:id="nfiqTextField" styleClass="input-field" alignment="center"
+                                   editable="false"/>
+                    </HBox>
+                    <Button fx:id="nfiqBtn" styleClass="btn-large, press-effect" text="EDIT"/>
+                </VBox>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-small">
                 <Label fx:id="messageLabel"/>

@@ -121,7 +121,7 @@ public class DeviceStatusController extends AbstractBaseController {
             }
         } catch (InvalidPathException e) {
             LOGGER.log(Level.SEVERE, () -> PropertyFile.getProperty(PropertyName.BARCODE_FILE_PATH) + "not found.");
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.log(Level.SEVERE, () -> "An error occur reading barcode file.");
             throw new GenericException("An error occur reading barcode file.");
         }

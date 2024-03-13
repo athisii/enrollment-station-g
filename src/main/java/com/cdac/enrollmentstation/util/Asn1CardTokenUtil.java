@@ -271,6 +271,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreDynamicFileError: DynamicFile size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The dynamic file size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing DynamicFile to token.");
         storeBufferedData(handle, CardTokenFileType.DYNAMIC_FILE, bytes);
     }
 
@@ -323,6 +324,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreDefaultValidityFileError: DefaultValidityFile size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The default validity file size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "****writing DefaultValidityFile to token.");
         storeBufferedData(handle, CardTokenFileType.DEFAULT_ACCESS_VALIDITY, bytes);
     }
 
@@ -353,6 +355,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreFingerprintFileError: FingerprintFile size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The fingerprint file size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing FingerprintFile to token.");
         storeBufferedData(handle, CardTokenFileType.FINGERPRINT_FILE, bytes);
     }
 
@@ -377,6 +380,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Photo size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The photo file size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing PhotoFile to token.");
         storeBufferedData(handle, CardTokenFileType.PHOTO_FILE, bytes);
     }
 
@@ -399,6 +403,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: SignFile1 size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The signature file1 size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing SignFile1 to token.");
         storeBufferedData(handle, CardTokenFileType.SIGNATURE_FILE_1, bytes);
     }
 
@@ -421,6 +426,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: SignFile3 size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The signature file3 size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing SignFile3 to token.");
         storeBufferedData(handle, CardTokenFileType.SIGNATURE_FILE_3, bytes);
     }
 
@@ -451,6 +457,7 @@ public class Asn1CardTokenUtil {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSpecialAccessFileError: AccessFile size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The special access file size exceeded the allowed limit.");
         }
+        LOGGER.log(Level.INFO, () -> "***writing SpecialAccessFile to token.");
         storeBufferedData(handle, CardTokenFileType.SPECIAL_ACCESS_PERMISSION_FILE, bytes);
     }
 
@@ -707,21 +714,35 @@ public class Asn1CardTokenUtil {
      * @throws GenericException           - on Exception
      */
     public static void storeBufferedData(int handle, CardTokenFileType cardTokenFileType, byte[] bytes) {
+        String apiCallCountMsg = "***API call count: ";
         int offset = 0;
         // for writing multiple times
         int times = bytes.length / MAX_BUFFER_SIZE;
         int extraBytes = bytes.length % MAX_BUFFER_SIZE;
+        LOGGER.log(Level.INFO, () -> "***total byte size: " + bytes.length + "\n\t  ***number of max-buffer call:  " + times + "\n\t  ***extra byte(s): " + extraBytes + "\n\t  ***total API call: " + (times + (extraBytes > 0 ? 1 : 0)));
         if (times < 1) {
+            LOGGER.log(Level.INFO, () -> apiCallCountMsg + 1); // only one call needed
             storeData(handle, cardTokenFileType.getValue(), offset, bytes);
             return;
         }
-        for (int i = 0; i < times; i++) {
+        for (int i = 1; i <= times; i++) {
             byte[] temp = Arrays.copyOfRange(bytes, offset, offset + MAX_BUFFER_SIZE);
+
+            // for logging purposes
+            int effectiveCounter = i; // effective final value to be used in lambda
+            int effectiveOffset = offset; // to be used in lambda
+            LOGGER.log(Level.INFO, () -> apiCallCountMsg + effectiveCounter + "\n\t  ***offset: " + effectiveOffset + "\n\t  ***byte size: " + temp.length);
+
             storeData(handle, cardTokenFileType.getValue(), offset, temp);
             offset += MAX_BUFFER_SIZE;
         }
         if (extraBytes > 0) {
             byte[] temp = Arrays.copyOfRange(bytes, offset, offset + extraBytes);
+
+            // for logging purposes
+            int effectiveOffset = offset; // to be used in lambda
+            LOGGER.log(Level.INFO, () -> apiCallCountMsg + (times + 1) + "\n\t ***offset: " + effectiveOffset + "\n\t ***byte size: " + temp.length);
+
             storeData(handle, cardTokenFileType.getValue(), offset, temp);
         }
     }

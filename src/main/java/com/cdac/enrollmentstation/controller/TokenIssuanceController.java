@@ -149,7 +149,7 @@ public class TokenIssuanceController extends AbstractBaseController {
                 break;
             } catch (GenericException ex) {
                 if (counter == 0) {
-                    LOGGER.log(Level.INFO, () -> "****Communication error occurred. Restarting Naval_WebServices.");
+                    LOGGER.log(Level.INFO, () -> "****Communication error occurred. Restarting EnrollmentStationServices.");
                     if (restartApiService()) {
                         try {
                             Thread.sleep(2000); // needed to sleep after restarting
@@ -159,7 +159,7 @@ public class TokenIssuanceController extends AbstractBaseController {
                         continue; // starts from DeInitialize again.
                     } // else exit code is not zero
                 }
-                LOGGER.log(Level.INFO, () -> "****Communication error occurred. Unable to restart Naval_WebServices.");
+                LOGGER.log(Level.INFO, () -> "****Communication error occurred. Unable to restart EnrollmentStationServices.");
                 throw new GenericException("Something went wrong. Please try again.");
             }
         }
@@ -175,7 +175,7 @@ public class TokenIssuanceController extends AbstractBaseController {
         try {
             Process pr = Runtime.getRuntime().exec(Asn1CardTokenUtil.CARD_API_SERVICE_RESTART_COMMAND);
             int exitCode = pr.waitFor();
-            LOGGER.log(Level.INFO, () -> "****Naval_WebServices restart exit code: " + exitCode);
+            LOGGER.log(Level.INFO, () -> "****EnrollmentStationServices restart exit code: " + exitCode);
             return exitCode == 0;
         } catch (IOException | InterruptedException ex) {
             LOGGER.log(Level.SEVERE, ex::getMessage);

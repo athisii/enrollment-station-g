@@ -4,11 +4,11 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.controller.BaseController;
+import com.cdac.enrollmentstation.dto.Fp;
+import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
-import com.cdac.enrollmentstation.dto.Fp;
-import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.innovatrics.commons.img.RawGrayscaleImage;
@@ -25,6 +25,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.text.Text;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static RealScan.RealScan_JNI.*;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_RS_ERR_MSG;
 import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
@@ -147,6 +149,8 @@ public class SlapScannerController implements BaseController {
     private Button scanBtn;
     @FXML
     private Button backBtn;
+    private Button currentEnabledButton;
+
 
     @FXML
     private AnchorPane confirmPane;
@@ -154,6 +158,10 @@ public class SlapScannerController implements BaseController {
     private Button confirmYesBtn;
     @FXML
     private Button confirmNoBtn;
+    @FXML
+    private Text confirmText;
+    @FXML
+    private Label version;
 
     @FXML
     private ImageView rawFingerprintImageView;
@@ -182,6 +190,8 @@ public class SlapScannerController implements BaseController {
     // calls automatically by JavaFX runtime
 
     public void initialize() {
+        getVersion();
+
         scanBtn.setOnAction(event -> scanBtnAction());
         leftScanBtn.setOnAction(event -> leftScanBtnAction());
         rightScanBtn.setOnAction(event -> rightScanBtnAction());
@@ -892,8 +902,19 @@ public class SlapScannerController implements BaseController {
 
     private void back() {
         confirmPane.setVisible(true);
-        backBtn.setDisable(true);
-        scanBtn.setDisable(true);
+        if (!scanBtn.isDisable()) {
+            currentEnabledButton = scanBtn;
+        } else if (!leftScanBtn.isDisable()) {
+            currentEnabledButton = leftScanBtn;
+        } else if (!rightScanBtn.isDisable()) {
+            currentEnabledButton = rightScanBtn;
+        } else if (!thumbScanBtn.isDisable()) {
+            currentEnabledButton = thumbScanBtn;
+        } else {
+            LOGGER.log(Level.SEVERE, "No button is enabled.");
+            throw new GenericException("At least one button should be enabled.");
+        }
+        disableControls(backBtn, scanBtn, leftScanBtn, rightScanBtn, thumbScanBtn, captureIrisBtn);
     }
 
     private void showIris() {
@@ -906,29 +927,32 @@ public class SlapScannerController implements BaseController {
     }
 
     private void confirmBack() {
-        try {
-            if (isLeftFpDeviceInitialised) {
-                releaseDevice(leftFpDeviceHandler);
-                releaseDevice(rightFpDeviceHandler);
+        App.getThreadPool().execute(() -> {
+            try {
+                disableControls(confirmNoBtn, confirmYesBtn);
+                Platform.runLater(() -> confirmText.setText("Please Wait...."));
+                if (isLeftFpDeviceInitialised || isRightFpDeviceInitialised) {
+                    Thread.sleep(1000);
+                    releaseDevice(leftFpDeviceHandler);
+                    releaseDevice(rightFpDeviceHandler);
+                }
+                App.setRoot("biometric_enrollment");
+            } catch (IOException | InterruptedException ex) {
+                if (ex instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                LOGGER.log(Level.SEVERE, ex.getMessage());
+                Platform.runLater(() -> confirmText.setText(GENERIC_ERR_MSG));
+                enableControls(confirmNoBtn, confirmYesBtn);
             }
-            App.setRoot("biometric_enrollment");
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
-        }
+        });
     }
 
     private void confirmStay() {
         backBtn.setDisable(false);
-        scanBtn.setDisable(false);
         confirmPane.setVisible(false);
-        if (isFpScanCompleted) {
-            scanBtn.setDisable(false);
-            captureIrisBtn.setDisable(false);
-        } else {
-            captureIrisBtn.setDisable(true);
-            scanBtn.setDisable(true);
-        }
+        captureIrisBtn.setDisable(!isFpScanCompleted);
+        currentEnabledButton.setDisable(false);
     }
 
 
@@ -1238,6 +1262,15 @@ public class SlapScannerController implements BaseController {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
         backBtn.setDisable(false);
         updateUi("Unhandled exception occurred. Please try again. ");
+    }
+
+    private void getVersion() {
+        String appVersionNumber = PropertyFile.getProperty(PropertyName.APP_VERSION_NUMBER);
+        if (appVersionNumber == null || appVersionNumber.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            throw new GenericException("No entry for '" + PropertyName.APP_VERSION_NUMBER + "' or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+        }
+        version.setText(appVersionNumber);
     }
 
 }

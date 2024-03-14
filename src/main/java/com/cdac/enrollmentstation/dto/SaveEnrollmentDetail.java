@@ -44,13 +44,13 @@ public class SaveEnrollmentDetail {
     @JsonProperty("Iris")
     Set<Iris> iris;
 
-    @JsonProperty("IRISScannerSerailNo") // incorrect name from API
+    @JsonProperty("IRISScannerSerialNo") // incorrect name from API
     String irisScannerSerialNo;
 
-    @JsonProperty("LeftFPScannerSerailNo")
+    @JsonProperty("LeftFPScannerSerialNo")
     String leftFpScannerSerialNo;
 
-    @JsonProperty("RightFPScannerSerailNo")
+    @JsonProperty("RightFPScannerSerialNo")
     String rightFpScannerSerialNo;
 
     @JsonProperty("UniqueID")
@@ -62,4 +62,6 @@ public class SaveEnrollmentDetail {
     @JsonProperty("BiometricOptions")
     String biometricOptions;
 
+    String signature = "NA";
+    String signatureCompressed = "NA";
 }

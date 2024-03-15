@@ -228,6 +228,7 @@ public class MafisServerApi {
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      */
     public static List<Unit> fetchAllUnits() {
+        LOGGER.log(Level.INFO, () -> "***Fetching all units from the server.");
         HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createGetHttpRequest(getUnitListURL()));// if this line is reached, response received with status code 200
         UnitsResDto unitsResDto;
         try {
@@ -236,6 +237,7 @@ public class MafisServerApi {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + unitsResDto.getErrorCode());
         if (unitsResDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + unitsResDto.getDesc());
             throw new GenericException(unitsResDto.getDesc());

@@ -65,6 +65,7 @@ public class ContractController extends AbstractBaseController {
         contractorIdLabel.setText("CONTRACTOR ID: " + TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId());
         contractorNameLabel.setText("CONTRACTOR NAME: " + TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorName());
 
+        LOGGER.log(Level.INFO, () -> "***Fetching contract list from the server.");
         ContractResDto contractResDto;
         try {
             contractResDto = MafisServerApi.fetchContractList(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getContractorId(), TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardChipSerialNo());
@@ -76,8 +77,8 @@ public class ContractController extends AbstractBaseController {
             return;
         }
 
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + contractResDto.getErrorCode());
         if (contractResDto.getErrorCode() != 0) {
-            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + contractResDto.getErrorCode());
             LOGGER.log(Level.INFO, () -> "***ServerErrorDesc: " + contractResDto.getDesc());
             if (contractResDto.getDesc().toLowerCase().contains("unable to process")) {
                 messageLabel.setText("Unable to process due to server response failed. Kindly try again.");

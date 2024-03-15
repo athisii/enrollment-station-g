@@ -155,6 +155,7 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         }
 
         CommonResDto resDto;
+        LOGGER.log(Level.INFO, () -> "***Sending biometric data to the server.");
         // try submitting to the server.
         try {
             resDto = MafisServerApi.postEnrollment(jsonData);
@@ -172,6 +173,7 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
             onErrorUpdateUiControls(ex.getMessage());
             return;
         }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + resDto.getErrorCode());
         // checks for error response
         if (resDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + resDto.getDesc());

@@ -719,9 +719,9 @@ public class Asn1CardTokenUtil {
         // for writing multiple times
         int times = bytes.length / MAX_BUFFER_SIZE;
         int extraBytes = bytes.length % MAX_BUFFER_SIZE;
-        LOGGER.log(Level.INFO, () -> "***total byte size: " + bytes.length + "\n\t  ***number of max-buffer call:  " + times + "\n\t  ***extra byte(s): " + extraBytes + "\n\t  ***total API call: " + (times + (extraBytes > 0 ? 1 : 0)));
+        LOGGER.log(Level.INFO, () -> "***total byte size: " + bytes.length + "\n\t  ***total API call: " + (times + (extraBytes > 0 ? 1 : 0)));
         if (times < 1) {
-            LOGGER.log(Level.INFO, () -> apiCallCountMsg + 1); // only one call needed
+            LOGGER.log(Level.INFO, () -> apiCallCountMsg + 1 + "\n\t  ***offset: " + 0 + "\n\t  ***byte size: " + bytes.length);
             storeData(handle, cardTokenFileType.getValue(), offset, bytes);
             return;
         }

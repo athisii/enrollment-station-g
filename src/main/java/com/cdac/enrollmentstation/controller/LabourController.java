@@ -144,6 +144,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         ContractorCardInfo contractDetails = tokenDetailsHolder.getContractorCardInfo();
         LabourResDto labourResDto;
+        LOGGER.log(Level.INFO, () -> "***Fetching labour list from the server.");
         try {
             labourResDto = MafisServerApi.fetchLabourList(contractDetails.getContractorId(), contractDetails.getContractId());
         } catch (GenericException ex) {
@@ -154,8 +155,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
 
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + labourResDto.getErrorCode());
         if (labourResDto.getErrorCode() != 0) {
-            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: " + labourResDto.getErrorCode());
             LOGGER.log(Level.INFO, () -> "***ServerErrorDesc: " + labourResDto.getDesc());
             if (labourResDto.getDesc().toLowerCase().contains("unable to process")) {
                 messageLabel.setText("Unable to process due to server response failed. Kindly try again.");
@@ -351,7 +352,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             tokenReqDto.setLabourStatus("Unsuccess");
             tokenReqDto.setTokenIssuanceStatus("Pending");
         }
-
+        LOGGER.log(Level.INFO, () -> "***Updating token status to the server.");
         CommonResDto resDto;
         //Update token details to MAFIS
         try {
@@ -364,8 +365,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
 
+        LOGGER.log(Level.SEVERE, () -> "***ServerResponseErrorCode: " + resDto.getErrorCode());
         if (resDto.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> "***ServerErrorCode: " + resDto.getErrorCode());
             LOGGER.log(Level.SEVERE, () -> "***ServerErrorDesc: " + resDto.getDesc());
             if (resDto.getDesc().toLowerCase().contains("not found")) {
                 updateUi("No labour with id: " + labour.getDynamicFile().getLabourId() + " found in server.");

@@ -206,6 +206,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
 
     private void showArcDetails() {
         ArcDetail arcDetail;
+        LOGGER.log(Level.INFO, () -> "***Fetching details for e-ARC: " + tempArc);
         try {
             disableControls(backBtn, showArcBtn);
             arcDetail = MafisServerApi.fetchARCDetail(tempArc);
@@ -221,8 +222,8 @@ public class BiometricEnrollmentController extends AbstractBaseController {
             updateUi(GENERIC_ERR_MSG);
             return;
         }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + arcDetail.getErrorCode());
         if (arcDetail.getErrorCode() != 0) {
-            LOGGER.log(Level.INFO, () -> "ServerErrorCode: " + arcDetail.getErrorCode());
             LOGGER.log(Level.INFO, () -> "ServerErrorDesc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);
             updateUiDynamicLabelText(null);

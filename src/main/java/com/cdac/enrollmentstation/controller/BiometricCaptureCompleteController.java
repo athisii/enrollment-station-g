@@ -189,6 +189,7 @@ public class BiometricCaptureCompleteController implements BaseController {
             return;
         }
 
+        LOGGER.log(Level.INFO, () -> "***Sending biometric data to the server.");
         SaveEnrollmentResDto saveEnrollmentResDto;
         // try submitting to the server.
         try {
@@ -207,6 +208,7 @@ public class BiometricCaptureCompleteController implements BaseController {
             onErrorUpdateUiControls(ex.getMessage());
             return;
         }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + saveEnrollmentResDto.getErrorCode());
         // checks for error response
         if (saveEnrollmentResDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + saveEnrollmentResDto.getDesc());

@@ -342,6 +342,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             updateUi("Something went wrong. Kindly check Card API service.");
             return;
         }
+        LOGGER.log(Level.INFO, () -> "***Updating token status to the server.");
 
         TokenResDto tokenResDto;
         //Update token details to MAFIS
@@ -354,7 +355,7 @@ public class LabourController implements MIDFingerAuth_Callback, BaseController 
             updateUi("Connection timeout. Failed to update token status to server. Please try again.");
             return;
         }
-
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + tokenResDto.getErrorCode());
         if (tokenResDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Error Desc: " + tokenResDto.getDesc());
             updateUi(tokenResDto.getDesc());

@@ -194,6 +194,7 @@ public class BiometricEnrollmentController implements BaseController {
     }
 
     private void showArcDetails() {
+        LOGGER.log(Level.INFO, () -> "***Fetching details for e-ARC: " + tempArc);
         ArcDetail arcDetail;
         try {
             disableControls(backBtn, showArcBtn);
@@ -210,6 +211,7 @@ public class BiometricEnrollmentController implements BaseController {
             updateUi(GENERIC_ERR_MSG);
             return;
         }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + arcDetail.getErrorCode());
         if (arcDetail.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "Error Desc: " + arcDetail.getDesc());
             enableControls(backBtn, showArcBtn);

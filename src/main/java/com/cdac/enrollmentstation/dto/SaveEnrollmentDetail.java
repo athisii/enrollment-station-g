@@ -62,6 +62,6 @@ public class SaveEnrollmentDetail {
     @JsonProperty("BiometricOptions")
     String biometricOptions;
 
-    String signature = "NA";
-    String signatureCompressed = "NA";
+    String signature = "Not Available";
+    String signatureCompressed = "Not Available";
 }

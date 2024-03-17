@@ -73,21 +73,23 @@ public class LocalCardReaderErrMsgUtil {
         errorMessageMap.put("6400", "Execution error.");
         errorMessageMap.put("63C0", "No of retries reached 0.");
         errorMessageMap.put("6702", "Wrong length; no further indication.");
+        errorMessageMap.put("1000", "Kindly reconnect the reader and place card correctly."); // Communication Error if last four digits starts with 10
     }
 
     public static String getMessage(String hexadecimalErrorCode) {
         String errorMessage = errorMessageMap.get(hexadecimalErrorCode);
-        return errorMessage == null ? "No error message found for: " + hexadecimalErrorCode : errorMessage;
+        return errorMessage == null ? "Kindly place a valid card and try again." : errorMessage;
     }
-
 
     public static String getMessage(int errorCode) {
-        if (errorCode > 0) {
-            errorCode = Integer.parseInt("-" + errorCode);
-        }
         String hexadecimal = Integer.toHexString(errorCode).toUpperCase();
-        return getMessage(hexadecimal.substring(hexadecimal.length() - 4));
+        String lastFourChars = hexadecimal.substring(hexadecimal.length() - 4); // XXYY1000
+        if (lastFourChars.startsWith("10")) {
+            return getMessage("1000");
+        }
+        return getMessage(lastFourChars);
     }
+
 
     // suppresses for  noninstantiability
     private LocalCardReaderErrMsgUtil() {

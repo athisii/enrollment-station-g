@@ -313,15 +313,23 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (!matchFound) {
-            LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
-            selectedLabour.setCount(selectedLabour.getCount() + 1);
-            if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
-                dispenseToken(labour, false);
-            } else if (selectedLabour.getCount() < 3) {
+            labourDetailsTableRowRow.setCount(labourDetailsTableRowRow.getCount() + 1);
+            LOGGER.log(Level.INFO, () -> "***Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId() + "***\n\tcount: " + labourDetailsTableRowRow.getCount());
+            if (labourDetailsTableRowRow.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for Labor id: " + labourDetailsTableRowRow.getLabourId() + " has been exhausted.");
+                updateUi("The allowed number of attempts for Labor id: " + labourDetailsTableRowRow.getLabourId() + " has been exhausted.");
+                if (labourDetailsTableRowRow.getCount() > LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                    return;
+                }
+                if (labourDetailsTableRowRow.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                    dispenseToken(labour, false);
+                    tableView.getItems().remove(labourDetailsTableRowRow);
+                    tableView.refresh();
+                }
+            } else if (labourDetailsTableRowRow.getCount() < 3) {
                 updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
             } else {
-                updateUi("The remaining attempt(s) for " + selectedLabour.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - selectedLabour.getCount()));
+                updateUi("The remaining attempt(s) for " + labourDetailsTableRowRow.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - labourDetailsTableRowRow.getCount()));
             }
             return; // return since fingerprint auth failed
         }
@@ -365,20 +373,19 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
 
-        LOGGER.log(Level.SEVERE, () -> "***ServerResponseErrorCode: " + resDto.getErrorCode());
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + resDto.getErrorCode());
+        LOGGER.log(Level.INFO, () -> "***ServerResponseDesc: " + resDto.getDesc()); // to be removed
+        String errorDescLowerCase = resDto.getDesc().toLowerCase();
         if (resDto.getErrorCode() != 0) {
-            LOGGER.log(Level.SEVERE, () -> "***ServerErrorDesc: " + resDto.getDesc());
-            if (resDto.getDesc().toLowerCase().contains("not found")) {
+            if (errorDescLowerCase.contains("not found")) {
                 updateUi("No labour with id: " + labour.getDynamicFile().getLabourId() + " found in server.");
-            }
-            if (resDto.getDesc().toLowerCase().contains("already") || resDto.getDesc().toLowerCase().contains("token no. '0'")) {
-                updateUi("The status for labour: " + labour.getDynamicFile().getLabourId() + " has already been updated.");
+            } else if (errorDescLowerCase.contains("already") || errorDescLowerCase.contains("token no. '0'")) {
+                updateUi("Token for labour: " + labour.getDynamicFile().getLabourId() + " has already been issued.");
             } else {
                 updateUi("Received an unexpected response from the server. Kindly try again.");
             }
             return;
         }
-
 
         Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
         LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
@@ -436,16 +443,21 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                   6. signature 1
                   7. signature 3
          */
+        LOGGER.log(Level.INFO, () -> "***LabourController: Calling deInitialize API.");
         Asn1CardTokenUtil.deInitialize();
+        LOGGER.log(Level.INFO, () -> "***LabourController: Calling initialize API.");
         Asn1CardTokenUtil.initialize();
         // setup reader; need to add a delay for some milliseconds
         try {
+            LOGGER.log(Level.INFO, () -> "***Card: Sleeping for " + SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC + " milliseconds before waitFocConnect API call.");
             Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
             Thread.currentThread().interrupt();
         }
+        LOGGER.log(Level.INFO, () -> "***Card: Calling waitForConnect API.");
         CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+        // already handled for non-zero error code
         byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
             LOGGER.log(Level.INFO, () -> "****CSNError: Decoded bytes size not matched with response length.");
@@ -461,6 +473,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         // setup writer; need to add a delay for some milliseconds
         try {
+            LOGGER.log(Level.INFO, () -> "***Token: Sleeping for " + SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC + " milliseconds before waitFocConnect API call.");
             Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
@@ -474,6 +487,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             Thread.currentThread().interrupt();
         }
 
+        LOGGER.log(Level.INFO, () -> "***Token: Calling waitForConnect API.");
         crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
         decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
@@ -482,13 +496,20 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
         String tokenCsn = Strings.fromByteArray(Hex.encode(decodedHexCsn));
         int tokenHandle = crWaitForConnectResDto.getHandle();
+        LOGGER.log(Level.INFO, () -> "***Token: Calling selectApp API.");
         Asn1CardTokenUtil.selectApp(TOKEN_TYPE_NUMBER, tokenHandle);
+        LOGGER.log(Level.INFO, () -> "***Token: Calling readData API to read static data to get the token number.");
         byte[] asn1EncodedTokenStaticData = Asn1CardTokenUtil.readBufferedData(tokenHandle, CardTokenFileType.STATIC);
         String tokenNumber = new String(extractFromAsn1EncodedStaticData(asn1EncodedTokenStaticData, 1), StandardCharsets.UTF_8);
 
         // read cert now
+        LOGGER.log(Level.INFO, () -> "***Card: Calling readData API for reading system certificate.");
         byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle(), CardTokenFileType.SYSTEM_CERTIFICATE);
+
+        LOGGER.log(Level.INFO, () -> "***Token: Calling verifyCertificate API: handle1=token, handle2=card");
         Asn1CardTokenUtil.verifyCertificate(tokenHandle, WHICH_TRUST, WHICH_CERTIFICATE, systemCertificate);
+
+        LOGGER.log(Level.INFO, () -> "***Token: Calling pkiAuth API: handle1=token, handle2=card");
         Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
         Asn1CardTokenUtil.encodeAndStoreDynamicFile(tokenHandle, labour.getDynamicFile());

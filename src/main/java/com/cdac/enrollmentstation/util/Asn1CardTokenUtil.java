@@ -473,8 +473,8 @@ public class Asn1CardTokenUtil {
         CRApiResDto deInitializeResDto = LocalNavalWebServiceApi.getDeInitialize();
         jniErrorCode = deInitializeResDto.getRetVal();
         // -1409286131 -> prerequisites failed error
+        LOGGER.log(Level.SEVERE, () -> "****DeInitializeErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0 && jniErrorCode != -1409286131) {
-            LOGGER.log(Level.SEVERE, () -> "****DeInitializeErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -489,8 +489,8 @@ public class Asn1CardTokenUtil {
     public static void initialize() {
         CRApiResDto crInitializeResDto = LocalNavalWebServiceApi.getInitialize();
         jniErrorCode = crInitializeResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****InitializeErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****InitializeErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -512,8 +512,8 @@ public class Asn1CardTokenUtil {
         }
         CRWaitForConnectResDto crWaitForConnectResDto = LocalNavalWebServiceApi.postWaitForConnect(reqData);
         jniErrorCode = crWaitForConnectResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: " + jniErrorCode);
             if (jniErrorCode == -1090519029) { // custom message when press 'login' without reader connected
                 LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: No card reader detected or unsupported reader name.");
                 throw new NoReaderOrCardException("No card reader detected or unsupported reader name.");
@@ -544,8 +544,8 @@ public class Asn1CardTokenUtil {
         }
         CRApiResDto crSelectAppResDto = LocalNavalWebServiceApi.postSelectApp(reqData);
         jniErrorCode = crSelectAppResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****SelectAppErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****SelectAppErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -563,13 +563,16 @@ public class Asn1CardTokenUtil {
     public static byte[] readBufferedData(int handle, CardTokenFileType cardTokenFileType) {
         //  4000
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            LOGGER.log(Level.INFO, () -> "****offset: 0");
             // read 1024 bytes for the first time as we don't know the exact size to be read.
             byte[] base64DecodedBytes = readData(handle, cardTokenFileType.getValue(), 0, MAX_BUFFER_SIZE);
             // check first byte (TAG)
             // the first byte specifies ASN1 data type.
+            // first byte 5 least significant bits are tag bits.
             byte asn1TypeByte = base64DecodedBytes[0];
+
             if (asn1TypeByte <= 0) {
-                LOGGER.log(Level.SEVERE, () -> "****Error: Read unknown ASN1 type. Tag value: " + asn1TypeByte);
+                LOGGER.log(Level.SEVERE, () -> "****Error: Read unknown ASN1 type. First Byte: " + asn1TypeByte);
                 throw new GenericException("Read unknown ASN1 type.");
             }
             // check second byte (LENGTH)
@@ -585,6 +588,7 @@ public class Asn1CardTokenUtil {
             // if second byte's MSB is 0, then it a positive number,
             // and only a single byte is used to encode data length
             if (asn1LengthByte > 0) {
+                LOGGER.log(Level.INFO, () -> "****Number of byte to encode data length: 1");
                 // now data length is less than 128 bytes.
                 // 01111111 --> 127
                 totalByteCount = asn1LengthByte + 2; //first byte + second byte
@@ -629,6 +633,8 @@ public class Asn1CardTokenUtil {
             // now LENGTH encoding byte starts from 3rd byte (index 2) + number of bytes used to encode LENGTH
             byte[] bytesForEncodingLength = Arrays.copyOfRange(base64DecodedBytes, 2, metaDataByteCount);
             int dataByteCount = calculateDataLength(bytesForEncodingLength); // number of bytes for actual data
+            LOGGER.log(Level.INFO, () -> "****Number of byte used to encode data length: " + byteCountForEncodingLength + "\n\t **** Bytes used for metadata(tag + data encoding length): " + metaDataByteCount + "\n\t**** data byte size: " + dataByteCount);
+
             totalByteCount = metaDataByteCount + dataByteCount;
             if (totalByteCount <= base64DecodedBytes.length) {
                 return Arrays.copyOfRange(base64DecodedBytes, 0, totalByteCount);
@@ -639,11 +645,15 @@ public class Asn1CardTokenUtil {
                      e.g. 1200 > (1024 - 4)
                  remaining required bytes = 180 ( 1200 - ( 1024 - 4 ))
              */
-
             int moreByteToReadSize = dataByteCount - (base64DecodedBytes.length - metaDataByteCount);
+            int finalMoreByteToReadSize = moreByteToReadSize; // to use in lambda
+            LOGGER.log(Level.INFO, () -> "****more bytes needed to read:  " + finalMoreByteToReadSize);
+
             byteArrayOutputStream.write(base64DecodedBytes);
             int offset = base64DecodedBytes.length;
             while (moreByteToReadSize > 0) {
+                int finalOffset = offset;  // to use in lambda
+                LOGGER.log(Level.INFO, () -> "****offset: " + finalOffset);
                 if (moreByteToReadSize < MAX_BUFFER_SIZE) {
                     base64DecodedBytes = readData(handle, cardTokenFileType.getValue(), offset, moreByteToReadSize);
                     if (moreByteToReadSize != base64DecodedBytes.length) {
@@ -699,8 +709,8 @@ public class Asn1CardTokenUtil {
         }
         CRReadDataResDto crReadDataResDto = LocalNavalWebServiceApi.postReadData(reqData);
         jniErrorCode = crReadDataResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****ReadDataErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****ReadDataErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
         return Base64.getDecoder().decode(crReadDataResDto.getResponse());
@@ -767,8 +777,8 @@ public class Asn1CardTokenUtil {
         }
         CRApiResDto crApiResDto = LocalNavalWebServiceApi.postStoreData(reqData);
         jniErrorCode = crApiResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****StoreDataErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****StoreDataErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -795,8 +805,8 @@ public class Asn1CardTokenUtil {
         }
         CRApiResDto crApiResDto = LocalNavalWebServiceApi.postVerifyCertificate(reqData);
         jniErrorCode = crApiResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****VerifyCertificateErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****VerifyCertificateErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -818,8 +828,8 @@ public class Asn1CardTokenUtil {
         }
         CRApiResDto crApiResDto = LocalNavalWebServiceApi.postPkiAuth(reqData);
         jniErrorCode = crApiResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****PkiAuthErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****PkiAuthErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }
@@ -841,8 +851,8 @@ public class Asn1CardTokenUtil {
         }
         CRApiResDto crApiResDto = LocalNavalWebServiceApi.postWaitForRemoval(reqData);
         jniErrorCode = crApiResDto.getRetVal();
+        LOGGER.log(Level.SEVERE, () -> "****WaitForRemovalErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
-            LOGGER.log(Level.SEVERE, () -> "****WaitForRemovalErrorCode: " + jniErrorCode);
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }
     }

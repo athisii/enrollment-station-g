@@ -125,12 +125,15 @@ public class TokenIssuanceController extends AbstractBaseController {
         // deInitialize -> initialize ->[waitForConnect -> selectApp] -> readData
         CRWaitForConnectResDto crWaitForConnectResDto;
         int counter = 1;
-        // restart Naval_WebServices if failed on the first WaitForConnect call.
+        // restart EnrollmentStationServices if failed on the first WaitForConnect call.
         while (true) {
             counter--;
+            LOGGER.log(Level.INFO, () -> "***Card: Calling deInitialize API.");
             Asn1CardTokenUtil.deInitialize();
+            LOGGER.log(Level.INFO, () -> "***Card: Calling initialize API.");
             Asn1CardTokenUtil.initialize();
             try {
+                LOGGER.log(Level.INFO, () -> "***Card: Sleeping for " + SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC + " milliseconds before waitForConnect API call.");
                 Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
             } catch (InterruptedException e) {
                 LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
@@ -138,35 +141,47 @@ public class TokenIssuanceController extends AbstractBaseController {
             }
 
             try {
+                LOGGER.log(Level.INFO, () -> "***Card: Calling waitForConnect API.");
                 crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
-                byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
-                if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
-                    LOGGER.log(Level.INFO, () -> "****Decoded bytes size not matched with response length.");
-                    throw new GenericException("Decoded bytes size not matched with response length.");
-                }
-                contractorCardInfo.setCardChipSerialNo(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase()); // hexadecimal bytes to hex string.
-                contractorCardInfo.setCardHandle(crWaitForConnectResDto.getHandle());
                 break;
-            } catch (GenericException ex) {
+            } catch (GenericException ex) { // don't handle NoReaderOrCardException
+                // only restart API service when communication error happens
                 if (counter == 0) {
-                    LOGGER.log(Level.INFO, () -> "****Communication error occurred. Restarting EnrollmentStationServices.");
+                    LOGGER.log(Level.INFO, () -> "***Card: Communication error occurred. Restarting EnrollmentStationServices.");
                     if (restartApiService()) {
                         try {
+                            LOGGER.log(Level.INFO, () -> "***Card: Sleeping for 2 seconds after restarting EnrollmentStationServices.");
                             Thread.sleep(2000); // needed to sleep after restarting
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
                         }
                         continue; // starts from DeInitialize again.
                     } // else exit code is not zero
+                    else {
+                        LOGGER.log(Level.INFO, () -> "***Card: Unable to restart EnrollmentStationServices.");
+                    }
                 }
-                LOGGER.log(Level.INFO, () -> "****Communication error occurred. Unable to restart EnrollmentStationServices.");
-                throw new GenericException("Something went wrong. Please try again.");
+                LOGGER.log(Level.INFO, () -> "***Card: Communication error occurred. Even after restarting EnrollmentStationServices.");
+                throw new GenericException(ex.getMessage());
             }
         }
+        int returnedErrorCode = crWaitForConnectResDto.getRetVal();
+        LOGGER.log(Level.INFO, () -> "***Card: waitForConnectErrorCode: " + returnedErrorCode);
+
         if (crWaitForConnectResDto.getRetVal() != 0) {
             throw new GenericException("Kindly reconnect the reader and place card correctly.");
         }
+        byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
+        if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
+            LOGGER.log(Level.INFO, () -> "****Card: Decoded bytes size not matched with response length.");
+            throw new GenericException("Decoded bytes size not matched with response length.");
+        }
+        contractorCardInfo.setCardChipSerialNo(Strings.fromByteArray(Hex.encode(decodedHexCsn)).toUpperCase()); // hexadecimal bytes to hex string.
+        contractorCardInfo.setCardHandle(crWaitForConnectResDto.getHandle());
+
+        LOGGER.log(Level.INFO, () -> "***Card: Calling selectApp API ");
         Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, crWaitForConnectResDto.getHandle());
+        LOGGER.log(Level.INFO, () -> "***Card: Calling readData API ");
         return readBufferedData(crWaitForConnectResDto.getHandle(), CardTokenFileType.STATIC);
     }
 

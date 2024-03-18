@@ -28,8 +28,7 @@ public class HttpUtil {
     private static final HttpClient HTTP_CLIENT;
 
     public enum MethodType {
-        POST,
-        GET;
+        POST, GET;
     }
 
     static {
@@ -55,6 +54,7 @@ public class HttpUtil {
     }
 
     public static HttpRequest createHttpRequest(MethodType methodType, String url, String data, Map<String, String> extraHeaders) {
+        LOGGER.log(Level.INFO, () -> "*** Method: " + methodType.name() + "url" + url);
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder();
             if (extraHeaders != null) {
@@ -63,11 +63,7 @@ public class HttpUtil {
             if (MethodType.POST == methodType) {
                 builder.POST(HttpRequest.BodyPublishers.ofString(data));
             }
-            return builder.uri(URI.create(url))
-                    .header(HttpHeader.CONTENT_TYPE, "application/json; utf-8")
-                    .header(HttpHeader.ACCEPT, "application/json")
-                    .timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC))
-                    .build();
+            return builder.uri(URI.create(url)).header(HttpHeader.CONTENT_TYPE, "application/json; utf-8").header(HttpHeader.ACCEPT, "application/json").timeout(Duration.ofSeconds(WRITE_TIMEOUT_IN_SEC)).build();
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException("Invalid url or ip address. Kindly try again.");

@@ -129,10 +129,7 @@ public class Asn1CardTokenUtil {
     }
 
     public enum TokenStaticDataIndex {
-        CHIP_SERIAL_NO(0),
-        TOKEN_NO(1),
-        CARD_TYPE_ID(2),
-        DATE_ISSUED(3);
+        CHIP_SERIAL_NO(0), TOKEN_NO(1), CARD_TYPE_ID(2), DATE_ISSUED(3);
         private final int value;
 
         TokenStaticDataIndex(int val) {
@@ -150,8 +147,7 @@ public class Asn1CardTokenUtil {
         CARD_TYPE_ID(2),
         USER_CATEGORY_ID(3),
         NAME(4),
-        SERVICE(5),
-        //        EMPTY(6), // need to confirm
+        SERVICE(5), //        EMPTY(6), // need to confirm
         PN(6),
         UNIQUE_ID(7), // used for civilian
         RANK(8),
@@ -370,12 +366,12 @@ public class Asn1CardTokenUtil {
     public static void encodeAndStorePhotoFile(int handle, String base64EncodedPhoto) {
         byte[] bytes;
         try {
-            bytes = new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(base64EncodedPhoto, "photo"))).getEncoded();
+            DEROctetString octetString = new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(base64EncodedPhoto, "photo")));
+            bytes = new DERSequence(octetString).getEncoded();
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while encoding photo file.");
         }
-
         if (bytes.length > MAX_PHOTO_FILE_SIZE) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Photo size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The photo file size exceeded the allowed limit.");

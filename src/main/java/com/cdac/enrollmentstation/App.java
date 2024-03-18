@@ -4,7 +4,6 @@ package com.cdac.enrollmentstation;
 import com.cdac.enrollmentstation.controller.AbstractBaseController;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.DisplayUtil;
-import com.cdac.enrollmentstation.util.LabourGenerator;
 import javafx.application.Application;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -72,7 +71,6 @@ public final class App extends Application {
     }
 
     public static void main(String[] args) {
-        LabourGenerator.generate();
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         launch();
     }

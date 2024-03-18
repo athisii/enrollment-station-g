@@ -30,14 +30,26 @@ public class LocalNavalWebServiceApi {
     // Caller must handle the exception
     public static CRApiResDto getDeInitialize() {
         HttpRequest httpRequest = HttpUtil.createGetHttpRequest(LocalNavalWebServiceApiUrl.getDeInitialize());
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 
     // throws GenericException
     // Caller must handle the exception
     public static CRApiResDto getInitialize() {
         HttpRequest httpRequest = HttpUtil.createGetHttpRequest(LocalNavalWebServiceApiUrl.getInitialize());
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 
     // throws GenericException
@@ -57,10 +69,6 @@ public class LocalNavalWebServiceApi {
     // Caller must handle the exception
     public static CRApiResDto postSelectApp(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalNavalWebServiceApiUrl.getSelectApp(), data);
-        return getCrApiResDto(httpRequest);
-    }
-
-    private static CRApiResDto getCrApiResDto(HttpRequest httpRequest) {
         HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
         try {
             return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
@@ -87,27 +95,51 @@ public class LocalNavalWebServiceApi {
     // Caller must handle the exception
     public static CRApiResDto postStoreData(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalNavalWebServiceApiUrl.getStoreDataOnNaval(), data);
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 
     // throws GenericException
     // Caller must handle the exception
     public static CRApiResDto postVerifyCertificate(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalNavalWebServiceApiUrl.getVerifyCertificate(), data);
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 
     // throws GenericException
     // Caller must handle the exception
     public static CRApiResDto postPkiAuth(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalNavalWebServiceApiUrl.getPkiAuth(), data);
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 
     // throws GenericException
     // Caller must handle the exception
     public static CRApiResDto postWaitForRemoval(String data) {
         HttpRequest httpRequest = HttpUtil.createPostHttpRequest(LocalNavalWebServiceApiUrl.getWaitForRemoval(), data);
-        return getCrApiResDto(httpRequest);
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(httpRequest);
+        try {
+            return Singleton.getObjectMapper().readValue(response.body(), CRApiResDto.class);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ERR_MSG);
+        }
     }
 }

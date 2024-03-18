@@ -54,7 +54,7 @@ public class HttpUtil {
     }
 
     public static HttpRequest createHttpRequest(MethodType methodType, String url, String data, Map<String, String> extraHeaders) {
-        LOGGER.log(Level.INFO, () -> "*** Method: " + methodType.name() + "url" + url);
+        LOGGER.log(Level.INFO, () -> "*** Method: " + methodType.name() + "\n\t *** url: " + url);
         try {
             HttpRequest.Builder builder = HttpRequest.newBuilder();
             if (extraHeaders != null) {

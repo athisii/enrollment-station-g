@@ -19,9 +19,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -81,7 +78,7 @@ public class ServerConfigController implements BaseController {
 
 
     private void saveToFile(Unit unit) {
-        if (mafisUrlTextField.getText().isBlank() || isMalformedUrl(mafisUrlTextField.getText())) {
+        if (mafisUrlTextField.getText().isBlank()) {
             messageLabel.setText("Invalid mafis url.");
             return;
         }
@@ -100,7 +97,7 @@ public class ServerConfigController implements BaseController {
 
     @FXML
     private void fetchBtnAction() {
-        if (isMalformedUrl(mafisUrlTextField.getText())) {
+        if (mafisUrlTextField.getText().isBlank()) {
             messageLabel.setText(("Not a valid url."));
             return;
         }
@@ -112,6 +109,7 @@ public class ServerConfigController implements BaseController {
 
     private void fetchUnits() {
         try {
+            PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText());
             units = MafisServerApi.fetchAllUnits();
         } catch (GenericException ex) {
             updateUi(ex.getMessage());
@@ -166,24 +164,7 @@ public class ServerConfigController implements BaseController {
                 unitOptional.ifPresent(this::saveToFile);
             }
         });
-        // very important, fetchApi returns data based on previously saved url.
-        mafisUrlTextField.setOnKeyReleased(event -> {
-            String url = mafisUrlTextField.getText();
-            if (!url.isBlank() && !isMalformedUrl(url)) {
-                PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, url);
-            }
-        });
 
-    }
-
-    public boolean isMalformedUrl(String url) {
-        try {
-            new URL(url).toURI();
-            return false;
-        } catch (MalformedURLException | URISyntaxException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
-            return true;
-        }
     }
 
     private void updateUi(String message) {

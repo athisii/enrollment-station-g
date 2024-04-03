@@ -506,7 +506,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LOGGER.log(Level.INFO, () -> "***Card: Calling readData API for reading system certificate.");
         byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle(), CardTokenFileType.SYSTEM_CERTIFICATE);
 
-        LOGGER.log(Level.INFO, () -> "***Token: Calling verifyCertificate API: handle1=token, handle2=card");
+        LOGGER.log(Level.INFO, () -> "***Token: Calling verifyCertificate API: handle=token");
         Asn1CardTokenUtil.verifyCertificate(tokenHandle, WHICH_TRUST, WHICH_CERTIFICATE, systemCertificate);
 
         LOGGER.log(Level.INFO, () -> "***Token: Calling pkiAuth API: handle1=token, handle2=card");

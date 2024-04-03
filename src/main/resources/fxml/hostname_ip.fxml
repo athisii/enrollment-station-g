@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.HostnameIpController">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <left>
+        <HBox styleClass="padding">
+            <!--  id: _imgContainer -> only used in fxml expression       -->
+            <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+            <HBox fx:id="_imgContainer" styleClass="img-container">
+                <ImageView fitHeight="${_imgContainer.prefHeight}" fitWidth="${_imgContainer.prefWidth}"
+                           preserveRatio="true">
+                    <Image url="@../gif/settings.gif"/>
+                </ImageView>
+            </HBox>
+            <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
+            <Label fx:id="bodyHeaderLabel" focusTraversable="true"
+                   styleClass="padding-small, bg-border-radius-small, press-effect" text="SYSTEM SETTINGS"/>
+        </HBox>
+    </left>
+    <!--   will place the content in the middle -->
+    <right>
+        <!--    reusing ids-->
+        <Region minWidth="${bodyHeaderLabel.width + _imgContainer.prefWidth}"/>
+    </right>
+    <center>
+        <VBox alignment="CENTER">
+            <VBox alignment="CENTER" styleClass="border-color-darkblue, border-radius-medium">
+                <VBox>
+                    <Region styleClass="min-height-large"/>
+                    <HBox alignment="CENTER">
+                        <Label text="HOSTNAME" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="hostnameTextField" promptText="hostname" styleClass="input-field"/>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <Label text="IP ADDRESS" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="ipAddressTextField" promptText="192.168.1.10" styleClass="input-field"/>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <Label text="SUBNET MASK" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="subnetMaskTextField" promptText="255.255.255.0" styleClass="input-field"/>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <Label text="DEFAULT GATEWAY" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="defaultGatewayTextField" promptText="192.168.1.1" styleClass="input-field"/>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <Label text="DNS IP" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="dnsIpTextField" promptText="192.168.1.11" styleClass="input-field"/>
+                    </HBox>
+                </VBox>
+                <Region styleClass="min-height-small"/>
+                <Label fx:id="messageLabel"/>
+                <Region styleClass="min-height"/>
+            </VBox>
+            <Region styleClass="min-height-medium"/>
+            <HBox alignment="CENTER">
+                <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
+                <Region styleClass="min-width-large"/>
+                <Button fx:id="homeBtn" styleClass="btn-medium, press-effect" text="HOME"/>
+                <Region styleClass="min-width-large"/>
+                <Button fx:id="saveBtn" styleClass="btn-medium, press-effect" text="SAVE"/>
+            </HBox>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" styleClass="padding, bg-color-bright-blue">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

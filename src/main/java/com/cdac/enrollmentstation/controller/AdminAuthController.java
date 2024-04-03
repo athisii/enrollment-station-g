@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
@@ -34,6 +29,8 @@ public class AdminAuthController extends AbstractBaseController {
 
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;
+    @FXML
+    private Button editHostnameIpBtn;
     @FXML
     private Button backBtn;
     @FXML
@@ -112,6 +109,16 @@ public class AdminAuthController extends AbstractBaseController {
                 loginBtnAction();
             }
         });
+        editHostnameIpBtn.setOnAction(event -> editHostnameIpBtnAction());
+
+    }
+
+    private void editHostnameIpBtnAction() {
+        try {
+            App.setRoot("hostname_ip");
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, () -> "Error loading fxml: " + ex.getMessage());
+        }
     }
 
     private void limitCharacters(TextField textField, String oldValue, String newValue) {

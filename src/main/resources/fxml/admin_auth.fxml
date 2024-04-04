@@ -24,61 +24,68 @@
             </HBox>
             <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
             <Label fx:id="bodyHeaderLabel" focusTraversable="true"
-                   styleClass="padding-small, bg-border-radius-small, press-effect" text="AUTHENTICATION"/>
+                   styleClass="padding-small, bg-border-radius-small, press-effect" text="NUD AUTHENTICATION"/>
         </HBox>
     </left>
     <!--   will place the content in the middle -->
-    <right>
-        <HBox alignment="TOP_RIGHT" styleClass="padding" minWidth="${bodyHeaderLabel.width + _imgContainer.prefWidth}">
-            <HBox styleClass="img-container">
-                <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
-                           preserveRatio="true">
-                    <Image url="@../gif/settings.gif"/>
-                </ImageView>
-            </HBox>
-            <Button fx:id="editHostnameIpBtn" styleClass="padding-small, press-effect, bg-border-radius-small" text="EDIT HOSTNAME/IP"/>
-        </HBox>
-    </right>
     <center>
-        <VBox alignment="CENTER">
-            <VBox alignment="CENTER" styleClass="border-color-darkblue, border-radius-medium">
-                <VBox>
-                    <Region styleClass="min-height-large"/>
-                    <HBox alignment="CENTER">
-                        <!--  id: _imgContainer1 -> only used in fxml expression       -->
-                        <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
-                        <HBox fx:id="_imgContainer1" styleClass="img-container">
-                            <ImageView fitHeight="${_imgContainer1.prefHeight}" fitWidth="${_imgContainer1.prefWidth}"
-                                       preserveRatio="true">
-                                <Image url="@../img/username.png"/>
-                            </ImageView>
+        <HBox>
+            <VBox alignment="CENTER">
+                <VBox alignment="CENTER" styleClass="padding-large, border-color-darkblue, border-radius-medium">
+                    <VBox>
+                        <Region styleClass="min-height-large"/>
+                        <HBox alignment="CENTER">
+                            <!--  id: _imgContainer1 -> only used in fxml expression       -->
+                            <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+                            <HBox fx:id="_imgContainer1" styleClass="img-container">
+                                <ImageView fitHeight="${_imgContainer1.prefHeight}"
+                                           fitWidth="${_imgContainer1.prefWidth}"
+                                           preserveRatio="true">
+                                    <Image url="@../img/username.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Region styleClass="min-width-medium"/>
+                            <TextField fx:id="username" promptText="Username" styleClass="input-field"/>
                         </HBox>
-                        <Region styleClass="min-width-medium"/>
-                        <TextField fx:id="username" promptText="Username" styleClass="input-field"/>
-                    </HBox>
-                    <Region styleClass="min-height-medium"/>
-                    <HBox alignment="CENTER">
-                        <HBox fx:id="_imgContainer2" styleClass="img-container">
-                            <ImageView fitHeight="${_imgContainer2.prefHeight}" fitWidth="${_imgContainer2.prefWidth}"
-                                       preserveRatio="true">
-                                <Image url="@../img/password.png"/>
-                            </ImageView>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox alignment="CENTER">
+                            <HBox fx:id="_imgContainer2" styleClass="img-container">
+                                <ImageView fitHeight="${_imgContainer2.prefHeight}"
+                                           fitWidth="${_imgContainer2.prefWidth}"
+                                           preserveRatio="true">
+                                    <Image url="@../img/password.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Region styleClass="min-width-medium"/>
+                            <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
                         </HBox>
-                        <Region styleClass="min-width-medium"/>
-                        <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
-                    </HBox>
+                    </VBox>
+                    <Region styleClass="min-height-small"/>
+                    <Label fx:id="statusMsg"/>
+                    <Region styleClass="min-height"/>
                 </VBox>
-                <Region styleClass="min-height-small"/>
-                <Label fx:id="statusMsg"/>
-                <Region styleClass="min-height"/>
+                <Region styleClass="min-height-medium"/>
+                <HBox alignment="CENTER">
+                    <Button fx:id="backBtn" onAction="#showHome" styleClass="btn-medium, press-effect" text="BACK"/>
+                    <Region styleClass="min-width-medium"/>
+                    <Button fx:id="loginBtn" onAction="#loginBtnAction" styleClass="btn-medium, press-effect"
+                            text="LOGIN"/>
+                </HBox>
             </VBox>
-            <Region styleClass="min-height-medium"/>
-            <HBox alignment="CENTER">
-                <Button fx:id="backBtn" onAction="#showHome" styleClass="btn-medium, press-effect" text="BACK"/>
-                <Region styleClass="min-width-large"/>
-                <Button fx:id="loginBtn" onAction="#loginBtnAction" styleClass="btn-medium, press-effect" text="LOGIN"/>
-            </HBox>
-        </VBox>
+            <Region styleClass="min-width-xlarge"/>
+            <VBox alignment="CENTER">
+                <HBox alignment="TOP_RIGHT" styleClass="padding">
+                    <HBox styleClass="img-container">
+                        <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../gif/settings.gif"/>
+                        </ImageView>
+                    </HBox>
+                    <Button fx:id="editHostnameIpBtn" styleClass="padding-small, press-effect, bg-border-radius-small"
+                            text="EDIT HOSTNAME/IP"/>
+                </HBox>
+            </VBox>
+        </HBox>
     </center>
     <bottom>
         <HBox alignment="CENTER" styleClass="padding, bg-color-bright-blue">

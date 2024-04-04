@@ -50,6 +50,34 @@ public class HostnameIpController extends AbstractBaseController {
         interfaceName = getInterfaceName();
         hostname = getHostname();
         setTextFieldValuesOnUI(); // only set after getting all required fields
+
+
+        // ease of use for operator
+        hostnameTextField.setOnKeyPressed(event -> {
+            if (!messageLabel.getText().isBlank()) {
+                messageLabel.setText("");
+            }
+        });
+        ipAddressTextField.setOnKeyPressed(event -> {
+            if (!messageLabel.getText().isBlank()) {
+                messageLabel.setText("");
+            }
+        });
+        subnetMaskTextField.setOnKeyPressed(event -> {
+            if (!messageLabel.getText().isBlank()) {
+                messageLabel.setText("");
+            }
+        });
+        defaultGatewayTextField.setOnKeyPressed(event -> {
+            if (!messageLabel.getText().isBlank()) {
+                messageLabel.setText("");
+            }
+        });
+        dnsIpTextField.setOnKeyPressed(event -> {
+            if (!messageLabel.getText().isBlank()) {
+                messageLabel.setText("");
+            }
+        });
     }
 
     private void homeBtnAction() {

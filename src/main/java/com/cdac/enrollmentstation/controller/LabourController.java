@@ -229,8 +229,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 }
             };
             row.setOnMouseClicked(event -> {
-                // check for non-empty rows, double-click with the primary button of the mouse
-                if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                // check for non-empty rows, double-click
+                if (!row.isEmpty() && event.getClickCount() == 2) {
                     fingerprintImageView.setImage(null);
                     LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
                     if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {

@@ -112,7 +112,7 @@ public class ContractController extends AbstractBaseController {
         tableView.setRowFactory(tv -> {
             TableRow<Contract> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (!row.isEmpty() && event.getClickCount() == 2 && event.getButton() == MouseButton.PRIMARY) {
+                if (!row.isEmpty() && event.getClickCount() == 2) {
                     Contract element = row.getItem();
                     setContractIdInContractDetailHolder(element.getContractId());
                     try {

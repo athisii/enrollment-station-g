@@ -24,12 +24,17 @@
             </HBox>
             <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
             <Label fx:id="bodyHeaderLabel" focusTraversable="true"
-                   styleClass="padding-small, bg-border-radius-small, press-effect" text="NUD AUTHENTICATION"/>
+                   styleClass="padding-small, bg-border-radius-small, press-effect" text="NUD LOGIN"/>
         </HBox>
     </left>
+
+    <right>
+        <!--    reusing ids-->
+        <Region minWidth="${bodyHeaderLabel.width + _imgContainer.prefWidth}"/>
+    </right>
     <!--   will place the content in the middle -->
     <center>
-        <HBox>
+        <HBox alignment="CENTER">
             <VBox alignment="CENTER">
                 <VBox alignment="CENTER" styleClass="padding-large, border-color-darkblue, border-radius-medium">
                     <VBox>

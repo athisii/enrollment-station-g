@@ -43,6 +43,7 @@ public final class App extends Application {
         stage.setOnCloseRequest(event -> {
             event.consume();
             Platform.exit();
+            System.exit(0);
         });
         scene = new Scene(loadFXML("main_screen"), DisplayUtil.SCREEN_WIDTH, DisplayUtil.SCREEN_HEIGHT);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {

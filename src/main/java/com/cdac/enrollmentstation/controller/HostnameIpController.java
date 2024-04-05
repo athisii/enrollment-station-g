@@ -3,7 +3,9 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -41,43 +43,25 @@ public class HostnameIpController extends AbstractBaseController {
     private Button homeBtn;
 
     private String interfaceName;
-    private String hostname;
 
     public void initialize() {
         backBtn.setOnAction(event -> backBtnAction());
         saveBtn.setOnAction(event -> saveBtnAction());
         homeBtn.setOnAction(event -> homeBtnAction());
         interfaceName = getInterfaceName();
-        hostname = getHostname();
         setTextFieldValuesOnUI(); // only set after getting all required fields
 
+        hostnameTextField.setOnKeyPressed(event -> clearMessageLabelIfNotBlank());
+        ipAddressTextField.setOnKeyPressed(event -> clearMessageLabelIfNotBlank());
+        subnetMaskTextField.setOnKeyPressed(event -> clearMessageLabelIfNotBlank());
+        defaultGatewayTextField.setOnKeyPressed(event -> clearMessageLabelIfNotBlank());
+        dnsIpTextField.setOnKeyPressed(event -> clearMessageLabelIfNotBlank());
+    }
 
-        // ease of use for operator
-        hostnameTextField.setOnKeyPressed(event -> {
-            if (!messageLabel.getText().isBlank()) {
-                messageLabel.setText("");
-            }
-        });
-        ipAddressTextField.setOnKeyPressed(event -> {
-            if (!messageLabel.getText().isBlank()) {
-                messageLabel.setText("");
-            }
-        });
-        subnetMaskTextField.setOnKeyPressed(event -> {
-            if (!messageLabel.getText().isBlank()) {
-                messageLabel.setText("");
-            }
-        });
-        defaultGatewayTextField.setOnKeyPressed(event -> {
-            if (!messageLabel.getText().isBlank()) {
-                messageLabel.setText("");
-            }
-        });
-        dnsIpTextField.setOnKeyPressed(event -> {
-            if (!messageLabel.getText().isBlank()) {
-                messageLabel.setText("");
-            }
-        });
+    private void clearMessageLabelIfNotBlank() {
+        if (!messageLabel.getText().isBlank()) {
+            messageLabel.setText("");
+        }
     }
 
     private void homeBtnAction() {
@@ -101,10 +85,16 @@ public class HostnameIpController extends AbstractBaseController {
         String content = "auto lo\niface lo inet loopback\n" + "\nauto " + interfaceName +
                 "\niface " + interfaceName + " inet static" +
                 "\naddress\t" + ipAddressTextField.getText() +
-                "\nnetmask\t" + subnetMaskTextField.getText() +
-                "\ngateway\t" + defaultGatewayTextField.getText() +
-                "\ndns-nameservers\t" + dnsIpTextField.getText() +
-                "\n";
+                "\nnetmask\t" + subnetMaskTextField.getText();
+
+        if (!defaultGatewayTextField.getText().isBlank()) {
+            content += "\ngateway\t" + defaultGatewayTextField.getText();
+        }
+        if (!dnsIpTextField.getText().isBlank()) {
+            content += "\ndns-nameservers\t" + dnsIpTextField.getText();
+        }
+        content += "\n";
+
         Files.writeString(Paths.get("/etc/network/interfaces"), content);
     }
 
@@ -163,23 +153,46 @@ public class HostnameIpController extends AbstractBaseController {
             messageLabel.setText("Enter a valid dns ip.");
             return;
         }
+        messageLabel.setText("Updating the system configuration. Please wait.");
+        disableControls(backBtn, homeBtn, saveBtn);
+        App.getThreadPool().execute(this::saveChanges);
+    }
 
+    private void disableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(true);
+        }
+    }
+
+    private void enableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(false);
+        }
+    }
+
+    private void saveChanges() {
         try {
-            if (!hostname.equals(hostnameTextField.getText())) {
+            if (!getHostname().equals(hostnameTextField.getText())) {
                 setHostname();
             }
             saveIpaddressToFile();
             restartNetworkingService();
         } catch (Exception ex) {
+            enableControls(backBtn, homeBtn, saveBtn);
             LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
             if (ex instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            messageLabel.setText(ex.getMessage());
+            updateUI(ex.getMessage());
             return;
         }
+        enableControls(backBtn, homeBtn, saveBtn);
         LOGGER.log(Level.INFO, () -> "System configuration saved successfully.");
-        messageLabel.setText("System configuration saved successfully.");
+        updateUI("System configuration updated successfully.");
+    }
+
+    private void updateUI(String message) {
+        Platform.runLater(() -> messageLabel.setText(message));
     }
 
     private void setTextFieldValuesOnUI() {
@@ -198,7 +211,7 @@ public class HostnameIpController extends AbstractBaseController {
                     dnsIpTextField.setText(entry[1]);
                 }
             });
-            hostnameTextField.setText(hostname);
+            hostnameTextField.setText(getHostname());
         } catch (Exception ex) {
             LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
             messageLabel.setText(ex.getMessage());
@@ -210,7 +223,7 @@ public class HostnameIpController extends AbstractBaseController {
             Process process = Runtime.getRuntime().exec("hostname");
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = input.readLine();
-            if (line == null) {
+            if (line == null || line.isBlank()) {
                 LOGGER.log(Level.INFO, () -> "***Error: Received null value hostname");
                 throw new GenericException("Failed to get hostname.");
             }
@@ -231,23 +244,44 @@ public class HostnameIpController extends AbstractBaseController {
     }
 
     private void setHostname() throws IOException, InterruptedException {
-        Process process = Runtime.getRuntime().exec("hostnamectl set-hostname " + hostnameTextField.getText());
+        String[] command = createCommand();
+        Process process = Runtime.getRuntime().exec(command);
+        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        String eline;
+        while ((eline = error.readLine()) != null) {
+            String finalEline = eline;
+            LOGGER.log(Level.INFO, () -> "***Error: " + finalEline);
+        }
+        error.close();
         int exitVal = process.waitFor();
         if (exitVal != 0) {
             LOGGER.log(Level.INFO, () -> "***Error: Process Exit Value: " + exitVal);
-            throw new GenericException("Failed to set hostname.");
+            throw new GenericException("Something went wrong. Please try again.");
         }
-        hostname = hostnameTextField.getText();
+    }
+
+    private String[] createCommand() {
+        String hostnameCommand = "hostnamectl set-hostname " + hostnameTextField.getText();
+        String hostnameSerialFile = ";echo " + hostnameTextField.getText() + " > /usr/share/enrollment/serial/serial.txt";
+        String hostFileCommand = ";sed -i '2 s/^.*$/127.0.0.1 " + hostnameTextField.getText() + "/g' /etc/hosts";
+        String twUpdateCommand = ";/usr/share/enrollment/startup/tw-update";
+        return new String[]{"/bin/bash", "-c", hostnameCommand + hostnameSerialFile + hostFileCommand + twUpdateCommand};
     }
 
     private void restartNetworkingService() throws IOException, InterruptedException {
         Process process = Runtime.getRuntime().exec("systemctl restart networking");
+        BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+        String eline;
+        while ((eline = error.readLine()) != null) {
+            String finalEline = eline;
+            LOGGER.log(Level.INFO, () -> "***Error: " + finalEline);
+        }
+        error.close();
         int exitVal = process.waitFor();
         if (exitVal != 0) {
             LOGGER.log(Level.INFO, () -> "***Error: Process Exit Value: " + exitVal);
             throw new GenericException("Failed to restart networking service.");
         }
-        hostname = hostnameTextField.getText();
     }
 
 

@@ -21,6 +21,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.InputEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -106,43 +109,70 @@ public class SignatureController extends AbstractBaseController {
 
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
+
         canvas.setOnMousePressed(event -> {
             lastX = event.getX();
             lastY = event.getY();
+            LOGGER.log(Level.INFO, () -> "Event Pressed Type: " + event.getEventType());
         });
 
-        canvas.setOnMouseDragged(event -> {
-            if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight()) {
-                // for the bounding box
-                if (lastX < minX) {
-                    minX = lastX;
-                }
-                if (lastY < minY) {
-                    minY = lastY;
-                }
+        canvas.setOnTouchPressed(event -> {
+            lastX = event.getTouchPoint().getX();
+            lastY = event.getTouchPoint().getY();
+            LOGGER.log(Level.INFO, () -> "Event Pressed Type: " + event.getEventType());
+        });
 
-                if (lastX > maxX) {
-                    maxX = lastX;
-                }
-                if (lastY > maxY) {
-                    maxY = lastY;
-                }
-                // drawing on the canvas
-                gc.beginPath();
-                gc.moveTo(lastX, lastY);
-                gc.lineTo(event.getX(), event.getY());
-                gc.stroke();
-                lastX = event.getX();
-                lastY = event.getY();
-                isSigned = true;
-            }
-        });
-        canvas.setOnMouseReleased(event -> {
-            // for touch event, it can jump from Release to Drag event directly on tapping the screen.
-            lastX = -1;
-            lastY = -1;
-        });
+        canvas.setOnTouchMoved(this::onMoveAction);
+        canvas.setOnMouseDragged(this::onMoveAction);
+        canvas.setOnMouseReleased(this::resetXAndY);
+        canvas.setOnTouchReleased(this::resetXAndY);
         arcLbl.setText("e-ARC: " + ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getArcNo());
+    }
+
+    private void onMoveAction(InputEvent event) {
+        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight()) {
+            // for the bounding box
+            if (lastX < minX) {
+                minX = lastX;
+            }
+            if (lastY < minY) {
+                minY = lastY;
+            }
+
+            if (lastX > maxX) {
+                maxX = lastX;
+            }
+            if (lastY > maxY) {
+                maxY = lastY;
+            }
+            // drawing on the canvas
+            gc.beginPath();
+            gc.moveTo(lastX, lastY);
+
+            double x;
+            double y;
+
+            if (event instanceof TouchEvent) {
+                x = ((TouchEvent) event).getTouchPoint().getX();
+                y = ((TouchEvent) event).getTouchPoint().getY();
+            } else {
+                x = ((MouseEvent) event).getX();
+                y = ((MouseEvent) event).getY();
+            }
+            gc.lineTo(x, y);
+            gc.stroke();
+            lastX = x;
+            lastY = y;
+            isSigned = true;
+        }
+        LOGGER.log(Level.INFO, () -> "Event Moved Type: " + event.getEventType());
+    }
+
+    private void resetXAndY(InputEvent event) {
+        // for touch event, it can jump from Release to Drag event directly on tapping the screen.
+        lastX = -1;
+        lastY = -1;
+        LOGGER.log(Level.INFO, () -> "Event Released Type: " + event.getEventType());
     }
 
     private void backBtnAction(ActionEvent event) {

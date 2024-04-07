@@ -77,7 +77,7 @@
                             text="LOGIN"/>
                 </HBox>
             </VBox>
-            <Region styleClass="min-width-xlarge"/>
+            <Region styleClass="min-width-large"/>
             <VBox alignment="CENTER">
                 <HBox alignment="TOP_RIGHT" styleClass="padding">
                     <HBox styleClass="img-container">

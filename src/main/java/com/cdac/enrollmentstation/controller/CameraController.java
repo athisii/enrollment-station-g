@@ -294,6 +294,7 @@ public class CameraController extends AbstractBaseController {
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         scheduledExecutorService.scheduleWithFixedDelay(this::grabFrame, 0, FIXED_DELAY_TIME_IN_MILLIS, TimeUnit.MILLISECONDS);
     }
+
     private void liveImageThread() {
         Mat matrix = new Mat();
         while (!stopLive) {
@@ -360,6 +361,7 @@ public class CameraController extends AbstractBaseController {
                 messageLabel.setText("Capture threshold reached. Start camera again.");
                 startStopCameraBtn.setText("Start Camera");
             });
+            enableControls(backBtn);
             return;
         }
         try {
@@ -394,6 +396,7 @@ public class CameraController extends AbstractBaseController {
             LOGGER.log(Level.SEVERE, ex::getMessage);
             shutdownExecutorServiceAndReleaseResource();
             Thread.currentThread().interrupt();
+            enableControls(backBtn);
         }
     }
 

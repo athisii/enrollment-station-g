@@ -18,8 +18,8 @@ def junitVersion = '5.9.1'
 def lombokVersion = '1.18.24'
 def jarDir = '/usr/share/enrollment/lib/'
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
@@ -47,7 +47,7 @@ dependencies {
 
 
 javafx {
-    version = '11.0.2'
+    version = '17.0.10'
     modules = ['javafx.controls', 'javafx.fxml', 'javafx.swing']
 }
 
@@ -79,7 +79,7 @@ jlinkZip {
 task copyDependencies(type: Copy) {
     group "copy dependencies"
     description "Copy dependencies to ${jarDir}"
-    configurations.runtimeClasspath.files.collect {
+    configurations.compileClasspath.files.collect {
         it.getAbsolutePath()
     }.forEach {
         from(it)

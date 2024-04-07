@@ -113,13 +113,11 @@ public class SignatureController extends AbstractBaseController {
         canvas.setOnMousePressed(event -> {
             lastX = event.getX();
             lastY = event.getY();
-            LOGGER.log(Level.INFO, () -> "Event Pressed Type: " + event.getEventType());
         });
 
         canvas.setOnTouchPressed(event -> {
             lastX = event.getTouchPoint().getX();
             lastY = event.getTouchPoint().getY();
-            LOGGER.log(Level.INFO, () -> "Event Pressed Type: " + event.getEventType());
         });
 
         canvas.setOnTouchMoved(this::onMoveAction);
@@ -152,9 +150,9 @@ public class SignatureController extends AbstractBaseController {
             double x;
             double y;
 
-            if (event instanceof TouchEvent) {
-                x = ((TouchEvent) event).getTouchPoint().getX();
-                y = ((TouchEvent) event).getTouchPoint().getY();
+            if (event instanceof TouchEvent touchEvent) {
+                x = touchEvent.getTouchPoint().getX();
+                y = touchEvent.getTouchPoint().getY();
             } else {
                 x = ((MouseEvent) event).getX();
                 y = ((MouseEvent) event).getY();
@@ -165,14 +163,12 @@ public class SignatureController extends AbstractBaseController {
             lastY = y;
             isSigned = true;
         }
-        LOGGER.log(Level.INFO, () -> "Event Moved Type: " + event.getEventType());
     }
 
     private void resetXAndY(InputEvent event) {
         // for touch event, it can jump from Release to Drag event directly on tapping the screen.
         lastX = -1;
         lastY = -1;
-        LOGGER.log(Level.INFO, () -> "Event Released Type: " + event.getEventType());
     }
 
     private void backBtnAction(ActionEvent event) {

@@ -563,7 +563,22 @@ public class SlapScannerController extends AbstractBaseController {
     }
 
     private void checkLFD(int deviceHandler) {
+        String errorMessage = "Kindly place your left finger(s) in the middle of the scanner";
+        Map<String, Integer> mFingersToScanSeqMap;
+        if (FingerSetType.LEFT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
+        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
+            errorMessage = "Kindly place your right finger(s) in the middle of the scanner";
+        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
+            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
+            errorMessage = "Kindly place your thumb(s) in the bottom middle of the scanner";
+        } else {
+            // for developers
+            throw new GenericException("Unsupported finger set type: ");
+        }
         RSLFDResult rsLfdResult = new RSLFDResult();
+
         /*
         RS_SetLFDLevel Error Codes:
             RS_SUCCESS - The option is set successfully.
@@ -572,23 +587,14 @@ public class SlapScannerController extends AbstractBaseController {
         jniReturnedCode = RS_GetLFDResult(deviceHandler, rsLfdResult);
         if (jniReturnedCode != RS_SUCCESS) {
             LOGGER.log(Level.SEVERE, () -> RS_GetErrString(jniReturnedCode));
-            throw new GenericException("Error occurred while checking LFD. Kindly try again.");
+            throw new GenericException(errorMessage);
         }
-        Map<String, Integer> mFingersToScanSeqMap;
-        if (FingerSetType.LEFT == fingerSetTypeToScan) {
-            mFingersToScanSeqMap = leftFingerToFingerTypeLinkedHashMap;
-        } else if (FingerSetType.RIGHT == fingerSetTypeToScan) {
-            mFingersToScanSeqMap = rightFingerToFingerTypeLinkedHashMap;
-        } else if (FingerSetType.THUMB == fingerSetTypeToScan) {
-            mFingersToScanSeqMap = thumbToFingerTypeLinkedHashMap;
-        } else {
-            // for developers
-            throw new GenericException("Unsupported finger set type: ");
-        }
+
         if (mFingersToScanSeqMap.size() != rsLfdResult.nNumofFinger) {
             LOGGER.log(Level.SEVERE, () -> "The finger count doesn't match.");
             throw new GenericException("The finger count doesn't match.");
         }
+
         if (FingerSetType.THUMB == fingerSetTypeToScan) {
             LOGGER.log(Level.INFO, () -> "Not Checking LFD For Thumb");
         } else {

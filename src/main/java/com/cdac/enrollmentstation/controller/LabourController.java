@@ -29,7 +29,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 

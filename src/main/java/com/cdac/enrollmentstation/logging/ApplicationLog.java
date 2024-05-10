@@ -27,7 +27,7 @@ public class ApplicationLog {
             LocalDateTime now = LocalDateTime.now();
             String time = now.getDayOfMonth() + "-" + now.getMonth() + "-" + now.getYear() + "-" + now.getHour() + "-" + now.getMinute();
             String logfileName = PropertyFile.getProperty(PropertyName.LOG_FILE).split("\\.")[0] + "-" + time + "-log";
-            handler = new FileHandler(logfileName, 1024000, 2); //1024000 is 1Mb - It will roll over after a file becomes 1Mb
+            handler = new FileHandler(logfileName, 10240000, 2); //1024000 is 10Mb - It will roll over after a file becomes 1Mb
             handler.setFormatter(new SimpleFormatter());
             handler.setLevel(Level.ALL);
             LOGGER.addHandler(handler);

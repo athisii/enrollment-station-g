@@ -99,9 +99,22 @@ public class SignatureController extends AbstractBaseController {
     private double maxY = Double.MIN_VALUE;
 
     private GraphicsContext gc;
+    private boolean firstLoading = true;
+//    private boolean firstRelease = false;
+
+
+    /*
+        Mantra touch screen event is not properly handled by javafx runtime on the first canvas touch.
+        So simulating to avoid it.
+     */
+    private void simulateMousePressedAction(Canvas canvas, double x, double y) {
+        MouseEvent mouseEvent = new MouseEvent(MouseEvent.MOUSE_PRESSED, x, y, x, y, null, 0, false, false, false, false, true, false, false, false, false, false, null);
+        canvas.fireEvent(mouseEvent);
+    }
+
 
     public void initialize() {
-        clearBtn.setOnAction(this::clearBtnAction);
+        clearBtn.setOnAction(event -> clearBtnAction());
         saveSignatureBtn.setOnAction(this::saveSignatureBtnAction);
         confirmNoBtn.setOnAction(this::confirmNo);
         confirmYesBtn.setOnAction(this::confirmYes);
@@ -109,6 +122,7 @@ public class SignatureController extends AbstractBaseController {
 
         gc = canvas.getGraphicsContext2D();
         gc.setLineWidth(2);
+
 
         canvas.setOnMousePressed(event -> {
             lastX = event.getX();
@@ -128,7 +142,8 @@ public class SignatureController extends AbstractBaseController {
     }
 
     private void onMoveAction(InputEvent event) {
-        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight()) {
+        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight() && !firstLoading) {
+//        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight() && !firstRelease) {
             // for the bounding box
             if (lastX < minX) {
                 minX = lastX;
@@ -163,12 +178,17 @@ public class SignatureController extends AbstractBaseController {
             lastY = y;
             isSigned = true;
         }
+        if (firstLoading) {
+            clearBtnAction();
+            firstLoading = false;
+        }
     }
 
     private void resetXAndY(InputEvent event) {
         // for touch event, it can jump from Release to Drag event directly on tapping the screen.
         lastX = -1;
         lastY = -1;
+        // firstRelease = true;
     }
 
     private void backBtnAction(ActionEvent event) {
@@ -199,7 +219,7 @@ public class SignatureController extends AbstractBaseController {
         enableControls(backBtn, clearBtn, saveSignatureBtn);
     }
 
-    private void clearBtnAction(ActionEvent event) {
+    private void clearBtnAction() {
         messageLabel.setText("Kindly sign in the centre of the black box");
         isSigned = false;
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());

@@ -1,8 +1,0 @@
-
-
-
-Noida CDAC API:
-    1. For some photos, it accepts OctetString format and for some it does not.
-
-  Fix:
-    1. Create OctetString and put in Sequence format and send it.  it works for all photos.

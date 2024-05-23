@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
+
 /**
  * @author athisii, CDAC
  * Created on 26/12/22
@@ -118,7 +120,7 @@ public class ContractController extends AbstractBaseController {
                     try {
                         App.setRoot("labour");
                     } catch (IOException ex) {
-                        LOGGER.log(Level.SEVERE, ex.getMessage());
+                        LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                         messageLabel.setText(ex.getMessage());
                     }
                 }

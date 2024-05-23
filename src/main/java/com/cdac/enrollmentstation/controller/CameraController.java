@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
 /**
@@ -163,7 +164,7 @@ public class CameraController extends AbstractBaseController {
                 App.setRoot("iris");
             }
         } catch (IOException ex) {
-            LOGGER.log(Level.INFO, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
 
     }
@@ -203,7 +204,7 @@ public class CameraController extends AbstractBaseController {
             }
             App.setRoot("biometric_capture_complete");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 

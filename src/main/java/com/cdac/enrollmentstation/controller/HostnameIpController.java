@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
+
 public class HostnameIpController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(HostnameIpController.class);
     @FXML
@@ -69,7 +71,7 @@ public class HostnameIpController extends AbstractBaseController {
         try {
             App.setRoot("main_screen");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, () -> "Error loading fxml: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 
@@ -78,7 +80,7 @@ public class HostnameIpController extends AbstractBaseController {
         try {
             App.setRoot("admin_auth");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, () -> "Error loading fxml: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 

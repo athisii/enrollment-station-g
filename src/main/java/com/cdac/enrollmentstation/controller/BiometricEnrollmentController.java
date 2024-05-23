@@ -25,6 +25,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 
 /**
  * @author athisii, CDAC
@@ -96,7 +97,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
             try {
                 App.setRoot("camera");
             } catch (IOException ex) {
-                LOGGER.log(Level.INFO, ex.getMessage());
+                LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             }
         } else if (arcDetail.getBiometricOptions().trim().equalsIgnoreCase("both") || arcDetail.getBiometricOptions().trim().equalsIgnoreCase("biometric")) {
             setNextScreen();
@@ -122,7 +123,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
             try {
                 App.setRoot("slap_scanner");
             } catch (IOException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
+                LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             }
         } else {
             // same e-ARC number is entered as the one saved in saveEnrollment.txt file.
@@ -138,7 +139,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                 try {
                     App.setRoot("iris");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }
                 break;
 
@@ -154,7 +155,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                     }
                     App.setRoot("camera");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.INFO, ex::getMessage);
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }
                 break;
 
@@ -166,7 +167,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                     }
                     App.setRoot("biometric_capture_complete");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }
                 break;
 
@@ -176,7 +177,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                 try {
                     App.setRoot("biometric_capture_complete");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }
                 break;
 
@@ -184,7 +185,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                 try {
                     App.setRoot("slap_scanner");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }
                 break;
         }
@@ -196,7 +197,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
         try {
             App.setRoot("main_screen");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, () -> "Error loading fxml: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 

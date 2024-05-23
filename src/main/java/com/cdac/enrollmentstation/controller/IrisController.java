@@ -32,8 +32,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
-import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_IRIS_ERR_MSG;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.*;
 import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
 /**
@@ -391,7 +390,7 @@ public class IrisController extends AbstractBaseController implements MIDIrisEnr
             }
             App.setRoot("camera");
         } catch (IOException ex) {
-            LOGGER.log(Level.INFO, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 
@@ -406,7 +405,7 @@ public class IrisController extends AbstractBaseController implements MIDIrisEnr
         try {
             App.setRoot("slap_scanner");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
 
     }

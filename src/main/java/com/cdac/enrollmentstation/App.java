@@ -47,8 +47,7 @@ public final class App extends Application {
         });
         scene = new Scene(loadFXML("main_screen"), DisplayUtil.SCREEN_WIDTH, DisplayUtil.SCREEN_HEIGHT);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            LOGGER.log(Level.SEVERE, () -> "Caused: " + throwable.getCause());
-            LOGGER.log(Level.SEVERE, () -> "Message: " + throwable.getMessage());
+            LOGGER.log(Level.SEVERE, "**Uncaught Exception Error: ", throwable);
             controller.onUncaughtException();
         });
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(getCssFileName())).toExternalForm());

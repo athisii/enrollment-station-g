@@ -40,8 +40,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static RealScan.RealScan_JNI.*;
-import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
-import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_RS_ERR_MSG;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.*;
 import static com.cdac.enrollmentstation.model.ArcDetailsHolder.getArcDetailsHolder;
 
 /**
@@ -944,7 +943,7 @@ public class SlapScannerController extends AbstractBaseController {
         try {
             App.setRoot("iris");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex.getMessage());
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
         }
     }
@@ -963,7 +962,7 @@ public class SlapScannerController extends AbstractBaseController {
                     try {
                         App.setRoot("biometric_enrollment");
                     } catch (IOException ex) {
-                        LOGGER.log(Level.SEVERE, ex.getMessage());
+                        LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                         confirmText.setText(GENERIC_ERR_MSG);
                         enableControls(confirmNoBtn, confirmYesBtn);
                     }

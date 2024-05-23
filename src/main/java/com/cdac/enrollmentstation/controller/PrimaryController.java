@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
+
 /**
  * @author athisii, CDAC
  * Created on 26/12/22
@@ -22,7 +24,7 @@ public class PrimaryController extends AbstractBaseController {
         try {
             App.setRoot("biometric_enrollment");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
 
     }
@@ -32,7 +34,7 @@ public class PrimaryController extends AbstractBaseController {
         try {
             App.setRoot("token_issuance");
         } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
 
     }

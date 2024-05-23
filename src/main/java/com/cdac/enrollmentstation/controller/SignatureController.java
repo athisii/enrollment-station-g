@@ -40,6 +40,8 @@ import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
+
 /**
  * @author athisii, CDAC
  * Created on 05/11/23
@@ -210,7 +212,7 @@ public class SignatureController extends AbstractBaseController {
             }
             App.setRoot("camera");
         } catch (Exception ex) {
-            LOGGER.log(Level.INFO, ex::getMessage);
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }
     }
 
@@ -279,7 +281,7 @@ public class SignatureController extends AbstractBaseController {
             SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
             App.setRoot("biometric_capture_complete");
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, () -> "**saveSignatureBtnActionError: " + ex.getMessage());
+            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
         }
     }

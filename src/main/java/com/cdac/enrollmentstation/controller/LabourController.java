@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 /**
@@ -409,7 +410,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 try {
                     App.setRoot("contract");
                 } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, ex.getMessage());
+                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                     throw new GenericException(GENERIC_ERR_MSG);
                 }
             });

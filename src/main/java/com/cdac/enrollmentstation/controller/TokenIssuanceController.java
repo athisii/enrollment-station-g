@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
+import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 /**
@@ -93,7 +94,7 @@ public class TokenIssuanceController extends AbstractBaseController {
             try {
                 App.setRoot("contract");
             } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
+                LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 messageLabel.setText("Something went wrong. Contact the system admin.");
                 enableControls(backBtn, continueBtn);
             }

@@ -15,6 +15,7 @@ module com.cdac.enrollmentstation {
     requires jython;
     //device sdk
     requires iengine.ansi.iso.main;
+    requires jna; // used by iengine
     requires sdk.commons.main;
     requires MantraUtility;
     requires MFS;

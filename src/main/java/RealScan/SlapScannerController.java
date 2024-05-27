@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.io.ByteArrayInputStream;
@@ -54,6 +55,8 @@ public class SlapScannerController extends AbstractBaseController {
     private static final int TIME_TO_WAIT_FOR_SWITCHING_FINGER_TYPE_TO_SCAN_IN_MILLIS = 100;
     // range: 0~7
     public static final String UNSUPPORTED_FINGER_SET_TYPE = "Unsupported finger set type.";
+    @FXML
+    private BorderPane rootBorderPane;
     private boolean isFpScanCompleted;
     // cannot be static.
     private final int fingerprintLivenessValue;

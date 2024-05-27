@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -31,6 +33,8 @@ public class AdminAuthController extends AbstractBaseController {
 
     private static final int MAX_LENGTH = 30;
     private static volatile boolean isDone = false;
+    @FXML
+    private BorderPane rootBorderPane;
     @FXML
     private Button editHostnameIpBtn;
     @FXML
@@ -93,6 +97,12 @@ public class AdminAuthController extends AbstractBaseController {
     }
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
         // restrict the TextField Length
         username.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(username, oldValue, newValue));
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(passwordField, oldValue, newValue));

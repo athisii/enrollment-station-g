@@ -14,6 +14,9 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -33,6 +36,8 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
  */
 public class TokenIssuanceController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
+    @FXML
+    private BorderPane rootBorderPane;
 
     private ContractorCardInfo contractorCardInfo;
 
@@ -47,6 +52,14 @@ public class TokenIssuanceController extends AbstractBaseController {
     @FXML
     private Label messageLabel;
 
+    public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+    }
 
     @FXML
     private void backBtnAction() throws IOException {

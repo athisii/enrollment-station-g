@@ -10,6 +10,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -37,6 +40,9 @@ public class AdminConfigController extends AbstractBaseController {
     }
 
     @FXML
+    private BorderPane rootBorderPane;
+
+    @FXML
     private TextField nfiqTextField;
     @FXML
     private Button nfiqBtn;
@@ -52,12 +58,20 @@ public class AdminConfigController extends AbstractBaseController {
      * Automatically called by JavaFX runtime.
      */
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         liveFpTextField.setText(String.valueOf(fingerprintLivenessValue));
         liveFpBtn.setOnAction(event -> liveFpBtnAction());
 
         nfiqBtn.setOnAction(event -> nfiqBtnAction());
         nfiqTextField.setText(String.valueOf(nfiqValue));
     }
+
     private void nfiqBtnAction() {
         // check how text on edit button should be displayed
         if (nfiqTextField.isEditable()) {

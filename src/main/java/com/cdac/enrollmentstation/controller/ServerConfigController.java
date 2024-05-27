@@ -17,6 +17,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 
 public class ServerConfigController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(ServerConfigController.class);
+    @FXML
+    private BorderPane rootBorderPane;
     private List<Unit> units;
 
     @FXML
@@ -140,6 +145,13 @@ public class ServerConfigController extends AbstractBaseController {
 
     // calls automatically by JavaFX runtime
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         String commonText = " is required in " + ApplicationConstant.DEFAULT_PROPERTY_FILE + ".";
         String errorMessage = "";
         String mafisUrl = PropertyFile.getProperty(PropertyName.MAFIS_API_URL);

@@ -15,6 +15,9 @@ import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,6 +38,9 @@ public class DeviceStatusController extends AbstractBaseController {
         RED_CROSS_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/red_cross.png")));
         GREEN_TICK_IMAGE = new Image(Objects.requireNonNull(DeviceStatusController.class.getResourceAsStream("/img/tick.png")));
     }
+
+    @FXML
+    private BorderPane rootBorderPane;
 
     @FXML
     private ImageView irisUsbImage;
@@ -76,6 +82,12 @@ public class DeviceStatusController extends AbstractBaseController {
 
     // automatically called by JavaFX runtime.
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
         checkDevicesStatus();
     }
 

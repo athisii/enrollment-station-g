@@ -3,6 +3,9 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import javafx.fxml.FXML;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -17,7 +20,16 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 
 public class PrimaryController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
+    @FXML
+    private BorderPane rootBorderPane;
 
+    public void initialize() {
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+    }
 
     @FXML
     private void showEnrollmentHome() {

@@ -16,7 +16,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseButton;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 
 public class ContractController extends AbstractBaseController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    @FXML
+    private BorderPane rootBorderPane;
     @FXML
     private Button homeBtn;
     @FXML
@@ -144,6 +148,13 @@ public class ContractController extends AbstractBaseController {
 
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         fetchDetails();
     }
 

@@ -21,9 +21,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TouchEvent;
+import javafx.scene.input.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
@@ -63,6 +62,9 @@ public class SignatureController extends AbstractBaseController {
             throw new GenericException(ex.getMessage());
         }
     }
+
+    @FXML
+    private BorderPane rootBorderPane;
 
     @FXML
     private Label arcLbl;
@@ -116,6 +118,13 @@ public class SignatureController extends AbstractBaseController {
 
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         clearBtn.setOnAction(event -> clearBtnAction());
         saveSignatureBtn.setOnAction(this::saveSignatureBtnAction);
         confirmNoBtn.setOnAction(this::confirmNo);

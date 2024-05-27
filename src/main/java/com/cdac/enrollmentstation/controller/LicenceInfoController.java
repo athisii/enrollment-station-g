@@ -8,6 +8,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,6 +27,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 
 public class LicenceInfoController extends AbstractBaseController {
     @FXML
+    private BorderPane rootBorderPane;
+    @FXML
     private Button homeBtn;
     @FXML
     private Button backBtn;
@@ -37,6 +42,13 @@ public class LicenceInfoController extends AbstractBaseController {
 
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         fetchLicenceDetails();
     }
 

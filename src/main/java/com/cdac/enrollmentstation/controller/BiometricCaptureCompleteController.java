@@ -20,6 +20,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -41,6 +44,8 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
     //For Application Log
     private static final Logger LOGGER = ApplicationLog.getLogger(BiometricCaptureCompleteController.class);
     private static final String NOT_AVAILABLE = "Not Available";
+    @FXML
+    private BorderPane rootBorderPane;
 
     @FXML
     private Label messageLabel;
@@ -72,6 +77,15 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
             }
         }
     }));
+
+    public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+    }
 
     @FXML
     private void homeBtnAction() {

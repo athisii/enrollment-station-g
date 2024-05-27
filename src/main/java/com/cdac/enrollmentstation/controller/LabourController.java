@@ -29,6 +29,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -57,6 +60,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     private static final int LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT = 6;
+    @FXML
+    private BorderPane rootBorderPane;
     @FXML
     private Button selectNextContractorBtn;
     private int jniErrorCode;
@@ -103,6 +108,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     }
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         // initially disable it until a row is selected
         captureBtn.setDisable(true);
         midFingerAuth = new MIDFingerAuth(this);

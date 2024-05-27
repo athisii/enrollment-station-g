@@ -17,6 +17,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -91,6 +94,9 @@ public class CameraController extends AbstractBaseController {
         }
     }
 
+    @FXML
+    private BorderPane rootBorderPane;
+
 
     @FXML
     private ImageView sunGlassIcon;
@@ -138,6 +144,13 @@ public class CameraController extends AbstractBaseController {
 
     // automatically called by JavaFx runtime.
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         cameraId = Integer.parseInt(PropertyFile.getProperty(PropertyName.CAMERA_ID).trim());
         // set action for button click
         startStopCameraBtn.setOnAction(this::startCamera);

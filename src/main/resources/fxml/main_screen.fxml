@@ -3,9 +3,10 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
-<BorderPane xmlns="http://javafx.com/javafx/11.0.14-internal"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.PrimaryController">
+<BorderPane
+        fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.cdac.enrollmentstation.controller.PrimaryController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
@@ -48,7 +49,8 @@
                     </ImageView>
                 </HBox>
                 <Region styleClass="min-height-medium"/>
-                <Button styleClass="btn-large, press-effect" onAction="#showEnrollmentHome"
+                <Button fx:id="biometricEnrollmentBtn" styleClass="btn-large, press-effect"
+                        onAction="#showEnrollmentHome"
                         text="BIOMETRIC ENROLMENT"/>
             </VBox>
             <Region styleClass="min-width-xlarge"/>

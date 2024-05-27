@@ -23,6 +23,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.io.ByteArrayInputStream;
@@ -52,6 +55,8 @@ public class IrisController extends AbstractBaseController implements MIDIrisEnr
     private static final String QUALITY_TOO_POOR_MSG = "Quality too poor. Please try again.";
 
     private static final String DEVICE_NOT_CONNECTED = "Iris scanner not connected. Kindly connect it and try again.";
+    @FXML
+    private BorderPane rootBorderPane;
     private Image failureImage;
     private Image successImage;
     private IrisType irisTypeToCapture;
@@ -143,6 +148,13 @@ public class IrisController extends AbstractBaseController implements MIDIrisEnr
     }
 
     public void initialize() {
+        // disable 'enter key' on keyboard
+        rootBorderPane.addEventFilter(KeyEvent.ANY, keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                keyEvent.consume();
+            }
+        });
+
         backBtn.setOnAction(this::backBtnAction);
         scanBtn.setOnAction(this::scanBtnAction);
         saveIrisBtn.setOnAction(this::saveIrisBtnAction);

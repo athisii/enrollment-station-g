@@ -238,9 +238,12 @@
     -fx-background-radius: 10px;
 }
 
+/*5 mm -> 19 px */
+/*27 mm ->102 px */
+
 .canvas-container {
-    -fx-pref-width: 500px;
-    -fx-pref-height: 300px;
+    -fx-pref-width: 612px;
+    -fx-pref-height: 114px;
     -fx-border-color: black;
     -fx-border-width: 2px;
     -fx-border-style: solid;

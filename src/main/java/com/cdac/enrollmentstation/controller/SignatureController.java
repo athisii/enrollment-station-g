@@ -20,6 +20,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
@@ -29,10 +30,12 @@ import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
+import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,15 +47,14 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
  */
 public class SignatureController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(SignatureController.class);
-    private static final int PADDING = 10;
-    // 5 mm -> 19 px
-    // 27 mm -> 102 px
-    private static final int RAW_WIDTH = 408; // x4
-    private static final int RAW_HEIGHT = 76; // x4
-    private static final int COMPRESSED_WIDTH = 102; //x1
-    private static final int COMPRESSED_HEIGHT = 19; //x1
+    // 5x27mm aspect ratio
+    private static final int RAW_WIDTH = 432; // 27x16
+    private static final int RAW_HEIGHT = 80; // 5x16
+    private static final int COMPRESSED_WIDTH = 189; //27*7
+    private static final int COMPRESSED_HEIGHT = 35; //5*7
     private static final String IMG_SIGNATURE_FILE;
     private static final String IMG_SIGNATURE_COMPRESSED_FILE;
+    int counter;
 
     static {
         try {
@@ -62,6 +64,13 @@ public class SignatureController extends AbstractBaseController {
             throw new GenericException(ex.getMessage());
         }
     }
+
+    private enum EventType {
+        DRAG, CLICK;
+    }
+
+    @FXML
+    private ImageView previewSignatureImageView;
 
     @FXML
     private BorderPane rootBorderPane;
@@ -104,8 +113,6 @@ public class SignatureController extends AbstractBaseController {
 
     private GraphicsContext gc;
     private boolean firstLoading = true;
-//    private boolean firstRelease = false;
-
 
     /*
         Mantra touch screen event is not properly handled by javafx runtime on the first canvas touch.
@@ -145,60 +152,25 @@ public class SignatureController extends AbstractBaseController {
             lastY = event.getTouchPoint().getY();
         });
 
-        canvas.setOnTouchMoved(this::onMoveAction);
-        canvas.setOnMouseDragged(this::onMoveAction);
+        canvas.setOnTouchMoved(touchEvent -> onAction(touchEvent, EventType.DRAG));
+        canvas.setOnMouseDragged(mouseEvent -> onAction(mouseEvent, EventType.DRAG));
         canvas.setOnMouseReleased(this::resetXAndY);
         canvas.setOnTouchReleased(this::resetXAndY);
-        canvas.setOnMouseClicked(event -> {
+        canvas.setOnMouseClicked(mouseEvent -> onAction(mouseEvent, EventType.CLICK));
+        arcLbl.setText("e-ARC: " + ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getArcNo());
+    }
+
+    private void onAction(InputEvent event, EventType eventType) {
+        // lastX = -1
+        // lastY = -1
+        if (eventType == EventType.CLICK) {
             if (firstLoading) {
                 clearBtnAction();
                 firstLoading = false;
             }
-            double x = event.getX();
-            double y = event.getY();
-            gc.beginPath();
-            gc.moveTo(x - 0.5, y);
-            gc.lineTo(x, y);
-            gc.stroke();
-        });
-        arcLbl.setText("e-ARC: " + ArcDetailsHolder.getArcDetailsHolder().getArcDetail().getArcNo());
-    }
-
-    private void onMoveAction(InputEvent event) {
-        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight() && !firstLoading) {
-//        if (lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight() && !firstRelease) {
-            double x;
-            double y;
-            if (event instanceof TouchEvent touchEvent) {
-                x = touchEvent.getTouchPoint().getX();
-                y = touchEvent.getTouchPoint().getY();
-            } else {
-                x = ((MouseEvent) event).getX();
-                y = ((MouseEvent) event).getY();
-            }
-
-            // for the bounding box
-            if (lastX < minX) {
-                minX = lastX;
-            }
-            if (lastY < minY) {
-                minY = lastY;
-            }
-
-            if (lastX > maxX) {
-                maxX = lastX;
-            }
-            if (lastY > maxY) {
-                maxY = lastY;
-            }
-            // drawing on the canvas
-            gc.beginPath();
-            gc.moveTo(lastX, lastY);
-            gc.lineTo(x, y);
-            gc.stroke();
-            lastX = x;
-            lastY = y;
-            isSigned = true;
+            drawSignature(event, eventType);
+        } else if (eventType == EventType.DRAG && lastX >= 0 && lastX <= canvas.getWidth() && lastY >= 0 && lastY <= canvas.getHeight() && !firstLoading) {
+            drawSignature(event, eventType);
         }
         if (firstLoading) {
             clearBtnAction();
@@ -206,11 +178,61 @@ public class SignatureController extends AbstractBaseController {
         }
     }
 
+    private void drawSignature(InputEvent event, EventType eventType) {
+        double x;
+        double y;
+        if (event instanceof TouchEvent touchEvent) {
+            x = touchEvent.getTouchPoint().getX();
+            y = touchEvent.getTouchPoint().getY();
+        } else {
+            x = ((MouseEvent) event).getX();
+            y = ((MouseEvent) event).getY();
+        }
+        gc.beginPath();
+        // for dot
+        if (EventType.CLICK == eventType) {
+            // for the bounding box
+            if (x < minX) {
+                minX = x;
+            }
+            if (y < minY) {
+                minY = y;
+            }
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
+            gc.moveTo(x - 0.5, y); // mouse click event
+        } else {
+            // for the bounding box
+            if (lastX < minX) {
+                minX = lastX;
+            }
+            if (lastY < minY) {
+                minY = lastY;
+            }
+            if (lastX > maxX) {
+                maxX = lastX;
+            }
+            if (lastY > maxY) {
+                maxY = lastY;
+            }
+            gc.moveTo(lastX, lastY);
+        }
+        gc.lineTo(x, y);
+        gc.stroke();
+        lastX = x;
+        lastY = y;
+        isSigned = true;
+        showPreview();
+    }
+
     private void resetXAndY(InputEvent event) {
         // for touch event, it can jump from Release to Drag event directly on tapping the screen.
         lastX = -1;
         lastY = -1;
-        // firstRelease = true;
     }
 
     private void backBtnAction(ActionEvent event) {
@@ -249,6 +271,7 @@ public class SignatureController extends AbstractBaseController {
         minY = Double.MAX_VALUE;
         maxX = Double.MIN_VALUE;
         maxY = Double.MIN_VALUE;
+        previewSignatureImageView.setImage(null);
     }
 
     private void saveSignatureBtnAction(ActionEvent event) {
@@ -261,7 +284,6 @@ public class SignatureController extends AbstractBaseController {
         WritableImage writableImage = canvas.snapshot(params, null);
         try {
             BufferedImage image = SwingFXUtils.fromFXImage(writableImage, null);
-            // to make square box
             int width = (int) (maxX - minX);
             int height = (int) (maxY - minY);
 
@@ -270,16 +292,28 @@ public class SignatureController extends AbstractBaseController {
                 messageLabel.setText("Kindly provide a valid or larger signature.");
                 return;
             }
-            minX = Math.max(minX - PADDING, 0);
-            minY = Math.max(minY - PADDING, 0);
-            width = (int) Math.min(maxX - minX + PADDING, canvas.getWidth() - minX);
-            height = (int) Math.min(maxY - minY + PADDING, canvas.getHeight() - minY);
+            minX = Math.max(minX, 0);
+            minY = Math.max(minY, 0);
+
+            width = (int) Math.min(maxX - minX, canvas.getWidth() - minX);
+            height = (int) Math.min(maxY - minY, canvas.getHeight() - minY);
 
             BufferedImage boundedBox = image.getSubimage((int) minX, (int) minY, width, height);
             BufferedImageOp resampleOpOri = new ResampleOp(RAW_WIDTH, RAW_HEIGHT, ResampleOp.FILTER_LANCZOS);
             BufferedImage filteredOri = resampleOpOri.filter(boundedBox, null);
             BufferedImageOp resampleOpCompressed = new ResampleOp(COMPRESSED_WIDTH, COMPRESSED_HEIGHT, ResampleOp.FILTER_LANCZOS);
             BufferedImage filteredCompressed = resampleOpCompressed.filter(boundedBox, null);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ImageIO.write(filteredOri, "png", byteArrayOutputStream);
+            byteArrayOutputStream.close();
+            byte[] data = byteArrayOutputStream.toByteArray();
+
+            if (data.length < 2048) {
+                LOGGER.log(Level.WARNING, () -> "Signature byte size: " + data.length);
+                messageLabel.setText("Kindly provide a valid or larger signature.");
+                return;
+            }
 
             Path signaturePath = Paths.get(IMG_SIGNATURE_FILE);
             Path signatureCompressedPath = Paths.get(IMG_SIGNATURE_COMPRESSED_FILE);
@@ -297,6 +331,38 @@ public class SignatureController extends AbstractBaseController {
             LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
         }
+    }
+
+    private void showPreview() {
+        AtomicInteger minXAtomicInt = new AtomicInteger((int) minX);
+        AtomicInteger minYAtomicInt = new AtomicInteger((int) minY);
+        if (Double.MAX_VALUE == minX || Double.MAX_VALUE == minY) {
+            minXAtomicInt.set(0);
+            minYAtomicInt.set(0);
+        }
+        SnapshotParameters params = new SnapshotParameters();
+        params.setFill(Color.TRANSPARENT);
+        WritableImage writableImage = canvas.snapshot(params, null);
+
+        double finalMaxX = maxX;
+        double finalMaxY = maxY;
+        App.getThreadPool().execute(() -> {
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(writableImage, null);
+            // if less than 0, then set as 0
+            minXAtomicInt.set(Math.max(minXAtomicInt.get(), 0));
+            minYAtomicInt.set(Math.max(minYAtomicInt.get(), 0));
+
+            int width = (int) Math.min(finalMaxX - minXAtomicInt.get(), canvas.getWidth() - minXAtomicInt.get());
+            int height = (int) Math.min(finalMaxY - minYAtomicInt.get(), canvas.getHeight() - minYAtomicInt.get());
+            // throws error if width=0, height=0 for subImage
+            width = Math.max(1, width);
+            height = Math.max(1, height);
+            BufferedImage boundedBox = bufferedImage.getSubimage(minXAtomicInt.get(), minYAtomicInt.get(), width, height);
+            BufferedImageOp resampleOpOri = new ResampleOp(RAW_WIDTH, RAW_HEIGHT, ResampleOp.FILTER_LANCZOS);
+            BufferedImage filteredOri = resampleOpOri.filter(boundedBox, null);
+            Platform.runLater(() -> previewSignatureImageView.setImage(SwingFXUtils.toFXImage(filteredOri, null)));
+        });
+
     }
 
     private void updateUi(String message) {

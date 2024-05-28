@@ -77,7 +77,7 @@ public class HttpUtil {
      * Caller must handle the exception.
      *
      * @param httpRequest request payload
-     * @return HttpResponse<String>  or null if timeout exception occurred
+     * @return HttpResponse<String>
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      * @throws GenericException           - on Exception
      */

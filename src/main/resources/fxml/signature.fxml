@@ -2,8 +2,7 @@
 
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -47,7 +46,7 @@
                     </HBox>
                 </StackPane>
             </HBox>
-            <HBox alignment="CENTER" styleClass="padding">
+            <HBox alignment="CENTER" styleClass="padding-medium">
                 <Label fx:id="messageLabel" text="Kindly sign in the centre of the black box"/>
             </HBox>
             <HBox alignment="CENTER">
@@ -55,6 +54,15 @@
                     <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
                             height="${_canvasContainer.prefHeight}"/>
                 </HBox>
+                <Region styleClass="min-width-medium"/>
+                <VBox alignment="CENTER">
+                    <Label text="PREVIEW"/>
+                    <HBox fx:id="_imgContainer1" styleClass="signature-preview, border-color-darkblue">
+                        <ImageView fx:id="previewSignatureImageView" fitWidth="${_imgContainer1.prefWidth}"
+                                   fitHeight="${_imgContainer1.prefHeight}" preserveRatio="true">
+                        </ImageView>
+                    </HBox>
+                </VBox>
             </HBox>
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">

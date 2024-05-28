@@ -238,15 +238,19 @@
     -fx-background-radius: 10px;
 }
 
-/*5 mm -> 19 px */
-/*27 mm ->102 px */
+/* 5:25 ratio */
 
 .canvas-container {
-    -fx-pref-width: 612px;
-    -fx-pref-height: 114px;
+    -fx-pref-width: 621px;
+    -fx-pref-height: 115px;
     -fx-border-color: black;
     -fx-border-width: 2px;
     -fx-border-style: solid;
+}
+
+.signature-preview {
+    -fx-pref-width: 189px;
+    -fx-pref-height: 35px;
 }
 
 /* table style */

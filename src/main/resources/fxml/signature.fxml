@@ -57,7 +57,7 @@
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
                     <Label text="PREVIEW"/>
-                    <HBox fx:id="_imgContainer1" styleClass="signature-preview, border-color-darkblue">
+                    <HBox fx:id="_imgContainer1" styleClass="signature-preview, border-color-darkblue" alignment="CENTER">
                         <ImageView fx:id="previewSignatureImageView" fitWidth="${_imgContainer1.prefWidth}"
                                    fitHeight="${_imgContainer1.prefHeight}" preserveRatio="true">
                         </ImageView>

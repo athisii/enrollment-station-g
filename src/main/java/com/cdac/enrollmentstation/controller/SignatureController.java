@@ -273,7 +273,7 @@ public class SignatureController extends AbstractBaseController {
     }
 
     private void clearBtnAction() {
-        messageLabel.setText("Kindly sign in the centre of the black box");
+        messageLabel.setText("Kindly sign inside the black box and click 'SAVE SIGNATURE' button to proceed.");
         isSigned = false;
         gc.clearRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
         minX = Double.MAX_VALUE;

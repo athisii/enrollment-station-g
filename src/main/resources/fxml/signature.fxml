@@ -46,18 +46,15 @@
                     </HBox>
                 </StackPane>
             </HBox>
-            <HBox alignment="CENTER" styleClass="padding-medium">
-                <!--                Kindly provide your full signature which will be printed on your I-Card.
-
-                -->
-                <Label fx:id="messageLabel"
-                       text="Kindly sign inside the black box and click 'SAVE SIGNATURE' button to proceed."/>
-            </HBox>
             <HBox alignment="CENTER">
-                <HBox fx:id="_canvasContainer" styleClass="canvas-container">
-                    <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
-                            height="${_canvasContainer.prefHeight}"/>
-                </HBox>
+                <VBox alignment="CENTER">
+                    <Label styleClass="padding-medium" fx:id="messageLabel"
+                           text="Kindly sign inside the black box and click 'SAVE SIGNATURE' button to proceed."/>
+                    <HBox fx:id="_canvasContainer" styleClass="canvas-container">
+                        <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
+                                height="${_canvasContainer.prefHeight}"/>
+                    </HBox>
+                </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">
                     <Label text="PREVIEW"/>

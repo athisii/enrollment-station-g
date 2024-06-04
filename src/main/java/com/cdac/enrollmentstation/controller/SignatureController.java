@@ -171,6 +171,7 @@ public class SignatureController extends AbstractBaseController {
             gc.lineTo(x, y);
             gc.stroke();
             gc.closePath();
+            isSigned = true;
             showPreview(minX, minY, maxX, maxY);
         }
     }

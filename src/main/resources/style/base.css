@@ -16,6 +16,10 @@
     -fx-background-color: #FFF;
 }
 
+.bg-color-purple {
+    -fx-background-color: #CC99FF;
+}
+
 .bg-color-greenish-blue {
     -fx-background-color: #00c79c;
 }
@@ -284,8 +288,8 @@
     -fx-pref-width: 200px;
 }
 
-.combo-box {
-    -fx-background-radius: 5px;
-    -fx-background-color: #CC99ff;
-    -fx-pref-width: 200px;
+.drop-down-label {
+    -fx-min-width: 150;
+    -fx-max-width: 200;
 }
+

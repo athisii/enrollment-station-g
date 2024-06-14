@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -31,13 +30,13 @@
             <HBox alignment="CENTER">
                 <HBox styleClass="border-color-darkblue, border-radius-medium, padding-medium" alignment="CENTER">
                     <VBox styleClass="padding-medium">
-                        <HBox alignment="CENTER">
+                        <HBox>
                             <Label text="Mafis API Server URL :" focusTraversable="true"/>
                             <Region styleClass="min-width-small"/>
                             <TextField fx:id="mafisUrlTextField" styleClass="input-field" disable="true"/>
                         </HBox>
                         <Region styleClass="min-height-medium"/>
-                        <HBox alignment="CENTER">
+                        <HBox>
                             <Label text="Enrolment Station ID :"/>
                             <Region styleClass="min-width-small"/>
                             <TextField fx:id="enrollmentStationIdTextField" styleClass="input-field" disable="true"/>
@@ -46,8 +45,21 @@
                         <HBox>
                             <Label text="Enrolment Station Unit ID :"/>
                             <Region styleClass="min-width-small"/>
-                            <ComboBox fx:id="enrollmentStationUnitIdsComboBox"
-                                      disable="true"/>
+                            <VBox alignment="CENTER">
+                                <HBox fx:id="unitIdDropDownHBox" alignment="CENTER" disable="true"
+                                      styleClass="bg-color-purple, bg-border-radius, padding, press-effect">
+                                    <Label fx:id="unitCaptionLabel" alignment="CENTER" styleClass="drop-down-label"
+                                           text="Unit Id Caption"
+                                    />
+                                    <ImageView fx:id="downArrowImageView" preserveRatio="true">
+                                        <Image url="@../img/down_arrow.png"/>
+                                    </ImageView>
+                                    <ImageView fx:id="upArrowImageView" preserveRatio="true" visible="false">
+                                        <Image url="@../img/up_arrow.png"/>
+                                    </ImageView>
+                                </HBox>
+                                <VBox fx:id="hiddenVbox" visible="false"/>
+                            </VBox>
                         </HBox>
                     </VBox>
                     <Region styleClass="min-width-small"/>

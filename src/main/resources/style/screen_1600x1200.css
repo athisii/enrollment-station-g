@@ -223,7 +223,7 @@
     -fx-pref-width: 300px;
 }
 
-.combo-box {
-    -fx-background-radius: 7px;
-    -fx-pref-width: 300px;
+.drop-down-label {
+    -fx-min-width: 200;
+    -fx-max-width: 300;
 }

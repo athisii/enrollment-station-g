@@ -96,7 +96,8 @@ public class HttpUtil {
         }
         if (response == null || response.statusCode() != 200) {
             if (response != null) {
-                LOGGER.log(Level.SEVERE, "**Status Code: {}", response.statusCode());
+                int statusCodeFinal = response.statusCode();
+                LOGGER.log(Level.SEVERE, () -> "**Status Code: " + statusCodeFinal);
             } else {
                 LOGGER.log(Level.SEVERE, "**Connection timeout.");
             }

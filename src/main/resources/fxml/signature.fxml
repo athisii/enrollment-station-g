@@ -50,10 +50,13 @@
                 <VBox alignment="CENTER">
                     <Label styleClass="padding-medium" fx:id="messageLabel"
                            text="Kindly sign inside the black box and click 'SAVE SIGNATURE' button to proceed."/>
-                    <HBox fx:id="_canvasContainer" styleClass="canvas-container">
-                        <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
-                                height="${_canvasContainer.prefHeight}"/>
+                    <HBox alignment="CENTER">
+                        <VBox fx:id="_canvasContainer" styleClass="canvas-container">
+                            <Canvas fx:id="canvas" width="${_canvasContainer.prefWidth}"
+                                    height="${_canvasContainer.prefHeight}"/>
+                        </VBox>
                     </HBox>
+
                 </VBox>
                 <Region styleClass="min-width-medium"/>
                 <VBox alignment="CENTER">

@@ -245,8 +245,8 @@
 /* 5:27 ratio */
 
 .canvas-container {
-    -fx-pref-width: 638px;
-    -fx-pref-height: 118px;
+    -fx-pref-width: 600px;
+    -fx-pref-height: 200px;
     -fx-border-color: black;
     -fx-border-width: 2px;
     -fx-border-style: solid;

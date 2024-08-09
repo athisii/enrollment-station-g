@@ -53,8 +53,8 @@ public class SignatureController extends AbstractBaseController {
     private static final int PADDING = 3;
     private static final int RAW_WIDTH = 319;
     private static final int RAW_HEIGHT = 59;
-    private static final int COMPRESSED_WIDTH = 159;
-    private static final int COMPRESSED_HEIGHT = 29;
+    private static final int COMPRESSED_WIDTH = 271; // 319*0.85
+    private static final int COMPRESSED_HEIGHT = 50;//59*0.85
     private static final String IMG_SIGNATURE_FILE;
     private static final String IMG_SIGNATURE_COMPRESSED_FILE;
 

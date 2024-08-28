@@ -38,7 +38,9 @@ dependencies {
     implementation 'net.java.dev.jna:jna:4.2.2' // used by iengine
     implementation 'com.twelvemonkeys.imageio:imageio-jpeg:3.9.4'
 
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.60' // latest version not supported
+    implementation 'com.fazecast:jSerialComm:2.6.2' // used for serial communication (motor)
+
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.60' // used ASN, latest version not supported
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")

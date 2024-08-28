@@ -23,6 +23,8 @@ module com.cdac.enrollmentstation {
     requires MIDFingerAuth;
     requires serial.port.token.dispenser;
 
+    requires com.fazecast.jSerialComm;
+
     requires org.bouncycastle.provider;
 
     requires com.fasterxml.jackson.core;

@@ -27,12 +27,12 @@ public class TokenDispenserUtil {
 
     static {
         try {
-            SERIAL_PORT_FILE = PropertyFile.getProperty(PropertyName.SERIAL_PORT_FILE).trim();
+            SERIAL_PORT_FILE = PropertyFile.getProperty(PropertyName.TOKEN_DISPENSER_SERIAL_PORT_FILE).trim();
             if (SERIAL_PORT_FILE.isBlank()) {
                 throw new GenericException("Received empty property value");
             }
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.SERIAL_PORT_FILE + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            LOGGER.log(Level.SEVERE, () -> "No entry for '" + PropertyName.TOKEN_DISPENSER_SERIAL_PORT_FILE + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
             throw new GenericException("Received null or empty property value");
         }
     }
@@ -63,6 +63,7 @@ public class TokenDispenserUtil {
             if (ex instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
+            SerialPortNative.ClosePort();
             LOGGER.log(Level.SEVERE, () -> "dispenseTokenError: " + ex.getMessage());
             return false;
         }

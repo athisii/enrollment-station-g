@@ -43,7 +43,8 @@ public class PropertyName {
     public static final String BARCODE_FILE_PATH = "barcode.file.path";
     public static final String LDAP_DOMAIN = "ldap.domain";
     public static final String LDAP_URL = "ldap.url";
-    public static final String SERIAL_PORT_FILE = "serial.port.file";
+    public static final String TOKEN_DISPENSER_SERIAL_PORT_FILE = "token.dispenser.serial.port.file";
+    public static final String MOTOR_SERIAL_PORT_FILE = "motor.serial.port.file";
     public static final String EXPORT_FOLDER = "export.folder";
     public static final String IMPORT_JSON_FOLDER = "import.json.folder";
     public static final String CUR_PES_ID = "cur.pes.id";

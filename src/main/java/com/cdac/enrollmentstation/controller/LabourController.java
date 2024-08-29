@@ -13,6 +13,7 @@ import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.LabourDetailsTableRow;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
 import com.cdac.enrollmentstation.util.Asn1CardTokenUtil;
+import com.cdac.enrollmentstation.util.MotorUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.TokenDispenserUtil;
 import com.mantra.midfingerauth.DeviceInfo;
@@ -57,6 +58,9 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 public class LabourController extends AbstractBaseController implements MIDFingerAuth_Callback {
     private static final Logger LOGGER = ApplicationLog.getLogger(LabourController.class);
+
+    private static final String INTERRUPTED_ERROR_MESSAGE = "Interrupted while sleeping. Please try again.";
+
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     private static final int LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT = 6;
@@ -351,19 +355,62 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     }
 
     private void dispenseToken(Labour labour, boolean issueToken) {
+        boolean isProd = "0".equals(PropertyFile.getProperty(PropertyName.ENV).trim());
         TokenReqDto tokenReqDto;
         if (issueToken) {
+            if (isProd) {
+                // should initialize motor and move to home here.
+                // if any previous token on reader then drop in bin.
+                updateUi("Initializing the motor. Please wait.");
+                if (!MotorUtil.openSerialPort()) {
+                    updateUi("Kindly check the Motor and try again.");
+                    return;
+                }
+                try {
+                    Thread.sleep(4000); // motor arm movement time (every port connection, it moves the arm.)
+                } catch (InterruptedException e) {
+                    updateUi("Interrupted while initializing motor. Please try again.");
+                    MotorUtil.closeSerialPort();
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                updateUi("Moving motor arm to home position. Please wait.");
+                if (MotorUtil.sendData(MotorUtil.MotorCommandType.HOME)) {
+                    try {
+                        Thread.sleep(3000); // motor arm movement time
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        MotorUtil.closeSerialPort();
+                        updateUi("Interrupted while moving motor arm to home position. Please try again.");
+                        return;
+                    }
+                } else {
+                    MotorUtil.closeSerialPort();
+                    updateUi("Failed to move motor arm to the home position. Please try again.");
+                    return;
+                }
+            }
+            updateUi("Initializing the token dispenser.");
             //dispenses token on card writer
             if (!TokenDispenserUtil.dispenseToken()) {
+                if (isProd) {
+                    MotorUtil.closeSerialPort();
+                }
                 updateUi("Kindly check the Token Dispenser and try again.");
                 return;
             }
             try {
                 tokenReqDto = startProcedureCall(labour);
             } catch (GenericException | NoReaderOrCardException ex) {
+                if (isProd) {
+                    moveTokenToBin();
+                }
                 updateUi(ex.getMessage());
                 return;
             } catch (ConnectionTimeoutException ex) {
+                if (isProd) {
+                    moveTokenToBin();
+                }
                 updateUi("Something went wrong. Kindly check Card API service.");
                 return;
             }
@@ -378,9 +425,15 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         try {
             resDto = MafisServerApi.updateTokenStatus(tokenReqDto);
         } catch (GenericException ex) {
+            if (issueToken && isProd) {
+                moveTokenToBin();
+            }
             updateUi(ex.getMessage());
             return;
         } catch (ConnectionTimeoutException ex) {
+            if (issueToken && isProd) {
+                moveTokenToBin();
+            }
             updateUi("Connection timeout. Failed to update token status to server. Please try again.");
             return;
         }
@@ -389,6 +442,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LOGGER.log(Level.INFO, () -> "***ServerResponseDesc: " + resDto.getDesc()); // to be removed
         String errorDescLowerCase = resDto.getDesc().toLowerCase();
         if (resDto.getErrorCode() != 0) {
+            if (issueToken && isProd) {
+                moveTokenToBin();
+            }
             if (errorDescLowerCase.contains("not found")) {
                 updateUi("No labour with id: " + labour.getDynamicFile().getLabourId() + " found in server.");
             } else if (errorDescLowerCase.contains("already") || errorDescLowerCase.contains("token no. '0'")) {
@@ -403,6 +459,25 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
 
         if (issueToken) {
+            if (isProd) {
+                if (MotorUtil.sendData(MotorUtil.MotorCommandType.ANTICLOCKWISE)) {
+                    try {
+                        Thread.sleep(3000); // motor arm movement time
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        MotorUtil.closeSerialPort();
+                        updateUi("Interrupted while moving motor arm to home position. Please try again.");
+                        return;
+                    }
+                }
+                updateUi("De-initializing the motor.");
+                try {
+                    Thread.sleep(2000); // motor arm movement time
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                MotorUtil.closeSerialPort();
+            }
             updateUi("Kindly collect the token.");
             labourDetailsTableRow.setStrStatus("token issued"); // not really import now
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
@@ -428,6 +503,27 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             });
         }
 
+    }
+
+    private void moveTokenToBin() {
+        updateUi("An error has occurred. Moving dropped token to the bin. Please wait.");
+        if (MotorUtil.sendData(MotorUtil.MotorCommandType.CLOCKWISE)) {
+            try {
+                Thread.sleep(3000); // motor arm movement time
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                MotorUtil.closeSerialPort();
+                updateUi("Interrupted while moving motor arm to home position. Please try again.");
+                return;
+            }
+        }
+        updateUi("De-initializing the motor.");
+        try {
+            Thread.sleep(2000); // motor arm movement time
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        MotorUtil.closeSerialPort();
     }
 
     private TokenReqDto startProcedureCall(Labour labour) {
@@ -466,6 +562,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
             Thread.currentThread().interrupt();
+            throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
         }
         LOGGER.log(Level.INFO, () -> "***Card: Calling waitForConnect API.");
         CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
@@ -490,6 +587,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         } catch (InterruptedException e) {
             LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
             Thread.currentThread().interrupt();
+            throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
         }
         updateUi("Preparing the token for data writing. Please wait.");
 
@@ -497,6 +595,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             Thread.sleep(TimeUnit.SECONDS.toMillis(TOKEN_DROP_SLEEP_TIME_IN_SEC));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
         }
 
         LOGGER.log(Level.INFO, () -> "***Token: Calling waitForConnect API.");
@@ -524,9 +623,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LOGGER.log(Level.INFO, () -> "***Token: Calling pkiAuth API: handle1=token, handle2=card");
         Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
-        Asn1CardTokenUtil.storeAsn1EncodedDynamicFile(tokenHandle, labour.getDynamicFileAsn1());
-        Asn1CardTokenUtil.storeAsn1EncodedDefaultValidityFile(tokenHandle, labour.getDefaultValidityFileAsn1());
-        Asn1CardTokenUtil.storeAsn1EncodedSpecialAccessFile(tokenHandle, labour.getAccessFileAsn1());
+        Asn1CardTokenUtil.storeAsn1EncodedDynamicFile(tokenHandle, labour.getDynamicFileASN());
+        Asn1CardTokenUtil.storeAsn1EncodedDefaultValidityFile(tokenHandle, labour.getDefaultValidityFileASN());
+        Asn1CardTokenUtil.storeAsn1EncodedSpecialAccessFile(tokenHandle, labour.getAccessFileASN());
         Asn1CardTokenUtil.storeAsn1EncodedSignFile1(tokenHandle, labour.getSignFile1());
         Asn1CardTokenUtil.storeAsn1EncodedSignFile3(tokenHandle, labour.getSignFile3());
         Asn1CardTokenUtil.encodeToAsn1AndStorePhotoFile(tokenHandle, labour.getPhoto());

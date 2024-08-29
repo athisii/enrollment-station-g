@@ -14,11 +14,11 @@ import java.util.List;
 @ToString
 public class Labour {
     DynamicFile dynamicFile;
-    String dynamicFileAsn1;
+    String dynamicFileASN;
     DefaultValidityFile defaultValidityFile;
-    String defaultValidityFileAsn1;
+    String defaultValidityFileASN;
     AccessFile accessFile;
-    String accessFileAsn1;
+    String accessFileASN;
     String signFile1;
     String signFile3;
     List<LabourFp> fps;

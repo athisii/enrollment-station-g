@@ -524,13 +524,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LOGGER.log(Level.INFO, () -> "***Token: Calling pkiAuth API: handle1=token, handle2=card");
         Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
-        Asn1CardTokenUtil.encodeAndStoreDynamicFile(tokenHandle, labour.getDynamicFile());
-        Asn1CardTokenUtil.encodeAndStoreDefaultValidityFile(tokenHandle, labour.getDefaultValidityFile());
-        Asn1CardTokenUtil.encodeAndStoreSpecialAccessFile(tokenHandle, labour.getAccessFile());
-        Asn1CardTokenUtil.encodeAndStorePhotoFile(tokenHandle, labour.getPhoto());
-        Asn1CardTokenUtil.encodeAndStoreFingerprintFile(tokenHandle, labour.getFps());
-        Asn1CardTokenUtil.encodeAndStoreSignFile1(tokenHandle, labour.getSignFile1());
-        Asn1CardTokenUtil.encodeAndStoreSignFile3(tokenHandle, labour.getSignFile3());
+        Asn1CardTokenUtil.storeAsn1EncodedDynamicFile(tokenHandle, labour.getDynamicFileAsn1());
+        Asn1CardTokenUtil.storeAsn1EncodedDefaultValidityFile(tokenHandle, labour.getDefaultValidityFileAsn1());
+        Asn1CardTokenUtil.storeAsn1EncodedSpecialAccessFile(tokenHandle, labour.getAccessFileAsn1());
+        Asn1CardTokenUtil.storeAsn1EncodedSignFile1(tokenHandle, labour.getSignFile1());
+        Asn1CardTokenUtil.storeAsn1EncodedSignFile3(tokenHandle, labour.getSignFile3());
+        Asn1CardTokenUtil.encodeToAsn1AndStorePhotoFile(tokenHandle, labour.getPhoto());
+        Asn1CardTokenUtil.encodeToAsn1AndStoreFingerprintFile(tokenHandle, labour.getFps());
         return createTokenReqDto(labour.getDynamicFile().getLabourId(), tokenCsn, tokenNumber);
     }
 

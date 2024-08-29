@@ -102,7 +102,7 @@ public class TestUtil {
         LOGGER.log(Level.INFO, () -> "***Photo file successfully written to token.");
 
         LOGGER.log(Level.INFO, () -> "***Token: Writing photo file to token as OctetString (priyanka image).");
-        Asn1CardTokenUtil.encodeAndStorePhotoFile(tokenHandle, Base64.getEncoder().encodeToString(loadImageFile("/image.png")));
+        Asn1CardTokenUtil.encodeToAsn1AndStorePhotoFile(tokenHandle, Base64.getEncoder().encodeToString(loadImageFile("/image.png")));
         LOGGER.log(Level.INFO, () -> "***Photo file successfully written to token.");
 
 

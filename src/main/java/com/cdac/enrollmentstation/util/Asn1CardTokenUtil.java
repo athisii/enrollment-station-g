@@ -24,27 +24,27 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ER
 
 public class Asn1CardTokenUtil {
     /*
-      -------------------------------------------------------------------------------------------------------------------------
-      -                                                  ASN1 DATA TYPES                                                      -
-      -------------------------------------------------------------------------------------------------------------------------
-      -  Sr.No   Data Type           Class   Form       Tag Number(binary)  Tag Number(dec)    Byte(binary)    Byte(decimal)  -
-      -------------------------------------------------------------- ----------------------------------------------------------
-      -   1       EOC(marker)          00     0             00000                  0             00000000            0        -
-      -   2       BOOLEAN              00     0             00001                  1             00000001            1        -
-      -   3       INTEGER              00     0             00010                  2             00000010            2        -
-      -   4       BIT STRING           00     0             00011                  3             00000011            3        -
-      -   5       OCTET STRING         00     0             00100                  4             00000100            4        -
-      -   6       NULL                 00     0             00101                  5             00000101            5        -
-      -   7       OBJECT IDENTIFIER    00     0             00110                  6             00000110            6        -
-      -   8       REAL                 00     0             00111                  7             00000111            7        -
-      -   9       SEQUENCE             00     1             10000                  16            00110000            48       -
-      -   10      SET                  00     1             10001                  17            00110001            49       -
-      -   11      PrintableString      00     0             10011                  19            00010011            19       -
-      -   12      IA5String            00     0             10110                  22            00010110            22       -
-      -   -        -                    -     -               -                    -                 -               -        -
-      -   -        -                    -     -               -                    -                 -               -        -
-      -   -        -                    -     -               -                    -                 -               -        -
-      -----------------------------------------------------------------------------------------------------------------------------
+      ---------------------------------------------------------------------------------------------------------------------------------------
+      -                                                  ASN1 DATA TYPES                                                                    -
+      ---------------------------------------------------------------------------------------------------------------------------------------
+      -  Sr.No   Data Type           Class   Form       Tag Number(binary)  Tag Number(dec)    Byte(binary)    Byte(decimal)      Byte(Hex) -
+      -------------------------------------------------------------- ------------------------------------------------------------------------
+      -   1       EOC(marker)          00     0             00000                  0             00000000            0                0     -
+      -   2       BOOLEAN              00     0             00001                  1             00000001            1                1     -
+      -   3       INTEGER              00     0             00010                  2             00000010            2                2     -
+      -   4       BIT STRING           00     0             00011                  3             00000011            3                3     -
+      -   5       OCTET STRING         00     0             00100                  4             00000100            4                4     -
+      -   6       NULL                 00     0             00101                  5             00000101            5                5     -
+      -   7       OBJECT IDENTIFIER    00     0             00110                  6             00000110            6                6     -
+      -   8       REAL                 00     0             00111                  7             00000111            7                7     -
+      -   9       SEQUENCE             00     1             10000                  16            00110000            48              30     -
+      -   10      SET                  00     1             10001                  17            00110001            49              31     -
+      -   11      PrintableString      00     0             10011                  19            00010011            19              13     -
+      -   12      IA5String            00     0             10110                  22            00010110            22              16     -
+      -   -        -                    -     -               -                    -                 -               -                      -
+      -   -        -                    -     -               -                    -                 -               -                      -
+      -   -        -                    -     -               -                    -                 -               -                      -
+      ---------------------------------------------------------------------------------------------------------------------------------------
 
 
                                 NOIDA'S API CONTRACT
@@ -271,6 +271,29 @@ public class Asn1CardTokenUtil {
         storeBufferedData(handle, CardTokenFileType.DYNAMIC_FILE, bytes);
     }
 
+    /**
+     * Utility to encode and store DynamicFile. Caller must handle the exception
+     *
+     * @param handle      - handle of the token
+     * @param dynamicFile - ASN1 encoded dynamic file
+     * @throws GenericException - on exception
+     */
+    public static void storeAsn1EncodedDynamicFile(int handle, String dynamicFile) {
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(dynamicFile, "dynamicFile"));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDynamicFileError: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 dynamic file.");
+        }
+        if (bytes.length > MAX_DYNAMIC_FILE_SIZE) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDynamicFileError: DynamicFile size exceeded the allowed limit. Length: " + bytes.length);
+            throw new GenericException("The dynamic file size exceeded the allowed limit.");
+        }
+        LOGGER.log(Level.INFO, () -> "***writing ASN1 encoded dynamicFile to token.");
+        storeBufferedData(handle, CardTokenFileType.DYNAMIC_FILE, bytes);
+    }
+
     private static String returnDefaultStringIfNull(String string, String name) {
         if (string == null) {
             LOGGER.log(Level.SEVERE, () -> "Received null value from server for: " + name);
@@ -294,6 +317,29 @@ public class Asn1CardTokenUtil {
             return "0";
         }
         return string;
+    }
+
+    /**
+     * Utility to store ASN1 encoded DefaultValidityFile. Caller must handle the exception
+     *
+     * @param handle              - handle of the token
+     * @param defaultValidityFile - ASN1 encoded defaultValidityFile
+     * @throws GenericException - on exception
+     */
+    public static void storeAsn1EncodedDefaultValidityFile(int handle, String defaultValidityFile) {
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(defaultValidityFile, "defaultValidityFile"));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDefaultValidityFileError: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 default validity file.");
+        }
+        if (bytes.length > MAX_DEFAULT_ACCESS_VALIDITY_SIZE) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDefaultValidityFileError: DefaultValidityFile size exceeded the allowed limit. Length: " + bytes.length);
+            throw new GenericException("The default validity file size exceeded the allowed limit.");
+        }
+        LOGGER.log(Level.INFO, () -> "****writing ASN1 encoded defaultValidityFile to token.");
+        storeBufferedData(handle, CardTokenFileType.DEFAULT_ACCESS_VALIDITY, bytes);
     }
 
     /**
@@ -331,7 +377,7 @@ public class Asn1CardTokenUtil {
      * @param fps    - object to be encoded
      * @throws GenericException - on exception
      */
-    public static void encodeAndStoreFingerprintFile(int handle, List<LabourFp> fps) {
+    public static void encodeToAsn1AndStoreFingerprintFile(int handle, List<LabourFp> fps) {
         byte[] bytes;
         try {
             ASN1EncodableVector set = new ASN1EncodableVector();
@@ -363,7 +409,7 @@ public class Asn1CardTokenUtil {
      * @param base64EncodedPhoto - object to be encoded
      * @throws GenericException - on exception
      */
-    public static void encodeAndStorePhotoFile(int handle, String base64EncodedPhoto) {
+    public static void encodeToAsn1AndStorePhotoFile(int handle, String base64EncodedPhoto) {
         byte[] bytes;
         try {
             DEROctetString octetString = new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(base64EncodedPhoto, "photo")));
@@ -381,49 +427,72 @@ public class Asn1CardTokenUtil {
     }
 
     /**
-     * Utility to encode and store SignatureFile1. Caller must handle the exception
+     * Utility to store ASN1 encoded SignatureFile1. Caller must handle the exception
      *
      * @param handle    - handle of the token
-     * @param signFile1 - object to be encoded
+     * @param signFile1 - ASN1 encoded signature file1
      * @throws GenericException - on exception
      */
-    public static void encodeAndStoreSignFile1(int handle, String signFile1) {
+    public static void storeAsn1EncodedSignFile1(int handle, String signFile1) {
         byte[] bytes;
         try {
             bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile1, "signFile1"));
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: " + ex.getMessage());
-            throw new GenericException("Error occurred while decoding signature file1.");
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile1Error: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 signature file1.");
         }
         if (bytes.length > MAX_SIGNATURE_FILE_SIZE) {
-            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile1Error: SignFile1 size exceeded the allowed limit. Length: " + bytes.length);
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile1Error: SignFile1 size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The signature file1 size exceeded the allowed limit.");
         }
-        LOGGER.log(Level.INFO, () -> "***writing SignFile1 to token.");
+        LOGGER.log(Level.INFO, () -> "***writing ASN1 encoded signFile1 to token.");
         storeBufferedData(handle, CardTokenFileType.SIGNATURE_FILE_1, bytes);
     }
 
     /**
-     * Utility to encode and store SignatureFile3. Caller must handle the exception
+     * Utility to store ASN1 encoded SignatureFile3. Caller must handle the exception
      *
      * @param handle    - handle of the token
-     * @param signFile3 - object to be encoded
+     * @param signFile3 - ASN.1 encoded signature file 3
      * @throws GenericException - on exception
      */
-    public static void encodeAndStoreSignFile3(int handle, String signFile3) {
+    public static void storeAsn1EncodedSignFile3(int handle, String signFile3) {
         byte[] bytes;
         try {
             bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile3, "signFile3"));
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: " + ex.getMessage());
-            throw new GenericException("Error occurred while decoding signature file3.");
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile3Error: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 signature file3.");
         }
         if (bytes.length > MAX_SIGNATURE_FILE_SIZE) {
-            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreSignFile3Error: SignFile3 size exceeded the allowed limit. Length: " + bytes.length);
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile3Error: SignFile3 size exceeded the allowed limit. Length: " + bytes.length);
             throw new GenericException("The signature file3 size exceeded the allowed limit.");
         }
-        LOGGER.log(Level.INFO, () -> "***writing SignFile3 to token.");
+        LOGGER.log(Level.INFO, () -> "***writing ASN1 encoded signFile3 to token.");
         storeBufferedData(handle, CardTokenFileType.SIGNATURE_FILE_3, bytes);
+    }
+
+    /**
+     * Utility to store ASN1 encoded SignatureFile3. Caller must handle the exception
+     *
+     * @param handle     - handle of the token
+     * @param accessFile -  ASN1 encoded accessFile
+     * @throws GenericException - on exception
+     */
+    public static void storeAsn1EncodedSpecialAccessFile(int handle, String accessFile) {
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(accessFile, "accessFile"));
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSpecialAccessFileError: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 special access file.");
+        }
+        if (bytes.length > MAX_SPECIAL_ACCESS_PERMISSION_FILE_SIZE) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSpecialAccessFileError: AccessFile size exceeded the allowed limit. Length: " + bytes.length);
+            throw new GenericException("The special access file size exceeded the allowed limit.");
+        }
+        LOGGER.log(Level.INFO, () -> "***writing ASN1 encoded specialAccessFile to token.");
+        storeBufferedData(handle, CardTokenFileType.SPECIAL_ACCESS_PERMISSION_FILE, bytes);
     }
 
     /**
@@ -712,10 +781,14 @@ public class Asn1CardTokenUtil {
         return Base64.getDecoder().decode(crReadDataResDto.getResponse());
     }
 
+
     /**
      * stores buffered data
      * Caller must handle the exception.
      *
+     * @param handle            - handle of the token
+     * @param bytes             - ASN1 encoded bytes
+     * @param cardTokenFileType - CardTokenFileType
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      * @throws GenericException           - on Exception
      */
@@ -760,6 +833,10 @@ public class Asn1CardTokenUtil {
      * store max 1024-byte
      * Caller must handle the exception.
      *
+     * @param handle    - handle of the token
+     * @param bytes     - ASN1 encoded bytes
+     * @param whichData - CardTokenFileType
+     * @param offset    - offset to start writing
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      * @throws GenericException           - on Exception
      */

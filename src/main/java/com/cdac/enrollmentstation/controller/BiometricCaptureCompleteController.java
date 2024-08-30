@@ -182,8 +182,6 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
                 messageLabel.setText("Connection timeout. Failed to save record.");
                 submitBtn.setDisable(false);
                 homeBtn.setDisable(false);
-                timeline.setCycleCount(1);
-                timeline.play();
             });
             return;
         } catch (Exception ex) {
@@ -194,6 +192,23 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         // checks for error response
         if (resDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + resDto.getDesc());
+            /*
+             Success: errorCode = 0
+             Server/DB/HSM Connection Issues: errorCode =  -1 (Resubmit)
+             Invalid Payload: errorCode = -2
+             Invalid Hash / Hash Mismatched: errorCode = -3
+             The Biometric Already Provided Against The ARC Number: errorCode = -4
+             */
+
+            if (resDto.getErrorCode() == -1) {
+                Platform.runLater(() -> {
+                    progressIndicator.setVisible(false);
+                    messageLabel.setText("Failed to save record by the server. Please re-submit again.");
+                    submitBtn.setDisable(false);
+                    homeBtn.setDisable(false);
+                });
+                return;
+            }
             // runs on main thread
             updateUiIconOnServerResponse(false, resDto.getDesc());
         } else {

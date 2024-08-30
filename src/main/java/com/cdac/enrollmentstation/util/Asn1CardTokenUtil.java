@@ -279,9 +279,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void storeAsn1EncodedDynamicFile(int handle, String dynamicFile) {
+        if (dynamicFile == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDynamicFileError: Received a null dynamicFile");
+            throw new GenericException("Recieved an empty DynamicFile from the server.");
+        }
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(dynamicFile, "dynamicFile"));
+            bytes = Base64.getDecoder().decode(dynamicFile);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDynamicFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding base64 dynamic file.");
@@ -327,9 +331,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void storeAsn1EncodedDefaultValidityFile(int handle, String defaultValidityFile) {
+        if (defaultValidityFile == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDefaultValidityFileError: Received a null defaultValidityFile");
+            throw new GenericException("Recieved an empty defaultValidityFile from the server.");
+        }
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(defaultValidityFile, "defaultValidityFile"));
+            bytes = Base64.getDecoder().decode(defaultValidityFile);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedDefaultValidityFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding base64 default validity file.");
@@ -378,10 +386,18 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void encodeToAsn1AndStoreFingerprintFile(int handle, List<LabourFp> fps) {
+        if (fps == null || fps.isEmpty()) {
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreFingerprintFileError: Received a null or empty fingerprints");
+            throw new GenericException("Recieved an empty fingerprints from the server.");
+        }
         byte[] bytes;
         try {
             ASN1EncodableVector set = new ASN1EncodableVector();
             for (LabourFp fp : fps) {
+                if (fp == null) {
+                    LOGGER.log(Level.SEVERE, () -> "****EncodeAndStoreFingerprintFileError: Received a null or empty fingerprint");
+                    throw new GenericException("Recieved an empty fingerprint from the server.");
+                }
                 ASN1EncodableVector asn1EncodableVector = new ASN1EncodableVector();
                 asn1EncodableVector.add(new DERIA5String(returnDefaultStringIfNull(fp.getFpPos(), "fpPos")));
                 asn1EncodableVector.add(new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(fp.getFpData(), "fpData"))));
@@ -410,9 +426,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void encodeToAsn1AndStorePhotoFile(int handle, String base64EncodedPhoto) {
+        if (base64EncodedPhoto == null) {
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Received a null photo file");
+            throw new GenericException("Recieved an empty PhotoFile from the server.");
+        }
         byte[] bytes;
         try {
-            DEROctetString octetString = new DEROctetString(Base64.getDecoder().decode(returnDefaultBase64StringIfNull(base64EncodedPhoto, "photo")));
+            DEROctetString octetString = new DEROctetString(Base64.getDecoder().decode(base64EncodedPhoto));
             bytes = new DERSequence(octetString).getEncoded();
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: " + ex.getMessage());
@@ -434,9 +454,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void storeAsn1EncodedSignFile1(int handle, String signFile1) {
+        if (signFile1 == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile1Error: Received a null signFile1");
+            throw new GenericException("Recieved an empty signFile1 from the server.");
+        }
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile1, "signFile1"));
+            bytes = Base64.getDecoder().decode(signFile1);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile1Error: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding base64 signature file1.");
@@ -457,9 +481,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void storeAsn1EncodedSignFile3(int handle, String signFile3) {
+        if (signFile3 == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile3Error: Received a null signFile3 ");
+            throw new GenericException("Recieved an empty SignFile3 from the server.");
+        }
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(signFile3, "signFile3"));
+            bytes = Base64.getDecoder().decode(signFile3);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSignFile3Error: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding base64 signature file3.");
@@ -480,9 +508,13 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on exception
      */
     public static void storeAsn1EncodedSpecialAccessFile(int handle, String accessFile) {
+        if (accessFile == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSpecialAccessFileError: Received a null accessFile");
+            throw new GenericException("Recieved an empty accessFile from the server.");
+        }
         byte[] bytes;
         try {
-            bytes = Base64.getDecoder().decode(returnDefaultBase64StringIfNull(accessFile, "accessFile"));
+            bytes = Base64.getDecoder().decode(accessFile);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsn1EncodedSpecialAccessFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while decoding base64 special access file.");

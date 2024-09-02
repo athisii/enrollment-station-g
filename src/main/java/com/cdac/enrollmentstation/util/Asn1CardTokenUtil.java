@@ -434,7 +434,7 @@ public class Asn1CardTokenUtil {
             bytes = Base64.getDecoder().decode(base64EncodedFingerprintFile);
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsnEncodedFingerprintFileError: " + ex.getMessage());
-            throw new GenericException("Error occurred while encoding fingerprint file.");
+            throw new GenericException("Error occurred while decoding base64 fingerprint file.");
         }
         if (bytes.length > MAX_FINGERPRINT_FILE_SIZE) {
             LOGGER.log(Level.SEVERE, () -> "****StoreAsnEncodedFingerprintFileError: FingerprintFile size exceeded the allowed limit. Length: " + bytes.length);

@@ -194,6 +194,15 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         // checks for error response
         if (resDto.getErrorCode() != 0) {
             LOGGER.log(Level.SEVERE, () -> "Server desc: " + resDto.getDesc());
+            if (resDto.getErrorCode() == -1) {
+                Platform.runLater(() -> {
+                    progressIndicator.setVisible(false);
+                    messageLabel.setText("Failed to save record by the server. Please re-submit again.");
+                    submitBtn.setDisable(false);
+                    homeBtn.setDisable(false);
+                });
+                return;
+            }
             // runs on main thread
             updateUiIconOnServerResponse(false, resDto.getDesc());
         } else {

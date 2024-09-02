@@ -417,6 +417,33 @@ public class Asn1CardTokenUtil {
         storeBufferedData(handle, CardTokenFileType.FINGERPRINT_FILE, bytes);
     }
 
+    /**
+     * Utility to encode and store FingerprintFile. Caller must handle the exception
+     *
+     * @param handle                       - handle of the token
+     * @param base64EncodedFingerprintFile - ASN encoded string
+     * @throws GenericException - on exception
+     */
+    public static void storeAsnEncodedFingerprintFile(int handle, String base64EncodedFingerprintFile) {
+        if (base64EncodedFingerprintFile == null) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsnEncodedFingerprintFileError: Received a null or empty fingerprints");
+            throw new GenericException("Recieved an empty fingerprints from the server.");
+        }
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(base64EncodedFingerprintFile);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsnEncodedFingerprintFileError: " + ex.getMessage());
+            throw new GenericException("Error occurred while encoding fingerprint file.");
+        }
+        if (bytes.length > MAX_FINGERPRINT_FILE_SIZE) {
+            LOGGER.log(Level.SEVERE, () -> "****StoreAsnEncodedFingerprintFileError: FingerprintFile size exceeded the allowed limit. Length: " + bytes.length);
+            throw new GenericException("The fingerprint file size exceeded the allowed limit.");
+        }
+        LOGGER.log(Level.INFO, () -> "***writing FingerprintFile to token.");
+        storeBufferedData(handle, CardTokenFileType.FINGERPRINT_FILE, bytes);
+    }
+
 
     /**
      * Utility to encode and store photo file. Caller must handle the exception
@@ -437,6 +464,33 @@ public class Asn1CardTokenUtil {
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: " + ex.getMessage());
             throw new GenericException("Error occurred while encoding photo file.");
+        }
+        if (bytes.length > MAX_PHOTO_FILE_SIZE) {
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Photo size exceeded the allowed limit. Length: " + bytes.length);
+            throw new GenericException("The photo file size exceeded the allowed limit.");
+        }
+        LOGGER.log(Level.INFO, () -> "***writing PhotoFile to token.");
+        storeBufferedData(handle, CardTokenFileType.PHOTO_FILE, bytes);
+    }
+
+    /**
+     * Utility to encode and store photo file. Caller must handle the exception
+     *
+     * @param handle             - handle of the token
+     * @param base64EncodedPhoto - object to be encoded
+     * @throws GenericException - on exception
+     */
+    public static void storeAsnEncodedPhotoFile(int handle, String base64EncodedPhoto) {
+        if (base64EncodedPhoto == null) {
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Received a null photo file");
+            throw new GenericException("Recieved an empty PhotoFile from the server.");
+        }
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(base64EncodedPhoto);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: " + ex.getMessage());
+            throw new GenericException("Error occurred while decoding base64 photo file.");
         }
         if (bytes.length > MAX_PHOTO_FILE_SIZE) {
             LOGGER.log(Level.SEVERE, () -> "****EncodeAndStorePhotoFileError: Photo size exceeded the allowed limit. Length: " + bytes.length);

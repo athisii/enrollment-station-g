@@ -21,6 +21,7 @@ public class Labour {
     String accessFileASN;
     String signFile1;
     String signFile3;
+    String fingerPrintASN;
     List<LabourFp> fps;
     String iris1;
     String iris2;

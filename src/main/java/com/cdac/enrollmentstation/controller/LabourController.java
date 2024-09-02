@@ -629,7 +629,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         Asn1CardTokenUtil.storeAsn1EncodedSignFile1(tokenHandle, labour.getSignFile1());
         Asn1CardTokenUtil.storeAsn1EncodedSignFile3(tokenHandle, labour.getSignFile3());
         Asn1CardTokenUtil.encodeToAsn1AndStorePhotoFile(tokenHandle, labour.getPhoto());
-        Asn1CardTokenUtil.encodeToAsn1AndStoreFingerprintFile(tokenHandle, labour.getFps());
+        Asn1CardTokenUtil.storeAsnEncodedFingerprintFile(tokenHandle, labour.getFingerPrintASN());
         return createTokenReqDto(labour.getDynamicFile().getLabourId(), tokenCsn, tokenNumber);
     }
 

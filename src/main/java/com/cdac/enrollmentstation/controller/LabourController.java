@@ -200,7 +200,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 labourDetailsTableRow.setLabourId(dynamicFile.getLabourId());
                 labourDetailsTableRow.setLabourName(dynamicFile.getLabourName());
                 //for differentiating table row for token issued labour, if required but now removed from the list if issued
-                labourDetailsTableRow.setStrStatus("token not issued");
+                labourDetailsTableRow.setStrStatus("Token not issued");
                 labourDetailsTableRows.add(labourDetailsTableRow);
                 labourMap.put(dynamicFile.getLabourId(), labour);
             }
@@ -226,7 +226,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             }
             return createPage(pageIndex);
         });
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(labourDetailsTableRows, newValue)));
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> filterList(labourDetailsTableRows, newValue));
         ObservableList<LabourDetailsTableRow> observablelist = FXCollections.observableArrayList(labourDetailsTableRows);
         tableView.setItems(observablelist);
         tableView.refresh();
@@ -236,7 +236,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 public void updateItem(LabourDetailsTableRow item, boolean empty) {
                     if (item != null) {
                         super.updateItem(item, empty);
-                        if (item.getStrStatus().equalsIgnoreCase("token issued")) {
+                        if (item.getStrStatus().equalsIgnoreCase("Token issued")) {
                             setStyle("-fx-background-color: green;");
                         } else {
                             setStyle("");
@@ -264,6 +264,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     @FXML
     private void showContractBtnAction() throws IOException {
+        updateUi("Fetching contracts from the server. Please wait.");
         App.setRoot("contract");
     }
 
@@ -420,6 +421,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             tokenReqDto.setTokenIssuanceStatus("Pending");
         }
         LOGGER.log(Level.INFO, () -> "***Updating token status to the server.");
+        updateUi("Updating token status to the server. Please wait.");
         CommonResDto resDto;
         //Update token details to MAFIS
         try {
@@ -495,6 +497,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             }
             Platform.runLater(() -> {
                 try {
+                    updateUi("Going back to contract page. Please wait.");
                     App.setRoot("contract");
                 } catch (IOException ex) {
                     LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
@@ -653,20 +656,39 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     }
 
     private Node createPage(int pageIndex) {
-        int fromIndex = pageIndex * 8;
-        int toIndex = Math.min(fromIndex + 8, labourDetailsTableRows.size());
+        int fromIndex = pageIndex * NUMBER_OF_ROWS_PER_PAGE;
+        int toIndex = Math.min(fromIndex + NUMBER_OF_ROWS_PER_PAGE, labourDetailsTableRows.size());
         tableView.setItems(FXCollections.observableArrayList(labourDetailsTableRows.subList(fromIndex, toIndex)));
+        tableView.refresh();
         return tableView;
     }
 
-    private ObservableList<LabourDetailsTableRow> filterList(List<LabourDetailsTableRow> labourDetailsTableRowList, String searchText) {
-        List<LabourDetailsTableRow> filteredList = new ArrayList<>();
-        for (LabourDetailsTableRow labourData : labourDetailsTableRowList) {
-            if (labourData.getLabourId().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
-                filteredList.add(labourData);
+    private void filterList(List<LabourDetailsTableRow> labourDetailsTableRows, String searchText) {
+        List<LabourDetailsTableRow> labourDetailsTableRowList;
+        if (searchText == null || searchText.isBlank()) {
+            labourDetailsTableRowList = labourDetailsTableRows;
+        } else {
+            List<LabourDetailsTableRow> filteredList = new ArrayList<>();
+            for (LabourDetailsTableRow labourData : labourDetailsTableRows) {
+                if (labourData.getLabourId().toLowerCase().contains(searchText.toLowerCase()) || labourData.getLabourName().toLowerCase().contains(searchText.toLowerCase()) || labourData.getDateOfBirth().toLowerCase().contains(searchText.toLowerCase())) {
+                    filteredList.add(labourData);
+                }
             }
+            labourDetailsTableRowList = filteredList;
         }
-        return FXCollections.observableList(filteredList);
+        int extraPage;
+        if (labourDetailsTableRowList.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+            extraPage = 0;
+        } else {
+            extraPage = 1;
+        }
+        int pageCount = labourDetailsTableRowList.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        Platform.runLater(() -> {
+            tableView.setItems(FXCollections.observableList(labourDetailsTableRowList));
+            tableView.refresh();
+        });
     }
 
 

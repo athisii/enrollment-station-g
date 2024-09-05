@@ -75,6 +75,7 @@ public class TokenIssuanceController extends AbstractBaseController {
         byte[] asn1EncodedData;
         try {
             asn1EncodedData = startProcedureCall();
+            updateUi("Fetching contracts from the server. Please wait.");
         } catch (NoReaderOrCardException | GenericException ex) {
             updateUi(ex.getMessage());
             enableControls(backBtn, continueBtn);

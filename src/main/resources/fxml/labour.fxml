@@ -67,7 +67,7 @@
                 <VBox alignment="CENTER" styleClass="padding-small">
                     <HBox alignment="CENTER">
                         <TextField fx:id="searchBox" styleClass="font-size-small, input-field"
-                                   promptText="Search by labour name/id/dob"/>
+                                   promptText="Search by name/id/dob"/>
                     </HBox>
                     <HBox fx:id="_imgContainerXlarge1" styleClass="img-container-xlarge" alignment="CENTER">
                         <ImageView fitWidth="${_imgContainerXlarge1.prefWidth}"

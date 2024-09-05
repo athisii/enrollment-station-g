@@ -122,6 +122,7 @@ public class ContractController extends AbstractBaseController {
                     Contract element = row.getItem();
                     setContractIdInContractDetailHolder(element.getContractId());
                     try {
+                        updateUi("Fetching labors from the server. Please wait.");
                         App.setRoot("labour");
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
@@ -135,7 +136,7 @@ public class ContractController extends AbstractBaseController {
         ObservableList<Contract> observablelist = FXCollections.observableArrayList(contracts);
         tableView.setItems(observablelist);
         tableView.refresh();
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> tableView.setItems(filterList(contracts, newValue)));
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> filterList(contracts, newValue));
     }
 
 
@@ -143,6 +144,7 @@ public class ContractController extends AbstractBaseController {
         int fromIndex = pageIndex * NUMBER_OF_ROWS_PER_PAGE;
         int toIndex = Math.min(fromIndex + NUMBER_OF_ROWS_PER_PAGE, contracts.size());
         tableView.setItems(FXCollections.observableArrayList(contracts.subList(fromIndex, toIndex)));
+        tableView.refresh();
         return tableView;
     }
 
@@ -158,14 +160,33 @@ public class ContractController extends AbstractBaseController {
         fetchDetails();
     }
 
-    private ObservableList<Contract> filterList(List<Contract> list, String searchText) {
-        List<Contract> filteredList = new ArrayList<>();
-        for (Contract contract : list) {
-            if (contract.getContractId().toLowerCase().contains(searchText.toLowerCase()) || (contract.getContractValidFrom().toLowerCase().contains(searchText.toLowerCase())) || (contract.getContractValidUpto().toLowerCase().contains(searchText.toLowerCase()))) {
-                filteredList.add(contract);
+    private void filterList(List<Contract> contracts, String searchText) {
+        List<Contract> contractList;
+        if (searchText == null || searchText.isBlank()) {
+            contractList = contracts;
+        } else {
+            List<Contract> filteredList = new ArrayList<>();
+            for (Contract contract : contracts) {
+                if (contract.getContractId().toLowerCase().contains(searchText.toLowerCase()) || (contract.getContractValidFrom().toLowerCase().contains(searchText.toLowerCase())) || (contract.getContractValidUpto().toLowerCase().contains(searchText.toLowerCase()))) {
+                    filteredList.add(contract);
+                }
             }
+            contractList = filteredList;
         }
-        return FXCollections.observableList(filteredList);
+        int extraPage;
+        if (contractList.size() % NUMBER_OF_ROWS_PER_PAGE == 0) {
+            extraPage = 0;
+        } else {
+            extraPage = 1;
+        }
+        int pageCount = contractList.size() / NUMBER_OF_ROWS_PER_PAGE + extraPage;
+        pagination.setPageCount(pageCount);
+        pagination.setCurrentPageIndex(0);
+        ObservableList<Contract> observablelist = FXCollections.observableArrayList(contractList);
+        Platform.runLater(() -> {
+            tableView.setItems(observablelist);
+            tableView.refresh();
+        });
     }
 
     public void setContractIdInContractDetailHolder(String contractId) {

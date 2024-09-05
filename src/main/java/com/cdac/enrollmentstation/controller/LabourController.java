@@ -290,20 +290,20 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     // runs in worker thread spawned by OnComplete() callback
     private void matchFingerprintTemplate(byte[] fingerData) {
-        LabourDetailsTableRow labourDetailsTableRowRow = tableView.getSelectionModel().getSelectedItem();
-        if (labourDetailsTableRowRow == null) {
+        LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
+        if (selectedLabour == null) {
             updateUi("Kindly select a labour.");
             return;
         }
 
-        Labour labour = labourMap.get(labourDetailsTableRowRow.getLabourId());
+        Labour labour = labourMap.get(selectedLabour.getLabourId());
         if (labour == null) {
-            updateUi("No labour details found for selected labour id: " + labourDetailsTableRowRow.getLabourId());
+            updateUi("No labour details found for selected labour id: " + selectedLabour.getLabourId());
             return;
         }
 
         if (labour.getFps() == null || labour.getFps().isEmpty()) {
-            updateUi("No fingerprint data for selected labour id: " + labourDetailsTableRowRow.getLabourId());
+            updateUi("No fingerprint data for selected labour id: " + selectedLabour.getLabourId());
             return;
         }
         int[] matchScore = new int[1];
@@ -330,27 +330,28 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         if (!matchFound) {
-            labourDetailsTableRowRow.setCount(labourDetailsTableRowRow.getCount() + 1);
-            LOGGER.log(Level.INFO, () -> "***Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId() + "***\n\tcount: " + labourDetailsTableRowRow.getCount());
-            if (labourDetailsTableRowRow.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for Labor id: " + labourDetailsTableRowRow.getLabourId() + " has been exhausted.");
-                updateUi("The allowed number of attempts for Labor id: " + labourDetailsTableRowRow.getLabourId() + " has been exhausted.");
-                if (labourDetailsTableRowRow.getCount() > LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+            selectedLabour.setCount(selectedLabour.getCount() + 1);
+            LOGGER.log(Level.INFO, () -> "***Fingerprint not matched for labour id: " + selectedLabour.getLabourId() + "***\n\tcount: " + selectedLabour.getCount());
+            if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                if (selectedLabour.getCount() > LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                     return;
                 }
-                if (labourDetailsTableRowRow.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                     dispenseToken(labour, false);
-                    tableView.getItems().remove(labourDetailsTableRowRow);
+                    labourDetailsTableRows.remove(selectedLabour);
+                    tableView.getItems().remove(selectedLabour);
                     tableView.refresh();
                 }
-            } else if (labourDetailsTableRowRow.getCount() < 3) {
-                updateUi("Fingerprint not matched for labour id: " + labourDetailsTableRowRow.getLabourId());
+            } else if (selectedLabour.getCount() < 3) {
+                updateUi("Fingerprint not matched for labour id: " + selectedLabour.getLabourId());
             } else {
-                updateUi("The remaining attempt(s) for " + labourDetailsTableRowRow.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - labourDetailsTableRowRow.getCount()));
+                updateUi("The remaining attempt(s) for " + selectedLabour.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - selectedLabour.getCount()));
             }
             return; // return since fingerprint auth failed
         }
-        updateUi("Fingerprint matched for labour id: " + labourDetailsTableRowRow.getLabourId());
+        updateUi("Fingerprint matched for labour id: " + selectedLabour.getLabourId());
         //now match found.
         dispenseToken(labour, true);
     }
@@ -481,12 +482,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 MotorUtil.closeSerialPort();
             }
             updateUi("Kindly collect the token.");
-            labourDetailsTableRow.setStrStatus("token issued"); // not really import now
+            labourDetailsTableRow.setStrStatus("Token issued"); // not really import now
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
         } // for auth fp auth failure, already updated on UI
 
         tableView.getItems().remove(labourDetailsTableRow);
         tableView.refresh();
+        labourDetailsTableRows.remove(labourDetailsTableRow);
 
         if (tableView.getItems().isEmpty()) {
             try {

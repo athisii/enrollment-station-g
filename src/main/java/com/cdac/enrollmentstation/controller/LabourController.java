@@ -721,7 +721,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     public void OnComplete(int errorCode, int quality, int nfiq) {
         if (errorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
-            updateUi("Fingerprint quality too poor. Please try again.");
+            updateUi("Capture timeout. Please try again.");
             captureBtn.setDisable(false);
             return;
         }

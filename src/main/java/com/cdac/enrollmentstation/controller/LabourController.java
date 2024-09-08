@@ -246,7 +246,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             };
             row.setOnMouseClicked(event -> {
                 // check for non-empty rows, double-click
-                if (!row.isEmpty() && event.getClickCount() == 2) {
+                if (!row.isEmpty() && event.getClickCount() >= 2) {
                     fingerprintImageView.setImage(null);
                     LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
                     if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
@@ -484,7 +484,11 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             updateUi("Kindly collect the token.");
             labourDetailsTableRow.setStrStatus("Token issued"); // not really import now
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
-        } // for auth fp auth failure, already updated on UI
+        } else {
+            updateUi("Failed to issue token for the labor: " + labourDetailsTableRow.getLabourName());
+        }
+        // for auth fp auth failure, already updated on UI
+
 
         tableView.getItems().remove(labourDetailsTableRow);
         tableView.refresh();

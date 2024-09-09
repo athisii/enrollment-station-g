@@ -22,6 +22,8 @@ import com.mantra.midfingerauth.MIDFingerAuth_Callback;
 import com.mantra.midfingerauth.enums.DeviceDetection;
 import com.mantra.midfingerauth.enums.DeviceModel;
 import com.mantra.midfingerauth.enums.TemplateFormat;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -33,6 +35,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 
@@ -61,6 +64,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     private static final String INTERRUPTED_ERROR_MESSAGE = "Interrupted while sleeping. Please try again.";
 
+    // Need to maintain user tap count due to TouchScreen issue.
+    private int count = 0;
+    private int previousClickRowId = 0;
 
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     private static final int LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT = 6;
@@ -226,6 +232,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         ObservableList<LabourDetailsTableRow> observablelist = FXCollections.observableArrayList(labourDetailsTableRows);
         tableView.setItems(observablelist);
         tableView.refresh();
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> count = 0));
+
         tableView.setRowFactory(tv -> {
             TableRow<LabourDetailsTableRow> row = new TableRow<>() {
                 @Override
@@ -241,8 +250,20 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 }
             };
             row.setOnMouseClicked(event -> {
+                if (tableView.getSelectionModel().getSelectedItem() != null) {
+                    int rowIndex = tableView.getSelectionModel().getSelectedIndex();
+                    if (rowIndex == previousClickRowId) {
+                        count++;
+                    } else {
+                        count = 1;
+                    }
+                    previousClickRowId = rowIndex;
+                }
+                timeline.stop();
+                timeline.setCycleCount(1);
+                timeline.play();
                 // check for non-empty rows, double-click
-                if (!row.isEmpty() && event.getClickCount() >= 2) {
+                if (!row.isEmpty() && (event.getClickCount() == 2 || count ==2)) {
                     fingerprintImageView.setImage(null);
                     LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
                     if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {

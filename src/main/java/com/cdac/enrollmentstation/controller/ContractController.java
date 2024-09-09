@@ -10,6 +10,8 @@ import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ContractorCardInfo;
 import com.cdac.enrollmentstation.model.TokenDetailsHolder;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,6 +38,9 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 
 public class ContractController extends AbstractBaseController {
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
+    // Need to maintain user tap count due to TouchScreen issue.
+    private int count = 0;
+    private int previousClickRowId = 0;
     @FXML
     private BorderPane rootBorderPane;
     @FXML
@@ -111,11 +117,23 @@ public class ContractController extends AbstractBaseController {
             }
             return createPage(pageIndex);
         });
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> count = 0));
         tableView.setRowFactory(tv -> {
             TableRow<Contract> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                LOGGER.log(Level.INFO, () -> "****Click count: " + event.getClickCount());
-                if (!row.isEmpty() && event.getClickCount() >= 2) {
+                if (tableView.getSelectionModel().getSelectedItem() != null) {
+                    int rowIndex = tableView.getSelectionModel().getSelectedIndex();
+                    if (rowIndex == previousClickRowId) {
+                        count++;
+                    } else {
+                        count = 1;
+                    }
+                    previousClickRowId = rowIndex;
+                }
+                timeline.stop();
+                timeline.setCycleCount(1);
+                timeline.play();
+                if (!row.isEmpty() && (event.getClickCount() == 2 || count == 2)) {
                     Contract element = row.getItem();
                     setContractIdInContractDetailHolder(element.getContractId());
                     try {
@@ -188,7 +206,6 @@ public class ContractController extends AbstractBaseController {
     public void setContractIdInContractDetailHolder(String contractId) {
         ContractorCardInfo contractorCardInfo = TokenDetailsHolder.getDetailsHolder().getContractorCardInfo();
         contractorCardInfo.setContractId(contractId);
-        TokenDetailsHolder.getDetailsHolder().setContractorCardInfo(contractorCardInfo);
     }
 
     @Override

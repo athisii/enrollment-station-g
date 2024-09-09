@@ -86,11 +86,7 @@ public class ContractController extends AbstractBaseController {
         LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + contractResDto.getErrorCode());
         if (contractResDto.getErrorCode() != 0) {
             LOGGER.log(Level.INFO, () -> "***ServerErrorDesc: " + contractResDto.getDesc());
-            if (contractResDto.getDesc().toLowerCase().contains("unable to process")) {
-                messageLabel.setText("Unable to process due to server response failed. Kindly try again.");
-            } else {
-                messageLabel.setText(contractResDto.getDesc());
-            }
+            messageLabel.setText(contractResDto.getDesc());
             return;
         }
 
@@ -118,6 +114,7 @@ public class ContractController extends AbstractBaseController {
         tableView.setRowFactory(tv -> {
             TableRow<Contract> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
+                LOGGER.log(Level.INFO, () -> "****Click count: " + event.getClickCount());
                 if (!row.isEmpty() && event.getClickCount() >= 2) {
                     Contract element = row.getItem();
                     setContractIdInContractDetailHolder(element.getContractId());
@@ -156,7 +153,6 @@ public class ContractController extends AbstractBaseController {
                 keyEvent.consume();
             }
         });
-
         fetchDetails();
     }
 

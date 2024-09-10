@@ -78,7 +78,7 @@
                 </VBox>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-medium">
-                <Label fx:id="messageLabel"/>
+                <Label fx:id="messageLabel" maxWidth="900" wrapText="true"/>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-medium">
                 <Button fx:id="homeBtn" styleClass="btn-medium, press-effect" onAction="#showHome"

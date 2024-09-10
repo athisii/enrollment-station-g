@@ -96,7 +96,7 @@
                 </VBox>
             </HBox>
             <HBox alignment="CENTER">
-                <Label fx:id="messageLabel"/>
+                <Label fx:id="messageLabel" maxWidth="900" wrapText="true"/>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-small">
                 <Button fx:id="selectNextContractorBtn" styleClass="btn-large, press-effect"

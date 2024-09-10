@@ -233,7 +233,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         tableView.setItems(observablelist);
         tableView.refresh();
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> count = 0));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> count = 0));
 
         tableView.setRowFactory(tv -> {
             TableRow<LabourDetailsTableRow> row = new TableRow<>() {
@@ -263,7 +263,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 timeline.setCycleCount(1);
                 timeline.play();
                 // check for non-empty rows, double-click
-                if (!row.isEmpty() && (event.getClickCount() == 2 || count ==2)) {
+                if (!row.isEmpty() && (event.getClickCount() == 2 || count == 2)) {
                     fingerprintImageView.setImage(null);
                     LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
                     if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {

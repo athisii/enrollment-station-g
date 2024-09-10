@@ -37,6 +37,8 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
  */
 
 public class ContractController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(ContractController.class);
+
     private static final int NUMBER_OF_ROWS_PER_PAGE = 8;
     // Need to maintain user tap count due to TouchScreen issue.
     private int count = 0;
@@ -57,7 +59,6 @@ public class ContractController extends AbstractBaseController {
     @FXML
     private Label contractorNameLabel;
 
-
     List<Contract> contracts;
 
     @FXML
@@ -66,7 +67,6 @@ public class ContractController extends AbstractBaseController {
     @FXML
     TextField searchBox;
 
-    private static final Logger LOGGER = ApplicationLog.getLogger(ContractController.class);
 
     @FXML
     private void showHome() throws IOException {
@@ -117,7 +117,7 @@ public class ContractController extends AbstractBaseController {
             }
             return createPage(pageIndex);
         });
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> count = 0));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(500), event -> count = 0));
         tableView.setRowFactory(tv -> {
             TableRow<Contract> row = new TableRow<>();
             row.setOnMouseClicked(event -> {

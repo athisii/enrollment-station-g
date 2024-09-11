@@ -356,7 +356,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     return;
                 }
                 if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                    dispenseToken(labour, false);
+                    handleTokenIssuance(labour, false);
                     labourDetailsTableRows.remove(selectedLabour);
                     tableView.getItems().remove(selectedLabour);
                     tableView.refresh();
@@ -370,10 +370,10 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
         updateUi("Fingerprint matched for labour id: " + selectedLabour.getLabourId());
         //now match found.
-        dispenseToken(labour, true);
+        handleTokenIssuance(labour, true);
     }
 
-    private void dispenseToken(Labour labour, boolean issueToken) {
+    private void handleTokenIssuance(Labour labour, boolean issueToken) {
         boolean isProd = "0".equals(PropertyFile.getProperty(PropertyName.ENV).trim());
         TokenReqDto tokenReqDto;
         if (issueToken) {

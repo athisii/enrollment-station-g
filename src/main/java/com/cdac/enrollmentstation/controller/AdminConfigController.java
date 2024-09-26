@@ -157,6 +157,11 @@ public class AdminConfigController extends AbstractBaseController {
         App.setRoot("admin_auth");
     }
 
+  @FXML
+    public void editHostnameIp() throws IOException {
+        App.setRoot("hostname_ip");
+    }
+
 
     @Override
     public void onUncaughtException() {

@@ -1,9 +1,11 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.AuthUtil;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -15,6 +17,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -49,6 +52,8 @@ public class AdminAuthController extends AbstractBaseController {
 
     @FXML
     private TextField username;
+    @FXML
+    private HBox hostnameVBox;
 
     @FXML
     public void showHome() throws IOException {
@@ -123,7 +128,10 @@ public class AdminAuthController extends AbstractBaseController {
             }
         });
         editHostnameIpBtn.setOnAction(event -> editHostnameIpBtnAction());
-
+        if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
+            hostnameVBox.setVisible(true);
+            hostnameVBox.setManaged(true);
+        }
     }
 
     private void editHostnameIpBtnAction() {

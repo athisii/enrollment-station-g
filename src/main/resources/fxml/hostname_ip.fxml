@@ -35,6 +35,8 @@
     </right>
     <center>
         <VBox alignment="CENTER">
+            <Label styleClass="padding-small, font-size-micro"
+                   text="ONCE THE CONFIGURATION IS SAVED, IT CAN ONLY BE CHANGED AFTER AUTHENTICATION"/>
             <VBox alignment="CENTER" styleClass="border-color-darkblue, border-radius-medium">
                 <VBox>
                     <Region styleClass="min-height-large"/>
@@ -63,20 +65,41 @@
                     </HBox>
                     <Region styleClass="min-height-medium"/>
                     <HBox alignment="CENTER">
-                        <Label text="DNS IP" alignment="CENTER" styleClass="label-border-style"/>
+                        <Label text="DNS IP(s)" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
-                        <TextField fx:id="dnsIpTextField" promptText="192.168.1.11" styleClass="input-field"/>
+                        <TextField fx:id="dnsIpTextField" promptText="192.168.1.11,192.168.1.12"
+                                   styleClass="input-field"/>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <HBox alignment="CENTER">
+                        <Label text="LDAP URL" alignment="CENTER" styleClass="label-border-style"/>
+                        <Region styleClass="min-width-medium"/>
+                        <TextField fx:id="ldapUrl" promptText="ldap://192.168.1.11:389" styleClass="input-field"/>
                     </HBox>
                 </VBox>
                 <Region styleClass="min-height-small"/>
                 <Label fx:id="messageLabel"/>
                 <Region styleClass="min-height"/>
             </VBox>
+            <Region styleClass="min-height-small"/>
+            <HBox alignment="CENTER">
+                <VBox fx:id="confirmVbox" styleClass="padding-small, confirm-box"
+                      alignment="CENTER"
+                      managed="false"
+                      visible="false">
+                    <Label text="Kindly verify the data carefully, as this action cannot be undone."/>
+                    <Label styleClass="padding"
+                           text="Click 'Yes' to proceed or 'No' to Cancel"/>
+                    <HBox alignment="CENTER">
+                        <Button fx:id="confirmYesBtn" styleClass="bg-border-radius-small, press-effect" text="Yes"/>
+                        <Region styleClass="min-width-medium"/>
+                        <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect" text="No"/>
+                    </HBox>
+                </VBox>
+            </HBox>
             <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER">
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
-                <Region styleClass="min-width-large"/>
-                <Button fx:id="homeBtn" styleClass="btn-medium, press-effect" text="HOME"/>
                 <Region styleClass="min-width-large"/>
                 <Button fx:id="saveBtn" styleClass="btn-medium, press-effect" text="SAVE"/>
             </HBox>

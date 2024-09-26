@@ -166,6 +166,10 @@
     -fx-background-radius: 30px;
 }
 
+.font-size-micro {
+    -fx-font-size: 13px;
+}
+
 .font-size {
     -fx-font-size: 14px;
 }

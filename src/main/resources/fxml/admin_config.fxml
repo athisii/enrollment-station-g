@@ -98,6 +98,20 @@
                     <Button fx:id="nfiqBtn" styleClass="btn-large, press-effect" text="EDIT"/>
                 </VBox>
             </HBox>
+            <Region styleClass="min-height-medium"/>
+            <HBox alignment="CENTER" styleClass="padding-medium">
+                <VBox alignment="BOTTOM_CENTER">
+                    <HBox fx:id="_imgContainerMedium5" styleClass="img-container-medium, padding-small"
+                          alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerMedium5.prefWidth}"
+                                   fitHeight="${_imgContainerMedium5.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../gif/settings.gif"/>
+                        </ImageView>
+                    </HBox>
+                    <Button styleClass="btn-large, press-effect" onAction="#editHostnameIp" text="EDIT HOSTNAME/IP"/>
+                </VBox>
+            </HBox>
             <HBox alignment="CENTER" styleClass="padding-small">
                 <Label fx:id="messageLabel"/>
             </HBox>

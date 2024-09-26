@@ -9,7 +9,6 @@ import com.cdac.enrollmentstation.util.PropertyFile;
 import javax.naming.AuthenticationException;
 import javax.naming.CommunicationException;
 import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -46,9 +45,9 @@ public class DirectoryLookup {
             LOGGER.log(Level.SEVERE, () -> "Failed to authenticate user.");
             throw new GenericException(ApplicationConstant.INVALID_CREDENTIALS);
         } catch (CommunicationException ex) {
-            LOGGER.log(Level.SEVERE, "Failed to connect with server.");
-            throw new GenericException("Failed to connect with server.");
-        } catch (NamingException ex) {
+            LOGGER.log(Level.SEVERE, "Failed to connect with ldap server.");
+            throw new GenericException("Failed to connect with the LDAP server.");
+        } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, ex::getMessage);
             throw new GenericException("Connection timeout or ldap is configured incorrectly.");
         }

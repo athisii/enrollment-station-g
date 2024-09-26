@@ -71,4 +71,5 @@ public class PropertyName {
     public static final String CARD_API_SERVICE_RESTART_COMMAND = "card.api.service.restart.command";
     public static final String CARD_API_VERIFY_PIN = "card.api.verify.pin";
     public static final String SYSTEM_DISPLAY_RESOLUTION_FILE = "system.display.resolution.file";
+    public static final String INITIAL_SETUP = "initial.setup";
 }

@@ -77,15 +77,17 @@ public class BiometricEnrollmentController extends AbstractBaseController {
 
     @FXML
     private Label txtBiometricOptions;
+    int counter = 1;
 
     public void initialize() {
         backBtn.setOnAction(event -> backBtnAction());
         showArcBtn.setOnAction(event -> showArcBtnAction());
         continueBtn.setOnAction(event -> continueBtnAction());
-        arcNumberTextField.setOnKeyTyped(event -> changeTextToUpperCase());
+        arcNumberTextField.setOnKeyTyped(this::changeTextToUpperCase);
     }
 
-    private void changeTextToUpperCase() {
+    private void changeTextToUpperCase(KeyEvent keyEvent) {
+        keyTyped(keyEvent);
         lastCaretPosition.set(arcNumberTextField.getCaretPosition());
         arcNumberTextField.setText(arcNumberTextField.getText().toUpperCase());
         arcNumberTextField.positionCaret(lastCaretPosition.get());

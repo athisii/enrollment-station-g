@@ -77,7 +77,11 @@ public class TokenIssuanceController extends AbstractBaseController {
             asn1EncodedData = startProcedureCall();
             updateUi("Fetching contracts from the server. Please wait.");
         } catch (NoReaderOrCardException | GenericException ex) {
-            updateUi(ex.getMessage());
+            if ("Selected File deactivated.".equalsIgnoreCase(ex.getMessage())) {
+                updateUi("The card is deactivated. Please activate it and try again.");
+            } else {
+                updateUi(ex.getMessage());
+            }
             enableControls(backBtn, continueBtn);
             return;
         } catch (ConnectionTimeoutException ex) {

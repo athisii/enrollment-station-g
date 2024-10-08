@@ -424,7 +424,11 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 if (isProd) {
                     moveTokenToBin();
                 }
-                updateUi(ex.getMessage());
+                if ("Selected File deactivated.".equalsIgnoreCase(ex.getMessage())) {
+                    updateUi("The token is deactivated. Please try again.");
+                } else {
+                    updateUi(ex.getMessage());
+                }
                 return;
             } catch (ConnectionTimeoutException ex) {
                 if (isProd) {

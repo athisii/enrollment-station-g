@@ -35,42 +35,45 @@
     </right>
     <center>
         <VBox alignment="CENTER">
-            <Label styleClass="padding-small, font-size-micro"
-                   text="ONCE THE CONFIGURATION IS SAVED, IT CAN ONLY BE CHANGED AFTER AUTHENTICATION"/>
+            <Label styleClass="padding, font-size-small"
+                   text="KINDLY SET THE NETWORK CONFIGURATIONS."/>
+            <Label styleClass="font-size-small"
+                   text="ONCE SAVED, IT CAN ONLY BE CHANGED AFTER LOGGING IN."/>
+            <Region styleClass="min-height"/>
             <VBox alignment="CENTER" styleClass="border-color-darkblue, border-radius-medium">
                 <VBox>
-                    <Region styleClass="min-height-large"/>
+                    <Region styleClass="min-height-medium"/>
                     <HBox alignment="CENTER">
                         <Label text="HOSTNAME" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
                         <TextField fx:id="hostnameTextField" promptText="hostname" styleClass="input-field"/>
                     </HBox>
-                    <Region styleClass="min-height-medium"/>
+                    <Region styleClass="min-height-small"/>
                     <HBox alignment="CENTER">
                         <Label text="IP ADDRESS" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
                         <TextField fx:id="ipAddressTextField" promptText="192.168.1.10" styleClass="input-field"/>
                     </HBox>
-                    <Region styleClass="min-height-medium"/>
+                    <Region styleClass="min-height-small"/>
                     <HBox alignment="CENTER">
                         <Label text="SUBNET MASK" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
                         <TextField fx:id="subnetMaskTextField" promptText="255.255.255.0" styleClass="input-field"/>
                     </HBox>
-                    <Region styleClass="min-height-medium"/>
+                    <Region styleClass="min-height-small"/>
                     <HBox alignment="CENTER">
                         <Label text="DEFAULT GATEWAY" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
                         <TextField fx:id="defaultGatewayTextField" promptText="192.168.1.1" styleClass="input-field"/>
                     </HBox>
-                    <Region styleClass="min-height-medium"/>
+                    <Region styleClass="min-height-small"/>
                     <HBox alignment="CENTER">
                         <Label text="DNS IP(s)" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
                         <TextField fx:id="dnsIpTextField" promptText="192.168.1.11,192.168.1.12"
                                    styleClass="input-field"/>
                     </HBox>
-                    <Region styleClass="min-height-medium"/>
+                    <Region styleClass="min-height-small"/>
                     <HBox alignment="CENTER">
                         <Label text="LDAP URL" alignment="CENTER" styleClass="label-border-style"/>
                         <Region styleClass="min-width-medium"/>
@@ -97,7 +100,7 @@
                     </HBox>
                 </VBox>
             </HBox>
-            <Region styleClass="min-height-medium"/>
+            <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
                 <Region styleClass="min-width-large"/>

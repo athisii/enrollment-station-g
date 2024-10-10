@@ -105,6 +105,8 @@
                 <Button fx:id="backBtn" styleClass="btn-medium, press-effect" text="BACK"/>
                 <Region styleClass="min-width-large"/>
                 <Button fx:id="saveBtn" styleClass="btn-medium, press-effect" text="SAVE"/>
+                <Region styleClass="min-width-large"/>
+                <Button fx:id="defaultBtn" styleClass="btn-medium, press-effect" text="DEFAULT"/>
             </HBox>
         </VBox>
     </center>

@@ -24,7 +24,7 @@
                 </HBox>
                 <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="ADMIN SETTINGS"/>
             </HBox>
-            <Region styleClass="min-height-large"/>
+            <Region styleClass="min-height-medium"/>
             <HBox alignment="CENTER" styleClass="padding-small">
                 <VBox alignment="CENTER">
                     <HBox fx:id="_imgContainerMedium1" styleClass="img-container-medium, padding-small"

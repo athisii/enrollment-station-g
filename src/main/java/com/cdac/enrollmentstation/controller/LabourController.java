@@ -604,16 +604,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, cardHandle);
 
         // setup writer; need to add a delay for some milliseconds
-        try {
-            LOGGER.log(Level.INFO, () -> "***Token: Sleeping for " + SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC + " milliseconds before waitFocConnect API call.");
-            Thread.sleep(SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC);
-        } catch (InterruptedException e) {
-            LOGGER.log(Level.SEVERE, "****BeforeWaitSleep: Interrupted while sleeping.");
-            Thread.currentThread().interrupt();
-            throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
-        }
         updateUi("Preparing the token for data writing. Please wait.");
-
         try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(TOKEN_DROP_SLEEP_TIME_IN_SEC));
         } catch (InterruptedException e) {

@@ -82,7 +82,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
-    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 7;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 5;
 
     //***********************Fingerprint***************************//
 

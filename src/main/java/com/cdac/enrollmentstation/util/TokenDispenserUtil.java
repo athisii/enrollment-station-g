@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class TokenDispenserUtil {
     private static final Logger LOGGER = ApplicationLog.getLogger(TokenDispenserUtil.class);
     private static final String SERIAL_PORT_FILE;
-    private static final int SLEEP_TIME_IN_MILLI_SEC = 300; // can be stored in properties file to
+    private static final int SLEEP_TIME_IN_MILLI_SEC = 100; // can be stored in properties file to
 
     // Predefined instruction set for Token Dispenser
     private static final byte[] POLL_ADDR = {0x00, 0x00, 0x01, (byte) 0xFD, 0x02};

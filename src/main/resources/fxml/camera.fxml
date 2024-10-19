@@ -50,9 +50,10 @@
             <Region styleClass="min-height-small"/>
             <HBox alignment="CENTER">
                 <HBox styleClass="padding-medium, border-color-darkblue, border-radius-medium" alignment="CENTER">
-                    <HBox fx:id="_imgContainerLarge1" styleClass="img-container-large" alignment="CENTER">
-                        <ImageView fx:id="resultImageView" fitWidth="${_imgContainerLarge1.prefWidth}"
-                                   fitHeight="${_imgContainerLarge1.prefHeight}" preserveRatio="true"/>
+                    <HBox fx:id="_imgContainerXlarge1" styleClass="img-container-xlarge"
+                          alignment="CENTER">
+                        <ImageView fx:id="resultImageView" fitWidth="${_imgContainerXlarge1.prefWidth}"
+                                   fitHeight="${_imgContainerXlarge1.prefHeight}" preserveRatio="true"/>
                     </HBox>
                     <Region styleClass="min-width-large"/>
                     <VBox alignment="CENTER" styleClass="padding, border-radius-small, border-color-darkblue">

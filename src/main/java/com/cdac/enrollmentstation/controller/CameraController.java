@@ -245,7 +245,7 @@ public class CameraController extends AbstractBaseController {
     public void startCamera(ActionEvent actionEvent) {
         imageCaptureCount.getAndSet(0);
         validImage = false;
-        // if active then stop it
+        // if active, then stop it
         if (isCameraActive) {
             stopBtnClicked = true;
             disableControls(startStopCameraBtn);

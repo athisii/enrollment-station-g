@@ -77,22 +77,6 @@
                             text="LOGIN"/>
                 </HBox>
             </VBox>
-            <HBox fx:id="hostnameVBox" visible="false" managed="false">
-                <Region styleClass="min-width-large"/>
-                <VBox alignment="CENTER">
-                    <HBox alignment="TOP_RIGHT" styleClass="padding">
-                        <HBox styleClass="img-container">
-                            <ImageView fitWidth="${_imgContainer.prefWidth}" fitHeight="${_imgContainer.prefHeight}"
-                                       preserveRatio="true">
-                                <Image url="@../gif/settings.gif"/>
-                            </ImageView>
-                        </HBox>
-                        <Button fx:id="editHostnameIpBtn"
-                                styleClass="padding-small, press-effect, bg-border-radius-small"
-                                text="EDIT HOSTNAME/IP"/>
-                    </HBox>
-                </VBox>
-            </HBox>
         </HBox>
     </center>
     <bottom>

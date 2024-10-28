@@ -25,7 +25,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -78,7 +80,13 @@ public class ServerConfigController extends AbstractBaseController {
 
     @FXML
     public void homeBtnAction() throws IOException {
-        App.setRoot("main_screen");
+        if (App.getHostnameChanged() && "0".equalsIgnoreCase(PropertyFile.getProperty(PropertyName.INITIAL_SETUP))) {
+            App.setHostnameChanged(false);
+            disableControls(mafisUrlTextField, enrollmentStationIdTextField, fetchUnitsBtn, homeBtn, unitIdDropDownHBox);
+            App.getThreadPool().execute(this::rebootSystem);
+        } else {
+            App.setRoot("main_screen");
+        }
     }
 
     @FXML
@@ -103,6 +111,7 @@ public class ServerConfigController extends AbstractBaseController {
     private void saveUnitIdAndCaption(Unit unit) {
         PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_ID, unit.getValue());
         PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION, unit.getCaption());
+        PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "0"); // initial setup done.
         messageLabel.setText("Enrolment Station Unit ID updated successfully.");
     }
 
@@ -187,6 +196,17 @@ public class ServerConfigController extends AbstractBaseController {
         mafisUrlTextField.textProperty().addListener((observable, oldValue, newValue) -> saveMafisUrl(newValue));
 
         unitIdDropDownHBox.setOnMouseClicked(this::toggleUnitCaptionListView);
+
+        // Initial Setup check
+        if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
+            mafisUrlTextField.setDisable(false);
+            enrollmentStationIdTextField.setDisable(false);
+            fetchUnitsBtn.setDisable(false);
+            backBtn.setManaged(false);
+            backBtn.setVisible(false);
+            editBtn.setManaged(false);
+            editBtn.setVisible(false);
+        }
     }
 
     private void saveMafisUrl(String newValue) {
@@ -291,4 +311,36 @@ public class ServerConfigController extends AbstractBaseController {
         enableControls(backBtn, fetchUnitsBtn, homeBtn, editBtn);
         updateUi("Received an invalid data from the server.");
     }
+
+    private void rebootSystem() {
+        try {
+            int counter = 5;
+            while (counter >= 1) {
+                updateUi("Rebooting system to take effect in " + counter + " second(s)...");
+                Thread.sleep(1000);
+                counter--;
+            }
+            Process process = Runtime.getRuntime().exec("reboot");
+            BufferedReader error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String eline;
+            while ((eline = error.readLine()) != null) {
+                String finalEline = eline;
+                LOGGER.log(Level.INFO, () -> "***Error: " + finalEline);
+            }
+            error.close();
+            int exitVal = process.waitFor();
+            if (exitVal != 0) {
+                LOGGER.log(Level.INFO, () -> "***Error: Process Exit Value: " + exitVal);
+                updateUi(ApplicationConstant.GENERIC_ERR_MSG);
+            }
+        } catch (Exception ex) {
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            LOGGER.log(Level.INFO, () -> "**Error while rebooting: " + ex.getMessage());
+            updateUi(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        enableControls(mafisUrlTextField, enrollmentStationIdTextField, fetchUnitsBtn, homeBtn, unitIdDropDownHBox);
+    }
+
 }

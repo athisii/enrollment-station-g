@@ -1,11 +1,9 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.AuthUtil;
-import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -39,8 +37,6 @@ public class AdminAuthController extends AbstractBaseController {
     @FXML
     private BorderPane rootBorderPane;
     @FXML
-    private Button editHostnameIpBtn;
-    @FXML
     private Button backBtn;
     @FXML
     private Button loginBtn;
@@ -52,8 +48,6 @@ public class AdminAuthController extends AbstractBaseController {
 
     @FXML
     private TextField username;
-    @FXML
-    private HBox hostnameVBox;
 
     @FXML
     public void showHome() throws IOException {
@@ -127,19 +121,6 @@ public class AdminAuthController extends AbstractBaseController {
                 loginBtnAction();
             }
         });
-        editHostnameIpBtn.setOnAction(event -> editHostnameIpBtnAction());
-        if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
-            hostnameVBox.setVisible(true);
-            hostnameVBox.setManaged(true);
-        }
-    }
-
-    private void editHostnameIpBtnAction() {
-        try {
-            App.setRoot("hostname_ip");
-        } catch (IOException ex) {
-            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
-        }
     }
 
     private void limitCharacters(TextField textField, String oldValue, String newValue) {

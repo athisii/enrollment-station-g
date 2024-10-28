@@ -1,7 +1,9 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -53,7 +55,11 @@ public class PrimaryController extends AbstractBaseController {
 
     @FXML
     public void onSettings() throws IOException {
-        App.setRoot("admin_auth");
+        if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
+            App.setRoot("hostname_ip");
+        } else {
+            App.setRoot("admin_auth");
+        }
     }
 
 

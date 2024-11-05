@@ -271,12 +271,12 @@ public class HostnameIpController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
+            PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS
             if ("0".equals(PropertyFile.getProperty(PropertyName.ENV).trim())) {
                 // test connection with the ldap server: only proceed if connection is established
                 DirectoryLookup.doLookup("test", "password");
             }
-            PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
             if (!getHostname().equals(hostnameTextField.getText())) {
                 setHostname();
                 App.setHostnameChanged(true);
@@ -292,10 +292,9 @@ public class HostnameIpController extends AbstractBaseController {
                 updateUI(ex.getMessage());
                 return;
             }
+            LOGGER.log(Level.INFO, () -> "Error: " + ex.getMessage());
+            enableControls(backBtn);
         }
-        enableControls(backBtn);
-        LOGGER.log(Level.INFO, () -> "System configuration saved successfully.");
-        updateUI("System configuration updated successfully.");
     }
 
     private void updateUI(String message) {

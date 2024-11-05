@@ -50,7 +50,7 @@
                                 </ImageView>
                             </HBox>
                             <Region styleClass="min-width-medium"/>
-                            <TextField fx:id="username" promptText="Username" styleClass="input-field"/>
+                            <TextField fx:id="usernameTextField" promptText="Username" styleClass="input-field"/>
                         </HBox>
                         <Region styleClass="min-height-medium"/>
                         <HBox alignment="CENTER">

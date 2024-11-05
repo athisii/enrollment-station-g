@@ -1,9 +1,13 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.api.MafisServerApi;
+import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.UserResDto;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.AuthUtil;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -15,7 +19,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
@@ -24,16 +27,11 @@ import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 
-/**
- * FXML Controller class
- *
- * @author root
- */
 public class AdminAuthController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
 
     private static final int MAX_LENGTH = 30;
-    private static volatile boolean isDone = false;
+    private volatile boolean isDone = false;
     @FXML
     private BorderPane rootBorderPane;
     @FXML
@@ -47,7 +45,7 @@ public class AdminAuthController extends AbstractBaseController {
     private PasswordField passwordField;
 
     @FXML
-    private TextField username;
+    private TextField usernameTextField;
 
     @FXML
     public void showHome() throws IOException {
@@ -57,7 +55,7 @@ public class AdminAuthController extends AbstractBaseController {
 
     @FXML
     public void loginBtnAction() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
             if (!isDone) {
                 statusMsg.setText("The server is taking more time than expected. Kindly try again.");
                 enableControls(backBtn, loginBtn);
@@ -71,7 +69,11 @@ public class AdminAuthController extends AbstractBaseController {
 
     private void authenticateUser() {
         try {
-            if (AuthUtil.authenticate(username.getText(), passwordField.getText())) {
+            if (!"admin".equalsIgnoreCase(usernameTextField.getText())) {
+                MafisServerApi.validateUserCategory(new UserResDto(usernameTextField.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "FES", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
+                LOGGER.info("Done validating user category.");
+            }
+            if (AuthUtil.authenticate(usernameTextField.getText(), passwordField.getText())) {
                 // must set on JavaFX thread.
                 Platform.runLater(() -> {
                     try {
@@ -103,11 +105,11 @@ public class AdminAuthController extends AbstractBaseController {
             }
         });
         // restrict the TextField Length
-        username.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(username, oldValue, newValue));
+        usernameTextField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(usernameTextField, oldValue, newValue));
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> limitCharacters(passwordField, oldValue, newValue));
 
         // ease of use for operator
-        username.setOnKeyPressed(event -> {
+        usernameTextField.setOnKeyPressed(event -> {
             if (event.getCode().equals(KeyCode.ENTER)) {
                 passwordField.requestFocus();
                 event.consume();
@@ -135,8 +137,8 @@ public class AdminAuthController extends AbstractBaseController {
 
     private void clearUiControls() {
         Platform.runLater(() -> {
-            username.requestFocus();
-            username.setText("");
+            usernameTextField.requestFocus();
+            usernameTextField.setText("");
             passwordField.setText("");
         });
     }

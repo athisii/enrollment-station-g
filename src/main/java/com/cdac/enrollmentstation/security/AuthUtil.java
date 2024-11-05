@@ -35,11 +35,11 @@ public class AuthUtil {
             // DEV environment
             LOGGER.log(Level.INFO, () -> "***** Authenticating using properties ********");
             String adminPasswd = PropertyFile.getProperty(PropertyName.ADMIN_PASSWD);
-            if (adminPasswd == null || adminPasswd.isBlank()) {
+            if (adminPasswd.isBlank()) {
                 LOGGER.log(Level.SEVERE, "No entry for '" + PropertyName.ADMIN_PASSWD + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
                 throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
             }
-            return adminPasswd.equals(password);
+            return HashUtil.isSame(adminPasswd, HashUtil.hashPassword(password));
         }
     }
 }

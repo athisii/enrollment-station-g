@@ -293,7 +293,7 @@ public class MafisServerApi {
      */
     public static String getMafisApiUrl() {
         String mafisServerApi = PropertyFile.getProperty(PropertyName.MAFIS_API_URL);
-        if (mafisServerApi == null || mafisServerApi.isBlank()) {
+        if (mafisServerApi.isBlank()) {
             LOGGER.log(Level.SEVERE, () -> "'mafis.api.url' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
             throw new GenericException("'mafis.api.url' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
         }
@@ -306,7 +306,7 @@ public class MafisServerApi {
 
     public static String getEnrollmentStationId() {
         String enrollmentStationId = PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID);
-        if (enrollmentStationId == null || enrollmentStationId.isBlank()) {
+        if (enrollmentStationId.isBlank()) {
             throw new GenericException("'enrollment.station.id' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
         }
         return enrollmentStationId;
@@ -314,7 +314,7 @@ public class MafisServerApi {
 
     public static String getEnrollmentStationUnitId() {
         String enrollmentStationUnitId = PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID);
-        if (enrollmentStationUnitId == null || enrollmentStationUnitId.isBlank()) {
+        if (enrollmentStationUnitId.isBlank()) {
             throw new GenericException("'enrollment.station.unit.id' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
         }
         return enrollmentStationUnitId;
@@ -340,4 +340,58 @@ public class MafisServerApi {
         return getMafisApiUrl() + "/UpdateTokenStatus";
     }
 
+    /**
+     * Fetches all whitelisted card details.
+     * Caller must handle the exception.
+     *
+     * @throws GenericException exception on connection timeout, error, json parsing exception etc.
+     */
+
+    public static List<CardWhitelistDetail> fetchWhitelistedCard() {
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createGetHttpRequest(whitelistedCardApiUrl()));
+        CardWhitelistResDto cardWhitelistResDto;
+        try {
+            cardWhitelistResDto = Singleton.getObjectMapper().readValue(response.body(), CardWhitelistResDto.class);
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        if (cardWhitelistResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + cardWhitelistResDto.getDesc());
+            throw new GenericException(cardWhitelistResDto.getDesc());
+        }
+        return cardWhitelistResDto.getCardWhitelistDetails();
+    }
+
+    public static String whitelistedCardApiUrl() {
+        return getMafisApiUrl() + "/GetCardWhitelistDetails";
+    }
+
+
+    public static void validateUserCategory(UserResDto userResDto) {
+        String jsonRequestData;
+        try {
+            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(userResDto);
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getUserUrl(), jsonRequestData));
+        CommonResDto commonResDto;
+        try {
+            commonResDto = Singleton.getObjectMapper().readValue(response.body(), CommonResDto.class);
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        if (commonResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + commonResDto.getDesc());
+            throw new GenericException(commonResDto.getDesc());
+        }
+    }
+
+    public static String getUserUrl() {
+        return getMafisApiUrl() + "/GetDetailValidFesPesUser";
+    }
 }

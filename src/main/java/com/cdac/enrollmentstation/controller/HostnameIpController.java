@@ -109,6 +109,7 @@ public class HostnameIpController extends AbstractBaseController {
             updateUI(ex.getMessage());
             return;
         }
+        disableControls(saveBtn);
         messageLabel.setText("System configuration reset successfully.");
     }
 
@@ -280,6 +281,12 @@ public class HostnameIpController extends AbstractBaseController {
             if (!getHostname().equals(hostnameTextField.getText())) {
                 setHostname();
                 App.setHostnameChanged(true);
+            }
+            if ("0".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
+                enableControls(backBtn, saveBtn, defaultBtn, hostnameTextField, ipAddressTextField, subnetMaskTextField, defaultGatewayTextField, dnsIpTextField, ldapUrlTextField);
+                PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "0"); // initial setup done.
+                updateUI("System configuration updated successfully.");
+                return;
             }
             App.setRoot("server_config");
         } catch (Exception ex) {

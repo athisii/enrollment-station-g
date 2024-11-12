@@ -80,7 +80,7 @@ public class ServerConfigController extends AbstractBaseController {
 
     @FXML
     public void homeBtnAction() throws IOException {
-        if (App.getHostnameChanged() && "0".equalsIgnoreCase(PropertyFile.getProperty(PropertyName.INITIAL_SETUP))) {
+        if (App.getHostnameChanged() && "0".equalsIgnoreCase(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
             App.setHostnameChanged(false);
             disableControls(mafisUrlTextField, enrollmentStationIdTextField, fetchUnitsBtn, homeBtn, unitIdDropDownHBox);
             App.getThreadPool().execute(this::rebootSystem);

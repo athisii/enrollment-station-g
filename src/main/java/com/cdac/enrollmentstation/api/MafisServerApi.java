@@ -10,6 +10,7 @@ import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.HmacUtil;
 import com.cdac.enrollmentstation.security.PkiUtil;
+import com.cdac.enrollmentstation.util.DHUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +18,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.Key;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +32,7 @@ import java.util.logging.Logger;
 public class MafisServerApi {
     private static final String UNIQUE_KEY_HEADER = "UniqueKey";
     private static final String HASH_KEY_HEADER = "HashKey";
+    private static final String PUBLIC_KEY_HEADER = "PublicKey";
 
     private static final Logger LOGGER = ApplicationLog.getLogger(MafisServerApi.class);
 
@@ -67,7 +71,7 @@ public class MafisServerApi {
     }
 
     /**
-     * Sends http post request.
+     * Sends http post-request.
      * Caller must handle the exception.
      *
      * @param data request payload
@@ -77,11 +81,33 @@ public class MafisServerApi {
     public static CommonResDto postEnrollment(String data) {
         // to avoid encrypt/decrypt problems
         data = data.replace("\n", "");
-        String receivedData = encryptAndSendToServer(data, getSaveEnrollmentUrl());
+
+        // assigns a random secret key at each call
+        String secret = Aes256Util.genUuid();
+        Key key = Aes256Util.genKey(secret);
+        // for sending base64 encoded encrypted SECRET KEY to server in HEADER
+        byte[] pkiEncryptedUniqueKey = PkiUtil.encrypt(secret);
+        String base64EncodedPkiEncryptedUniqueKey = Base64.getEncoder().encodeToString(pkiEncryptedUniqueKey);
+
+        // encrypts the actual data passed from the method's argument and encoded to base64
+        byte[] encryptedData = Aes256Util.encrypt(data, key);
+        String base64EncodedEncryptedData = Base64.getEncoder().encodeToString(encryptedData);
+
+        // hashKey header
+        String messageDigest = HmacUtil.genHmacSha256(base64EncodedEncryptedData, secret);
+
+        // need to add unique-key, hash value in request header
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put(UNIQUE_KEY_HEADER, base64EncodedPkiEncryptedUniqueKey);
+        headersMap.put(HASH_KEY_HEADER, messageDigest);
+
+        HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(getSaveEnrollmentUrl(), base64EncodedEncryptedData, headersMap);
+        HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
+
         // response data from server
         CommonResDto resDto;
         try {
-            resDto = Singleton.getObjectMapper().readValue(receivedData, CommonResDto.class);
+            resDto = Singleton.getObjectMapper().readValue(httpResponse.body(), CommonResDto.class);
         } catch (JsonProcessingException ignored) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_READ_ERR_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
@@ -140,6 +166,7 @@ public class MafisServerApi {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
+
         String receivedData = encryptAndSendToServer(data, getLabourListUrl());
         // response data from server
         LabourResDto labourResDto;
@@ -196,23 +223,28 @@ public class MafisServerApi {
         // hashKey header
         String messageDigest = HmacUtil.genHmacSha256(base64EncodedEncryptedData, secret);
 
+        KeyPair keyPair = DHUtil.generateKeyPair("EC", "secp256r1");
+
         // need to add unique-key, hash value in request header
         Map<String, String> headersMap = new HashMap<>();
         headersMap.put(UNIQUE_KEY_HEADER, base64EncodedPkiEncryptedUniqueKey);
         headersMap.put(HASH_KEY_HEADER, messageDigest);
+        headersMap.put(PUBLIC_KEY_HEADER, Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
 
         HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(url, base64EncodedEncryptedData, headersMap);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
-        Optional<String> base64EncodedUniqueKeyOptional = httpResponse.headers().firstValue(UNIQUE_KEY_HEADER);
+        Optional<String> base64EncodedUniqueKeyOptional = httpResponse.headers().firstValue(PUBLIC_KEY_HEADER);
 
         if (base64EncodedUniqueKeyOptional.isEmpty()) {
-            LOGGER.log(Level.SEVERE, "Unique key header not found in http response");
-            throw new GenericException("There are some technical issues in saving biometric data. Kindly provide your biometrics again.");
+            LOGGER.log(Level.SEVERE, "Public key header not found in http response");
+            throw new GenericException("There are some technical issues in fetching labour list. Kindly try again.");
         }
         // received base64 encoded encrypted secret key from server
-        byte[] encryptedSecretKey = Base64.getDecoder().decode(base64EncodedUniqueKeyOptional.get());
-        secret = PkiUtil.decrypt(encryptedSecretKey);
-        key = Aes256Util.genKey(secret);
+        byte[] mafisPublicKeyBytes = Base64.getDecoder().decode(base64EncodedUniqueKeyOptional.get());
+        PublicKey mafisPublicKey = DHUtil.generatePublicKey(mafisPublicKeyBytes, "EC");
+        byte[] sharedSecretBytes = DHUtil.generateSharedSecretBytes(keyPair.getPrivate(), mafisPublicKey, "ECDH");
+
+        key = Aes256Util.genKey(Arrays.copyOfRange(sharedSecretBytes, 0, 16));
 
         // Received base64 encoded encrypted data
         byte[] encryptedResponseBody = Base64.getDecoder().decode(httpResponse.body());

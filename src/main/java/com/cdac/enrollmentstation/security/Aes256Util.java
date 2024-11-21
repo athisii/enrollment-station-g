@@ -50,6 +50,11 @@ public class Aes256Util {
 
     }
 
+    public static Key genKey(byte[] secretKey) {
+        return new SecretKeySpec(secretKey, "AES");
+
+    }
+
     // returns encrypted bytes
     public static byte[] encrypt(String data, Key key) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {

@@ -1,15 +1,12 @@
 package com.cdac.enrollmentstation.util;
 
-import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.exception.GenericException;
-import com.cdac.enrollmentstation.logging.ApplicationLog;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * @author athisii, CDAC
@@ -61,6 +58,5 @@ public class PropertyFile {
             throw new GenericException("Error occurred while writing properties file");
         }
         reloadProperty();
-
     }
 }

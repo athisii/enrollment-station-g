@@ -193,21 +193,20 @@ public class Asn1CardTokenUtil {
      * @throws GenericException - on null, io
      */
     public static byte[] extractFromAsn1EncodedStaticData(byte[] bytes, int index) {
-        try {
-            ASN1InputStream asn1InputStream = new ASN1InputStream(new ByteArrayInputStream(bytes));
+        try (ASN1InputStream asn1InputStream = new ASN1InputStream(new ByteArrayInputStream(bytes))) {
             ASN1Primitive asn1Primitive = asn1InputStream.readObject();
             if (asn1Primitive instanceof ASN1Sequence) {
                 ASN1Sequence asn1Sequence = ASN1Sequence.getInstance(asn1Primitive);
                 ASN1Encodable asn1SequenceObject = asn1Sequence.getObjectAt(index);
-                if (asn1SequenceObject instanceof ASN1OctetString) {
+                if (asn1SequenceObject instanceof ASN1OctetString asn1OctetString) {
                     LOGGER.log(Level.INFO, "****ExtractFromAsn1EncodedStaticData: OctetString type parsed.");
-                    return ((ASN1OctetString) asn1SequenceObject).getOctets(); // encoded in hex
+                    return asn1OctetString.getOctets(); // encoded in hex
                 }
                 return asn1SequenceObject.toString().getBytes();
             }
-            if (asn1Primitive instanceof ASN1OctetString) {
+            if (asn1Primitive instanceof ASN1OctetString asn1OctetString) {
                 LOGGER.log(Level.INFO, "****ExtractFromAsn1EncodedStaticData: OctetString type parsed.");
-                return ((ASN1OctetString) asn1Primitive).getOctets();
+                return asn1OctetString.getOctets();
             }
             return asn1Primitive.toString().getBytes();
         } catch (Exception ex) {

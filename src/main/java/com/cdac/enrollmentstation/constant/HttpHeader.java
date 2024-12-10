@@ -6,8 +6,6 @@ package com.cdac.enrollmentstation.constant;
  */
 
 public class HttpHeader {
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER = "Bearer ";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String ACCEPT = "Accept";
 

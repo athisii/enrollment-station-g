@@ -378,15 +378,16 @@ public class CameraController extends AbstractBaseController {
             enableControls(backBtn);
             return;
         }
+        BufferedReader input = null;
+        BufferedReader error = null;
         try {
             Process pr = Runtime.getRuntime().exec(PYTHON_IMAGE_PROCESSOR_COMMAND);
-            BufferedReader input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
-            BufferedReader error = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
+            input = new BufferedReader(new InputStreamReader(pr.getInputStream()));
+            error = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
             String eline;
             while ((eline = error.readLine()) != null) {
                 LOGGER.log(Level.SEVERE, eline);
             }
-            error.close();
             String line;
             while ((line = input.readLine()) != null) {
                 if (line.contains("Valid")) {
@@ -401,7 +402,6 @@ public class CameraController extends AbstractBaseController {
                     LOGGER.log(Level.INFO, () -> "Valued read from python process: " + finalLine);
                 }
             }
-            input.close();
             int exitVal = pr.waitFor();
             LOGGER.log(Level.INFO, () -> "Process Exit Value: " + exitVal);
             updateUIOnValidImageAndNormalExit(exitVal);
@@ -411,6 +411,17 @@ public class CameraController extends AbstractBaseController {
             shutdownExecutorServiceAndReleaseResource();
             Thread.currentThread().interrupt();
             enableControls(backBtn);
+        } finally {
+            try {
+                if (error != null) {
+                    error.close();
+                }
+                if (input != null) {
+                    input.close();
+                }
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e::getMessage);
+            }
         }
     }
 

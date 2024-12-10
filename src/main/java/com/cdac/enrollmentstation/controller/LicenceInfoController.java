@@ -74,10 +74,11 @@ public class LicenceInfoController extends AbstractBaseController {
     private void fetchLicenceDetails() {
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("bash", "-c", "/usr/share/enrollment/ansi/license_manager_cli -p");
+        BufferedReader reader = null;
         try {
             finScannerInfo.setText("");
             Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 finScannerInfo.setText(line);
@@ -89,6 +90,13 @@ public class LicenceInfoController extends AbstractBaseController {
             }
             LOGGER.log(Level.SEVERE, ex.getMessage());
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        try {
+            if (reader != null) {
+                reader.close();
+            }
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e::getMessage);
         }
     }
 

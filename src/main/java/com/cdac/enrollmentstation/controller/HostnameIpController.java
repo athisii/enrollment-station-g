@@ -281,7 +281,7 @@ public class HostnameIpController extends AbstractBaseController {
 //            // only do for production as there is no ldap connection in MISCOS
             if ("0".equals(PropertyFile.getProperty(PropertyName.ENV).trim())) {
                 // test connection with the ldap server: only proceed if connection is established
-                DirectoryLookup.doLookup("test", "password");
+                DirectoryLookup.doLookup("1234567", "test@password");
             }
             if (!getHostname().equals(hostnameTextField.getText())) {
                 setHostname();
@@ -295,13 +295,13 @@ public class HostnameIpController extends AbstractBaseController {
             }
             App.setRoot("server_config");
         } catch (Exception ex) {
+            updateUI(ex.getMessage());
             if (!ApplicationConstant.INVALID_CREDENTIALS.equals(ex.getMessage())) {
                 enableControls(backBtn, saveBtn, defaultBtn, hostnameTextField, ipAddressTextField, subnetMaskTextField, defaultGatewayTextField, dnsIpTextField, ldapUrlTextField);
                 LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
                 if (ex instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                 }
-                updateUI(ex.getMessage());
                 return;
             }
             LOGGER.log(Level.INFO, () -> "Error: " + ex.getMessage());

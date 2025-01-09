@@ -4,6 +4,7 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.DirectoryLookup;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.AuthException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
@@ -24,6 +25,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -277,35 +279,35 @@ public class HostnameIpController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
+            Thread.sleep(Duration.ofSeconds(3).toMillis()); // sleeps for nic to get the new ip
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS
             if ("0".equals(PropertyFile.getProperty(PropertyName.ENV).trim())) {
                 // test connection with the ldap server: only proceed if connection is established
-                DirectoryLookup.doLookup("1234567", "test@password");
+                try {
+                    DirectoryLookup.doLookup("1234567", "test@password");
+                } catch (AuthException ex) {
+                    LOGGER.log(Level.INFO, () -> "Ignoring auth failure for the test connection.");
+                }
             }
             if (!getHostname().equals(hostnameTextField.getText())) {
                 setHostname();
                 App.setHostnameChanged(true);
             }
+            // edit host configuration after login from the setting page.
             if ("0".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
                 enableControls(backBtn, saveBtn, defaultBtn, hostnameTextField, ipAddressTextField, subnetMaskTextField, defaultGatewayTextField, dnsIpTextField, ldapUrlTextField);
-                PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "0"); // initial setup done.
                 updateUI("System configuration updated successfully.");
                 return;
             }
             App.setRoot("server_config");
         } catch (Exception ex) {
+            LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
             updateUI(ex.getMessage());
-            if (!ApplicationConstant.INVALID_CREDENTIALS.equals(ex.getMessage())) {
-                enableControls(backBtn, saveBtn, defaultBtn, hostnameTextField, ipAddressTextField, subnetMaskTextField, defaultGatewayTextField, dnsIpTextField, ldapUrlTextField);
-                LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
-                if (ex instanceof InterruptedException) {
-                    Thread.currentThread().interrupt();
-                }
-                return;
+            enableControls(backBtn, saveBtn, defaultBtn, hostnameTextField, ipAddressTextField, subnetMaskTextField, defaultGatewayTextField, dnsIpTextField, ldapUrlTextField);
+            if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
             }
-            LOGGER.log(Level.INFO, () -> "Error: " + ex.getMessage());
-            enableControls(backBtn);
         }
     }
 

@@ -69,7 +69,9 @@ public class AdminAuthController extends AbstractBaseController {
 
     private void authenticateUser() {
         try {
-            if (!"admin".equalsIgnoreCase(usernameTextField.getText())) {
+            // PROD environment
+            if ("0".equals(PropertyFile.getProperty(PropertyName.ENV))) {
+                LOGGER.log(Level.INFO, () -> "*****  Validating user category ********");
                 // Hardware Type Mapping:
                 //      PES - 1
                 //      FES - 2

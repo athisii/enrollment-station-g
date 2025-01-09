@@ -2,6 +2,7 @@ package com.cdac.enrollmentstation.api;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.exception.AuthException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
@@ -46,7 +47,7 @@ public class DirectoryLookup {
             return true;
         } catch (AuthenticationException ex) {
             LOGGER.log(Level.SEVERE, () -> "Failed to authenticate user.");
-            throw new GenericException(ApplicationConstant.INVALID_CREDENTIALS);
+            throw new AuthException(ApplicationConstant.INVALID_CREDENTIALS);
         } catch (CommunicationException ex) {
             LOGGER.log(Level.SEVERE, "Communication Exception Occurred:  ", ex);
             throw new GenericException("Failed to connect with the LDAP server.");

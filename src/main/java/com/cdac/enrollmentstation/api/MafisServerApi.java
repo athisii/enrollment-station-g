@@ -337,22 +337,6 @@ public class MafisServerApi {
         return mafisServerApi + "/api/EnrollmentStation";
     }
 
-    public static String getEnrollmentStationId() {
-        String enrollmentStationId = PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID);
-        if (enrollmentStationId.isBlank()) {
-            throw new GenericException("'enrollment.station.id' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        return enrollmentStationId;
-    }
-
-    public static String getEnrollmentStationUnitId() {
-        String enrollmentStationUnitId = PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID);
-        if (enrollmentStationUnitId.isBlank()) {
-            throw new GenericException("'enrollment.station.unit.id' not found or is empty in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        return enrollmentStationUnitId;
-    }
-
     public static String getArcUrl() {
         return getMafisApiUrl() + "/GetDetailsByARCNo";
     }
@@ -402,16 +386,16 @@ public class MafisServerApi {
     }
 
 
-    public static void validateUserCategory(UserResDto userResDto) {
+    public static void validateUserCategory(UserReqDto userReqDto) {
         String jsonRequestData;
         try {
-            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(userResDto);
+            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(userReqDto);
         } catch (JsonProcessingException e) {
             LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
 
-        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getUserUrl(), jsonRequestData));
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getUserValidationUrl(), jsonRequestData));
         CommonResDto commonResDto;
         try {
             commonResDto = Singleton.getObjectMapper().readValue(response.body(), CommonResDto.class);
@@ -426,7 +410,68 @@ public class MafisServerApi {
         }
     }
 
-    public static String getUserUrl() {
+    public static String getUserValidationUrl() {
         return getMafisApiUrl() + "/GetDetailValidFesPesUser";
     }
+
+    public static OnboardingResDto fetchOnboardingDetails(OnboardingReqDto onboardingReqDto) {
+        String jsonRequestData;
+        try {
+            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(onboardingReqDto);
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getOnboardingDetailsUrl(), jsonRequestData));
+        OnboardingResDto onboardingResDto;
+        try {
+            onboardingResDto = Singleton.getObjectMapper().readValue(response.body(), OnboardingResDto.class);
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + onboardingResDto.getErrorCode());
+        if (onboardingResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + onboardingResDto.getDesc());
+            throw new GenericException(onboardingResDto.getDesc());
+        }
+        if (onboardingResDto.getDeviceSerialNos() == null || onboardingResDto.getDeviceSerialNos().isEmpty()) {
+            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: Null or received an empty list of device serial numbers.");
+            throw new GenericException("No FES device serial number available for the selected unit.");
+        }
+        return onboardingResDto;
+    }
+
+    public static String getOnboardingDetailsUrl() {
+        return getMafisApiUrl() + "/GetOnboardingDetailsFesPes";
+    }
+
+    public static void updateOnboarding(UpdateOnboardingReqDto updateOnboardingReqDto) {
+        String jsonRequestData;
+        try {
+            jsonRequestData = Singleton.getObjectMapper().writeValueAsString(updateOnboardingReqDto);
+        } catch (JsonProcessingException e) {
+            LOGGER.log(Level.SEVERE, ApplicationConstant.JSON_WRITE_ER_MSG);
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+
+        HttpResponse<String> response = HttpUtil.sendHttpRequest(HttpUtil.createPostHttpRequest(getUpdateOnboardingUrl(), jsonRequestData));
+        CommonResDto commonResDto;
+        try {
+            commonResDto = Singleton.getObjectMapper().readValue(response.body(), CommonResDto.class);
+        } catch (JsonProcessingException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+        LOGGER.log(Level.INFO, () -> "***ServerResponseErrorCode: " + commonResDto.getErrorCode());
+        if (commonResDto.getErrorCode() != 0) {
+            LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + commonResDto.getDesc());
+            throw new GenericException(commonResDto.getDesc());
+        }
+    }
+
+    public static String getUpdateOnboardingUrl() {
+        return getMafisApiUrl() + "/UpdateOnboardingDetailsFesPes";
+    }
+
 }

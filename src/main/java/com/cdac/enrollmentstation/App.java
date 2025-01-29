@@ -15,6 +15,7 @@ import javafx.stage.StageStyle;
 import org.opencv.core.Core;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +31,8 @@ public final class App extends Application {
     private static AbstractBaseController controller;
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     private static volatile boolean hostnameChanged = false;
-
+    private static volatile String pno;
+    private static List<String> enrollmentStationIds;
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
 
@@ -47,6 +49,7 @@ public final class App extends Application {
             Platform.exit();
             System.exit(0);
         });
+
         scene = new Scene(loadFXML("main_screen"), DisplayUtil.SCREEN_WIDTH, DisplayUtil.SCREEN_HEIGHT);
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             LOGGER.log(Level.SEVERE, "**Uncaught Exception Error: ", throwable);
@@ -83,6 +86,22 @@ public final class App extends Application {
 
     public static boolean getHostnameChanged() {
         return App.hostnameChanged;
+    }
+
+    public static void setPno(String pno) {
+        App.pno = pno;
+    }
+
+    public static String getPno() {
+        return App.pno;
+    }
+
+    public static void setEnrollmentStationIds(List<String> enrollmentStationIds) {
+        App.enrollmentStationIds = enrollmentStationIds.stream().sorted().toList();
+    }
+
+    public static List<String> getEnrollmentStationIds() {
+        return App.enrollmentStationIds;
     }
 
     public static ExecutorService getThreadPool() {

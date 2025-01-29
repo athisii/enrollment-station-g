@@ -3,11 +3,13 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -144,8 +146,8 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
         }
 
         // common properties
-        saveEnrollmentDetail.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
-        saveEnrollmentDetail.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
+        saveEnrollmentDetail.setEnrollmentStationId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID));
+        saveEnrollmentDetail.setEnrollmentStationUnitId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
         saveEnrollmentDetail.setEnrollmentDate(formatter.format(date));
@@ -241,8 +243,6 @@ public class BiometricCaptureCompleteController extends AbstractBaseController {
             progressIndicator.setVisible(false);
         });
     }
-
-    // adds photo to GLOBAL saveEnrollment object
 
     private void onErrorUpdateUiControls(String message) {
         Platform.runLater(() -> {

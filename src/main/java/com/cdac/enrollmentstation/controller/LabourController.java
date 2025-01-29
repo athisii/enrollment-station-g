@@ -654,9 +654,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         tokenReqDto.setContractorCsn(contractorCardInfo.getCardChipSerialNo());
         tokenReqDto.setContractorId(contractorCardInfo.getContractorId());
         tokenReqDto.setContractId(contractorCardInfo.getContractId());
-        tokenReqDto.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
+        tokenReqDto.setEnrollmentStationUnitId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID));
         tokenReqDto.setUniqueNo(labourId);
-        tokenReqDto.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
+        tokenReqDto.setEnrollmentStationId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID));
         tokenReqDto.setTokenId(tokenNumber);
         tokenReqDto.setVerifyFpSerialNo(deviceInfo.SerialNo);
         tokenReqDto.setLabourStatus("Success");

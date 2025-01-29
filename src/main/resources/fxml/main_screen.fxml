@@ -38,35 +38,43 @@
         </HBox>
     </right>
     <center>
-        <HBox alignment="CENTER">
-            <VBox alignment="CENTER">
-                <!--  id: _imgContainerXLarge -> only used in fxml expression       -->
-                <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
-                <HBox fx:id="_imgContainerXLarge" styleClass="img-container-xlarge" alignment="CENTER">
-                    <ImageView fitWidth="${_imgContainerXLarge.prefWidth}" fitHeight="${_imgContainerXLarge.prefHeight}"
-                               preserveRatio="true">
-                        <Image url="@../gif/biometric.gif"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-height-medium"/>
-                <Button fx:id="biometricEnrollmentBtn" styleClass="btn-large, press-effect"
-                        onAction="#showEnrollmentHome"
-                        text="BIOMETRIC ENROLMENT"/>
+        <VBox alignment="CENTER" >
+            <HBox alignment="CENTER">
+                <VBox alignment="CENTER">
+                    <!--  id: _imgContainerXLarge -> only used in fxml expression       -->
+                    <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+                    <HBox fx:id="_imgContainerXLarge" styleClass="img-container-xlarge" alignment="CENTER">
+                        <ImageView fitWidth="${_imgContainerXLarge.prefWidth}"
+                                   fitHeight="${_imgContainerXLarge.prefHeight}"
+                                   preserveRatio="true">
+                            <Image url="@../gif/biometric.gif"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <Button fx:id="biometricEnrollmentBtn" styleClass="btn-large, press-effect"
+                            onAction="#showEnrollmentHome"
+                            text="BIOMETRIC ENROLMENT"/>
+                </VBox>
+                <Region styleClass="min-width-xlarge"/>
+                <VBox alignment="CENTER">
+                    <HBox styleClass="img-container-xlarge" alignment="CENTER">
+                        <!--  reusing id: _imgContainerXLarge    -->
+                        <ImageView fitWidth="${_imgContainerXLarge.prefWidth}"
+                                   fitHeight="${_imgContainerXLarge.prefHeight}">
+                            <Image url="@../img/token_new.png"/>
+                        </ImageView>
+                    </HBox>
+                    <Region styleClass="min-height-medium"/>
+                    <Button fx:id="tokenIssuanceBtn" styleClass="btn-large, press-effect" onAction="#showContract"
+                            text="TOKEN ISSUANCE"/>
+                </VBox>
+            </HBox>
+            <VBox fx:id="onboardMsgVBox" alignment="BASELINE_CENTER" managed="false">
+                <Region styleClass="min-height-xlarge"/>
+                <Region styleClass="min-height-xlarge"/>
+                <Label styleClass="font-size-medium" textFill="blue" text="Kindly onboard by clicking the Settings button."/>
             </VBox>
-            <Region styleClass="min-width-xlarge"/>
-            <VBox alignment="CENTER">
-                <HBox styleClass="img-container-xlarge" alignment="CENTER">
-                    <!--  reusing id: _imgContainerXLarge    -->
-                    <ImageView fitWidth="${_imgContainerXLarge.prefWidth}"
-                               fitHeight="${_imgContainerXLarge.prefHeight}">
-                        <Image url="@../img/token_new.png"/>
-                    </ImageView>
-                </HBox>
-                <Region styleClass="min-height-medium"/>
-                <Button styleClass="btn-large, press-effect" onAction="#showContract"
-                        text="TOKEN ISSUANCE"/>
-            </VBox>
-        </HBox>
+        </VBox>
     </center>
     <bottom>
         <HBox styleClass="padding, bg-color-bright-blue" alignment="CENTER">

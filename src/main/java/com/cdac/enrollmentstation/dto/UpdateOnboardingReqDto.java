@@ -4,18 +4,17 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 /**
- * @author athisii, CDAC
- * Created on 18/05/23
+ * @author athisii
+ * @version 1.0
+ * @since 1/29/25
  */
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserResDto {
-    String pno; // 0930065B
+public class UpdateOnboardingReqDto {
     String deviceSerialNo;
-    String hardwareType;
     String unitCode;
 }

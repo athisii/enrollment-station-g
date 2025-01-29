@@ -5,9 +5,11 @@ import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -23,6 +25,12 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 public class PrimaryController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(PrimaryController.class);
     @FXML
+    private Button biometricEnrollmentBtn;
+    @FXML
+    private Button tokenIssuanceBtn;
+    @FXML
+    private VBox onboardMsgVBox;
+    @FXML
     private BorderPane rootBorderPane;
 
     public void initialize() {
@@ -31,6 +39,11 @@ public class PrimaryController extends AbstractBaseController {
                 keyEvent.consume();
             }
         });
+        if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
+            biometricEnrollmentBtn.setDisable(true);
+            tokenIssuanceBtn.setDisable(true);
+            onboardMsgVBox.setManaged(true);
+        }
     }
 
     @FXML
@@ -56,7 +69,7 @@ public class PrimaryController extends AbstractBaseController {
     @FXML
     public void onSettings() throws IOException {
         if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
-            App.setRoot("hostname_ip");
+            App.setRoot("init_setup_network_config");
         } else {
             App.setRoot("admin_auth");
         }

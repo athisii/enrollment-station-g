@@ -2,12 +2,14 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
+import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.ArcDetail;
 import com.cdac.enrollmentstation.dto.SaveEnrollmentDetail;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.model.ArcDetailsHolder;
+import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.SaveEnrollmentDetailUtil;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -259,8 +261,8 @@ public class BiometricEnrollmentController extends AbstractBaseController {
         SaveEnrollmentDetail saveEnrollmentDetail = new SaveEnrollmentDetail();
 
         try {
-            saveEnrollmentDetail.setEnrollmentStationUnitId(MafisServerApi.getEnrollmentStationUnitId());
-            saveEnrollmentDetail.setEnrollmentStationId(MafisServerApi.getEnrollmentStationId());
+            saveEnrollmentDetail.setEnrollmentStationUnitId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID));
+            saveEnrollmentDetail.setEnrollmentStationId(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID));
         } catch (Exception ex) {
             enableControls(backBtn, showArcBtn);
             LOGGER.log(Level.SEVERE, ex.getMessage());

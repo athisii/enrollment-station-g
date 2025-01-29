@@ -114,6 +114,9 @@
 .border-color-darkblue {
     -fx-border-color: darkblue;
 }
+.border-color-black {
+    -fx-border-color: black;
+}
 
 /* padding */
 .padding {
@@ -193,6 +196,12 @@
 .input-field {
     -fx-font-size: 16px;
     -fx-pref-width: 250px;
+    -fx-pref-height: 34px;
+    -fx-background-radius: 8px;
+}
+.input-field-small {
+    -fx-font-size: 16px;
+    -fx-pref-width: 300px;
     -fx-pref-height: 34px;
     -fx-background-radius: 8px;
 }

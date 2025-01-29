@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cdac.enrollmentstation.controller.InitSetupAuthController">
+    <top>
+        <HBox styleClass="padding, bg-color-bright-blue">
+            <ImageView preserveRatio="true">
+                <Image url="@../img/navy_logo.png"/>
+            </ImageView>
+        </HBox>
+    </top>
+    <left>
+        <HBox styleClass="padding">
+            <!--  id: _imgContainer -> only used in fxml expression       -->
+            <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+            <HBox fx:id="_imgContainer" styleClass="img-container">
+                <ImageView fitHeight="${_imgContainer.prefHeight}" fitWidth="${_imgContainer.prefWidth}"
+                           preserveRatio="true">
+                    <Image url="@../gif/authentication.gif"/>
+                </ImageView>
+            </HBox>
+            <!--  id: bodyHeaderLabel!-> only used in fxml expression       -->
+            <Label fx:id="bodyHeaderLabel" focusTraversable="true"
+                   styleClass="padding-small, bg-border-radius-small, press-effect" text="NUD LOGIN"/>
+        </HBox>
+    </left>
+
+    <right>
+        <!--    reusing ids-->
+        <Region minWidth="${bodyHeaderLabel.width + _imgContainer.prefWidth}"/>
+    </right>
+    <!--   will place the content in the middle -->
+    <center>
+        <HBox alignment="CENTER">
+            <VBox alignment="CENTER">
+                <Label styleClass="font-size-medium" textFill="blue"
+                       text="Please log in to continue the onboarding process."/>
+                <Region styleClass="min-height-xlarge"/>
+                <VBox alignment="CENTER" styleClass="padding-large, border-color-darkblue, border-radius-medium">
+                    <VBox>
+                        <Region styleClass="min-height-large"/>
+                        <HBox alignment="CENTER">
+                            <!--  id: _imgContainer1 -> only used in fxml expression       -->
+                            <!--  using prefWidth and prefHeight of the container, child image's size will be set.       -->
+                            <HBox fx:id="_imgContainer1" styleClass="img-container">
+                                <ImageView fitHeight="${_imgContainer1.prefHeight}"
+                                           fitWidth="${_imgContainer1.prefWidth}"
+                                           preserveRatio="true">
+                                    <Image url="@../img/username.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Region styleClass="min-width-medium"/>
+                            <TextField fx:id="usernameTextField" promptText="Username" styleClass="input-field"/>
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox alignment="CENTER">
+                            <HBox fx:id="_imgContainer2" styleClass="img-container">
+                                <ImageView fitHeight="${_imgContainer2.prefHeight}"
+                                           fitWidth="${_imgContainer2.prefWidth}"
+                                           preserveRatio="true">
+                                    <Image url="@../img/password.png"/>
+                                </ImageView>
+                            </HBox>
+                            <Region styleClass="min-width-medium"/>
+                            <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field"/>
+                        </HBox>
+                    </VBox>
+                    <Region styleClass="min-height-small"/>
+                    <Label fx:id="statusMsg"/>
+                    <Region styleClass="min-height"/>
+                </VBox>
+                <Region styleClass="min-height-medium"/>
+                <HBox alignment="CENTER">
+                    <Button fx:id="backBtn" onAction="#backBtnAction" styleClass="btn-medium, press-effect"
+                            text="BACK"/>
+                    <Region styleClass="min-width-medium"/>
+                    <Button fx:id="loginBtn" onAction="#loginBtnAction" styleClass="btn-medium, press-effect"
+                            text="LOGIN"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+    <bottom>
+        <HBox alignment="CENTER" styleClass="padding, bg-color-bright-blue">
+            <Label styleClass="text-white" text="${controller.appVersion}"/>
+        </HBox>
+    </bottom>
+</BorderPane>

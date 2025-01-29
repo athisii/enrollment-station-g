@@ -3,7 +3,8 @@ package com.cdac.enrollmentstation.controller;
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.PropertyName;
-import com.cdac.enrollmentstation.dto.UserReqDto;
+import com.cdac.enrollmentstation.dto.OnboardingReqDto;
+import com.cdac.enrollmentstation.dto.OnboardingResDto;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.AuthUtil;
@@ -27,8 +28,8 @@ import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 
-public class AdminAuthController extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(AdminAuthController.class);
+public class InitSetupAuthController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(InitSetupAuthController.class);
 
     private static final int MAX_LENGTH = 30;
     private volatile boolean isDone = false;
@@ -48,8 +49,8 @@ public class AdminAuthController extends AbstractBaseController {
     private TextField usernameTextField;
 
     @FXML
-    public void showHome() throws IOException {
-        App.setRoot("main_screen");
+    public void backBtnAction() throws IOException {
+        App.setRoot("init_setup_network_config");
     }
 
 
@@ -64,25 +65,24 @@ public class AdminAuthController extends AbstractBaseController {
         timeline.setCycleCount(1);
         timeline.play();
         disableControls(backBtn, loginBtn);
-        App.getThreadPool().execute(this::authenticateUser);
+        App.getThreadPool().execute(() -> authenticateUser(usernameTextField.getText(), passwordField.getText()));
     }
 
-    private void authenticateUser() {
+    private void authenticateUser(String username, String password) {
         try {
-            // allow admin to log in in dev env
-            if (!("admin".equals(usernameTextField.getText()) && "1".equals(PropertyFile.getProperty(PropertyName.ENV)))) {
-                LOGGER.log(Level.INFO, () -> "*****  Validating user category ********");
+            if (AuthUtil.authenticate(username, password)) {
                 // Hardware Type Mapping:
                 //      PES - 1
                 //      FES - 2
-                MafisServerApi.validateUserCategory(new UserReqDto(usernameTextField.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
-                LOGGER.info("Done validating user category.");
-            }
-            if (AuthUtil.authenticate(usernameTextField.getText(), passwordField.getText())) {
+                OnboardingResDto onboardingResDto = MafisServerApi.fetchOnboardingDetails(new OnboardingReqDto(username, "2"));
+                App.setPno(username);
+                App.setEnrollmentStationIds(onboardingResDto.getDeviceSerialNos());
+                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION, onboardingResDto.getUnitName());
+                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_ID, onboardingResDto.getUnitCode());
                 // must set on JavaFX thread.
                 Platform.runLater(() -> {
                     try {
-                        App.setRoot("admin_config");
+                        App.setRoot("init_setup_complete_onboard");
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                         throw new GenericException(ex.getMessage());
@@ -96,6 +96,8 @@ public class AdminAuthController extends AbstractBaseController {
         } catch (Exception ex) {
             updateUi(ex.getMessage());
         }
+        App.setPno(null);
+        App.setEnrollmentStationIds(null);
         isDone = true;
         // clean up UI on failure
         clearUiControls();

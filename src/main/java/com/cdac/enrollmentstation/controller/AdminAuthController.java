@@ -64,22 +64,23 @@ public class AdminAuthController extends AbstractBaseController {
         timeline.setCycleCount(1);
         timeline.play();
         disableControls(backBtn, loginBtn);
-        App.getThreadPool().execute(this::authenticateUser);
+        App.getThreadPool().execute(() -> authenticateUser(usernameTextField.getText(), passwordField.getText()));
     }
 
-    private void authenticateUser() {
+    private void authenticateUser(String username, String password) {
         try {
             // allow admin to log in in dev env
-            if (!("admin".equals(usernameTextField.getText()) && "1".equals(PropertyFile.getProperty(PropertyName.ENV)))) {
+            if (!("admin".equals(username) && "1".equals(PropertyFile.getProperty(PropertyName.ENV)))) {
                 LOGGER.log(Level.INFO, () -> "*****  Validating user category ********");
                 // Hardware Type Mapping:
                 //      PES - 1
                 //      FES - 2
-                MafisServerApi.validateUserCategory(new UserReqDto(usernameTextField.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
+                MafisServerApi.validateUserCategory(new UserReqDto(username, PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
                 LOGGER.info("Done validating user category.");
             }
-            if (AuthUtil.authenticate(usernameTextField.getText(), passwordField.getText())) {
+            if (AuthUtil.authenticate(username, password)) {
                 // must set on JavaFX thread.
+                App.setPno(username);
                 Platform.runLater(() -> {
                     try {
                         App.setRoot("admin_config");
@@ -96,6 +97,7 @@ public class AdminAuthController extends AbstractBaseController {
         } catch (Exception ex) {
             updateUi(ex.getMessage());
         }
+        App.setPno(null);
         isDone = true;
         // clean up UI on failure
         clearUiControls();

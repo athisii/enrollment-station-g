@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -31,42 +32,38 @@
                 <HBox styleClass="border-color-darkblue, border-radius-medium, padding-medium" alignment="CENTER">
                     <VBox styleClass="padding-medium">
                         <HBox>
-                            <Label text="Mafis API Server URL :" focusTraversable="true"/>
-                            <Region styleClass="min-width-small"/>
-                            <TextField fx:id="mafisUrlTextField" styleClass="input-field" disable="true"/>
-                        </HBox>
-                        <Region styleClass="min-height-medium"/>
-                        <HBox>
-                            <Label text="Enrolment Station ID :"/>
-                            <Region styleClass="min-width-small"/>
-                            <TextField fx:id="enrollmentStationIdTextField" styleClass="input-field" disable="true"/>
-                        </HBox>
-                        <Region styleClass="min-height-medium"/>
-                        <HBox>
-                            <Label text="Enrolment Station Unit ID :"/>
-                            <Region styleClass="min-width-small"/>
                             <VBox alignment="CENTER">
-                                <HBox fx:id="unitIdDropDownHBox" alignment="CENTER" disable="true"
-                                      styleClass="bg-color-purple, bg-border-radius, padding, press-effect">
-                                    <Label fx:id="unitCaptionLabel" alignment="CENTER" styleClass="drop-down-label"
-                                           text="Unit Id Caption"
-                                    />
-                                    <ImageView fx:id="downArrowImageView" preserveRatio="true">
-                                        <Image url="@../img/down_arrow.png"/>
-                                    </ImageView>
-                                    <ImageView fx:id="upArrowImageView" preserveRatio="true" visible="false">
-                                        <Image url="@../img/up_arrow.png"/>
-                                    </ImageView>
-                                </HBox>
-                                <VBox fx:id="hiddenVbox" visible="false"/>
+                                <Label text="Mafis API Server URL :" focusTraversable="true"/>
                             </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <TextField fx:id="mafisUrlTextField" styleClass="input-field-small" disable="true"/>
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station ID :"/>
+                            </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <Label fx:id="enrollmentStationIdTextField"
+                                   styleClass="border-color-black, padding, border-radius"/>
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station Unit ID :"/>
+                            </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <Label fx:id="unitCaptionLabel" alignment="CENTER"
+                                   styleClass="border-color-black, padding, border-radius"
+                                   text="Unit Id Caption"
+                            />
                         </HBox>
                     </VBox>
                     <Region styleClass="min-width-small"/>
                     <HBox alignment="CENTER">
-                        <Button fx:id="fetchUnitsBtn" styleClass="btn-medium, press-effect" disable="true"
-                                onAction="#fetchBtnAction"
-                                text="FETCH"/>
+                        <Button fx:id="validateBtn" styleClass="btn-medium, press-effect" disable="true"
+                                onAction="#validateBtnAction"
+                                text="VALIDATE"/>
                     </HBox>
                 </HBox>
             </HBox>

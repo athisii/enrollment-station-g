@@ -31,13 +31,18 @@
                 <HBox styleClass="border-color-darkblue, border-radius-medium, padding-medium" alignment="CENTER">
                     <VBox styleClass="padding-medium">
                         <HBox>
-                            <Label text="Enrolment Station Unit ID :" focusTraversable="true"/>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station Unit ID :" focusTraversable="true"/>
+                            </VBox>
                             <Region styleClass="min-width-small"/>
-                            <Label fx:id="enrollmentStationUnitCaptionTextField" styleClass="border-color-black, padding, border-radius"/>
+                            <Label fx:id="enrollmentStationUnitCaptionTextField"
+                                   styleClass="border-color-black, padding, border-radius"/>
                         </HBox>
                         <Region styleClass="min-height-medium"/>
                         <HBox>
-                            <Label text="Enrolment Station ID :"/>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station ID :"/>
+                            </VBox>
                             <Region styleClass="min-width-small"/>
                             <VBox alignment="CENTER">
                                 <HBox fx:id="enrollmentStationIdDropDownHBox" alignment="CENTER"

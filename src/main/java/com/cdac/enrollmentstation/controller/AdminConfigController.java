@@ -158,8 +158,8 @@ public class AdminConfigController extends AbstractBaseController {
     }
 
   @FXML
-    public void editHostnameIp() throws IOException {
-        App.setRoot("hostname_ip");
+    public void deOnboardAction() throws IOException {
+        App.setRoot("de_onboard");
     }
 
 

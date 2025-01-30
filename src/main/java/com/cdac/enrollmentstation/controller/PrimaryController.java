@@ -69,7 +69,7 @@ public class PrimaryController extends AbstractBaseController {
     @FXML
     public void onSettings() throws IOException {
         if ("1".equals(PropertyFile.getProperty(PropertyName.INITIAL_SETUP).trim())) {
-            App.setRoot("init_setup_network_config");
+            App.setRoot("onboard_network_config");
         } else {
             App.setRoot("admin_auth");
         }

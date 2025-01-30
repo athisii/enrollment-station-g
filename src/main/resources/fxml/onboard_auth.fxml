@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.InitSetupAuthController">
+            fx:controller="com.cdac.enrollmentstation.controller.OnboardAuthController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
@@ -36,7 +36,7 @@
     <center>
         <HBox alignment="CENTER">
             <VBox alignment="CENTER">
-                <Label styleClass="font-size-medium" textFill="blue"
+                <Label styleClass="font-size-medium"
                        text="Please log in to continue the onboarding process."/>
                 <Region styleClass="min-height-xlarge"/>
                 <VBox alignment="CENTER" styleClass="padding-large, border-color-darkblue, border-radius-medium">

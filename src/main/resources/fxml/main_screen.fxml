@@ -38,7 +38,7 @@
         </HBox>
     </right>
     <center>
-        <VBox alignment="CENTER" >
+        <VBox alignment="CENTER">
             <HBox alignment="CENTER">
                 <VBox alignment="CENTER">
                     <!--  id: _imgContainerXLarge -> only used in fxml expression       -->
@@ -72,7 +72,8 @@
             <VBox fx:id="onboardMsgVBox" alignment="BASELINE_CENTER" managed="false">
                 <Region styleClass="min-height-xlarge"/>
                 <Region styleClass="min-height-xlarge"/>
-                <Label styleClass="font-size-medium" textFill="blue" text="Kindly onboard by clicking the Settings button."/>
+                <Label styleClass="font-size-medium"
+                       text="Kindly click the Settings button to onboard the system."/>
             </VBox>
         </VBox>
     </center>

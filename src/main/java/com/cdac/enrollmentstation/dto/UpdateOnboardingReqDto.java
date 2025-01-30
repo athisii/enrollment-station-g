@@ -17,4 +17,9 @@ import lombok.experimental.FieldDefaults;
 public class UpdateOnboardingReqDto {
     String deviceSerialNo;
     String unitCode;
+    /*
+        1 - onboard
+        2 - de-onboard
+    */
+    int type;
 }

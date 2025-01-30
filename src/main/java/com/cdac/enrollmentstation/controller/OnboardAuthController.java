@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 
-public class InitSetupAuthController extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(InitSetupAuthController.class);
+public class OnboardAuthController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(OnboardAuthController.class);
 
     private static final int MAX_LENGTH = 30;
     private volatile boolean isDone = false;
@@ -50,7 +50,7 @@ public class InitSetupAuthController extends AbstractBaseController {
 
     @FXML
     public void backBtnAction() throws IOException {
-        App.setRoot("init_setup_network_config");
+        App.setRoot("onboard_network_config");
     }
 
 
@@ -82,7 +82,7 @@ public class InitSetupAuthController extends AbstractBaseController {
                 // must set on JavaFX thread.
                 Platform.runLater(() -> {
                     try {
-                        App.setRoot("init_setup_complete_onboard");
+                        App.setRoot("onboard_complete");
                     } catch (IOException ex) {
                         LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                         throw new GenericException(ex.getMessage());

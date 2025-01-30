@@ -5,7 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.InitSetupNetworkConfigController">
+            fx:controller="com.cdac.enrollmentstation.controller.DeOnboardController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">
@@ -30,8 +30,8 @@
                        styleClass="padding-small, bg-border-radius-small, press-effect" text="SYSTEM SETTINGS"/>
             </HBox>
             <VBox alignment="CENTER">
-                <Label styleClass="font-size-small"
-                       text="KINDLY SET THE NETWORK CONFIGURATIONS."/>
+                <Label styleClass="font-size-medium"
+                       text="Kindly click the Continue button to de-onboard the system."/>
                 <Region styleClass="min-height-small"/>
                 <HBox alignment="CENTER">
                     <Region styleClass="min-width-medium"/>
@@ -43,49 +43,48 @@
                                 <Label text="HOSTNAME" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="hostnameTextField" promptText="hostname"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                             <Region styleClass="min-height-small"/>
                             <HBox alignment="CENTER">
                                 <Label text="IP ADDRESS" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="ipAddressTextField" promptText="192.168.1.10"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                             <Region styleClass="min-height-small"/>
                             <HBox alignment="CENTER">
                                 <Label text="SUBNET MASK" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="subnetMaskTextField" promptText="255.255.255.0"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                             <Region styleClass="min-height-small"/>
                             <HBox alignment="CENTER">
                                 <Label text="DEFAULT GATEWAY" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="defaultGatewayTextField" promptText="192.168.1.1"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                             <Region styleClass="min-height-small"/>
                             <HBox alignment="CENTER">
                                 <Label text="DNS IP(s)" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="dnsIpTextField" promptText="192.168.1.11,192.168.1.12"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                             <Region styleClass="min-height-small"/>
                             <HBox alignment="CENTER">
                                 <Label text="LDAP URL" alignment="CENTER" styleClass="label-border-style"/>
                                 <Region styleClass="min-width-medium"/>
                                 <TextField fx:id="ldapUrlTextField" promptText="ldap://192.168.1.11:389"
-                                           styleClass="input-field-small"/>
-                            </HBox>
-                            <Region styleClass="min-height-small"/>
-                            <HBox alignment="CENTER">
-                                <Label text="MAFIS URL" alignment="CENTER" styleClass="label-border-style"/>
-                                <Region styleClass="min-width-medium"/>
-                                <TextField fx:id="mafisUrlTextField" promptText="https://afsacmafis.indiannavy.mil"
-                                           styleClass="input-field-small"/>
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
                             </HBox>
                         </VBox>
                         <Region styleClass="min-height-small"/>
@@ -93,6 +92,21 @@
                         <Region styleClass="min-height-small"/>
                     </VBox>
                     <Region styleClass="min-width-medium"/>
+                </HBox>
+                <Region styleClass="min-height-small"/>
+                <HBox alignment="CENTER">
+                    <VBox fx:id="confirmVbox" styleClass="padding, confirm-box"
+                          alignment="CENTER"
+                          managed="false"
+                          visible="false">
+                        <Label styleClass="padding"
+                               text="Click 'Yes' to proceed or 'No' to Cancel"/>
+                        <HBox alignment="CENTER">
+                            <Button fx:id="confirmYesBtn" styleClass="bg-border-radius-small, press-effect" text="Yes"/>
+                            <Region styleClass="min-width-medium"/>
+                            <Button fx:id="confirmNoBtn" styleClass="bg-border-radius-small, press-effect" text="No"/>
+                        </HBox>
+                    </VBox>
                 </HBox>
                 <Region styleClass="min-height-small"/>
                 <HBox alignment="CENTER">

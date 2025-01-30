@@ -33,8 +33,8 @@ import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 
-public class InitSetupNetworkConfigController extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(InitSetupNetworkConfigController.class);
+public class OnboardNetworkConfigController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(OnboardNetworkConfigController.class);
     private static final String IP_REGEX = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"; // ipv4 address
     @FXML
     private BorderPane rootBorderPane;
@@ -276,7 +276,7 @@ public class InitSetupNetworkConfigController extends AbstractBaseController {
             }
             Platform.runLater(() -> {
                 try {
-                    App.setRoot("init_setup_auth");
+                    App.setRoot("onboard_auth");
                 } catch (IOException ex) {
                     LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
                     throw new GenericException(ex.getMessage());

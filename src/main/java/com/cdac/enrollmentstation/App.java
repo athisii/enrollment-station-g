@@ -97,7 +97,7 @@ public final class App extends Application {
     }
 
     public static void setEnrollmentStationIds(List<String> enrollmentStationIds) {
-        App.enrollmentStationIds = enrollmentStationIds.stream().sorted().toList();
+        App.enrollmentStationIds = enrollmentStationIds != null ? enrollmentStationIds.stream().sorted().toList() : null;
     }
 
     public static List<String> getEnrollmentStationIds() {

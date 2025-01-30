@@ -35,8 +35,8 @@ import java.util.logging.Logger;
  * Created on 29/03/23
  */
 
-public class InitSetupCompleteOnboardController extends AbstractBaseController {
-    private static final Logger LOGGER = ApplicationLog.getLogger(InitSetupCompleteOnboardController.class);
+public class OnboardCompleteController extends AbstractBaseController {
+    private static final Logger LOGGER = ApplicationLog.getLogger(OnboardCompleteController.class);
     @FXML
     private ImageView downArrowImageView;
     @FXML
@@ -73,7 +73,7 @@ public class InitSetupCompleteOnboardController extends AbstractBaseController {
 
     @FXML
     public void backBtnAction() throws IOException {
-        App.setRoot("init_setup_auth");
+        App.setRoot("onboard_auth");
     }
 
 
@@ -81,7 +81,7 @@ public class InitSetupCompleteOnboardController extends AbstractBaseController {
         disableControls(enrollmentStationUnitCaptionTextField, enrollmentStationIdDropDownHBox, backBtn, homeBtn, finishBtn);
         App.getThreadPool().execute(() -> {
             try {
-                MafisServerApi.updateOnboarding(new UpdateOnboardingReqDto(enrollmentStationIdLabel.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
+                MafisServerApi.updateOnboarding(new UpdateOnboardingReqDto(enrollmentStationIdLabel.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID), 1));
                 PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_ID, enrollmentStationIdLabel.getText());
                 PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "0"); // initial setup done.
                 if (App.getHostnameChanged()) {

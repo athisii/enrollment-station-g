@@ -33,7 +33,8 @@
                     <VBox styleClass="padding-medium">
                         <HBox>
                             <VBox alignment="CENTER">
-                                <Label text="Mafis API Server URL :" focusTraversable="true"/>
+                                <Label text="Mafis API Server URL:" focusTraversable="true"
+                                       minWidth="${serialNoTxtLbl.width}"/>
                             </VBox>
                             <Region styleClass="min-width-small"/>
                             <TextField fx:id="mafisUrlTextField" styleClass="input-field-small" disable="true"/>
@@ -41,22 +42,36 @@
                         <Region styleClass="min-height-medium"/>
                         <HBox>
                             <VBox alignment="CENTER">
-                                <Label text="Enrolment Station ID :"/>
-                            </VBox>
-                            <Region styleClass="min-width-small"/>
-                            <Label fx:id="enrollmentStationIdTextField"
-                                   styleClass="border-color-black, padding, border-radius"/>
-                        </HBox>
-                        <Region styleClass="min-height-medium"/>
-                        <HBox>
-                            <VBox alignment="CENTER">
-                                <Label text="Enrolment Station Unit ID :"/>
+                                <Label text="Unit Code:" minWidth="${serialNoTxtLbl.width}"/>
                             </VBox>
                             <Region styleClass="min-width-small"/>
                             <Label fx:id="unitCaptionLabel" alignment="CENTER"
                                    styleClass="border-color-black, padding, border-radius"
                                    text="Unit Id Caption"
+                                   minWidth="${mafisUrlTextField.width}"
                             />
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox>
+                            <VBox alignment="CENTER">
+                                <Label fx:id="serialNoTxtLbl" text="Serial Number Of Device:"/>
+                            </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <Label fx:id="serialNoOfDevice" alignment="CENTER"
+                                   styleClass="border-color-black, padding, border-radius"
+                                   text="Serial Number"
+                                   minWidth="${mafisUrlTextField.width}"
+                            />
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station ID:" minWidth="${serialNoTxtLbl.width}"/>
+                            </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <Label fx:id="enrollmentStationIdTextField" alignment="CENTER"
+                                   minWidth="${mafisUrlTextField.width}"
+                                   styleClass="border-color-black, padding, border-radius"/>
                         </HBox>
                     </VBox>
                     <Region styleClass="min-width-small"/>

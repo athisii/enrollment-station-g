@@ -81,7 +81,10 @@ public class LicenceInfoController extends AbstractBaseController {
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                finScannerInfo.setText(line);
+                String[] split = line.split(":");
+                if (split.length >= 2) {
+                    finScannerInfo.setText(split[1].trim());
+                }
             }
             process.waitFor();
         } catch (IOException | InterruptedException ex) {

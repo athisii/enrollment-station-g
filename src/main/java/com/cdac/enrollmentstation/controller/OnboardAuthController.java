@@ -2,13 +2,11 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
-import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.OnboardingReqDto;
 import com.cdac.enrollmentstation.dto.OnboardingResDto;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.AuthUtil;
-import com.cdac.enrollmentstation.util.PropertyFile;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -76,9 +74,7 @@ public class OnboardAuthController extends AbstractBaseController {
                 //      FES - 2
                 OnboardingResDto onboardingResDto = MafisServerApi.fetchOnboardingDetails(new OnboardingReqDto(username, "2"));
                 App.setPno(username);
-                App.setEnrollmentStationIds(onboardingResDto.getDeviceSerialNos());
-                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION, onboardingResDto.getUnitName());
-                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_ID, onboardingResDto.getUnitCode());
+                App.setOnboardingUnitDetails(onboardingResDto.getOnboardingUnitDetails());
                 // must set on JavaFX thread.
                 Platform.runLater(() -> {
                     try {
@@ -97,7 +93,7 @@ public class OnboardAuthController extends AbstractBaseController {
             updateUi(ex.getMessage());
         }
         App.setPno(null);
-        App.setEnrollmentStationIds(null);
+        App.setOnboardingUnitDetails(null);
         isDone = true;
         // clean up UI on failure
         clearUiControls();

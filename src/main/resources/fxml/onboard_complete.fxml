@@ -22,7 +22,7 @@
                         <Image url="@../gif/settings.gif"/>
                     </ImageView>
                 </HBox>
-                <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="SERVER CONFIGURATION"/>
+                <Label styleClass="press-effect, padding-small, bg-border-radius-small" text="UNIT CONFIGURATION"/>
             </HBox>
             <HBox alignment="CENTER" styleClass="padding-medium">
                 <Label fx:id="messageLabel"/>
@@ -32,24 +32,26 @@
                     <VBox styleClass="padding-medium">
                         <HBox>
                             <VBox alignment="CENTER">
-                                <Label text="Enrolment Station Unit ID :" focusTraversable="true"/>
+                                <Label text="Unit Code:" focusTraversable="true" minWidth="${serialNoOfDevice.width}"/>
                             </VBox>
                             <Region styleClass="min-width-small"/>
-                            <Label fx:id="enrollmentStationUnitCaptionTextField"
-                                   styleClass="border-color-black, padding, border-radius"/>
+                            <Label fx:id="unitCodeLbl" alignment="CENTER"
+                                   styleClass="border-color-black, padding, border-radius"
+                                   prefWidth="${enrollmentStationIdTextField.prefWidth}"/>
                         </HBox>
                         <Region styleClass="min-height-medium"/>
                         <HBox>
                             <VBox alignment="CENTER">
-                                <Label text="Enrolment Station ID :"/>
+                                <Label fx:id="serialNoOfDevice" text="Serial Number Of Device:"/>
                             </VBox>
                             <Region styleClass="min-width-small"/>
                             <VBox alignment="CENTER">
-                                <HBox fx:id="enrollmentStationIdDropDownHBox" alignment="CENTER"
-                                      styleClass="bg-color-purple, bg-border-radius, padding, press-effect">
-                                    <Label fx:id="enrollmentStationIdLabel" alignment="CENTER"
+                                <HBox fx:id="serialNoDropDownHBox" alignment="CENTER"
+                                      styleClass="bg-color-purple, bg-border-radius, padding, press-effect"
+                                      prefWidth="${enrollmentStationIdTextField.prefWidth}">
+                                    <Label fx:id="serialNoLabel" alignment="CENTER"
                                            styleClass="drop-down-label"
-                                           text="EnrollmentStationId"
+                                           text="serialNoOfDevice"
                                     />
                                     <ImageView fx:id="downArrowImageView" preserveRatio="true">
                                         <Image url="@../img/down_arrow.png"/>
@@ -60,6 +62,15 @@
                                 </HBox>
                                 <VBox fx:id="hiddenVbox" visible="false"/>
                             </VBox>
+                        </HBox>
+                        <Region styleClass="min-height-medium"/>
+                        <HBox>
+                            <VBox alignment="CENTER">
+                                <Label text="Enrolment Station ID:" minWidth="${serialNoOfDevice.width}"/>
+                            </VBox>
+                            <Region styleClass="min-width-small"/>
+                            <TextField alignment="CENTER" fx:id="enrollmentStationIdTextField"
+                                       styleClass="input-field"/>
                         </HBox>
                     </VBox>
                 </HBox>

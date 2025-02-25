@@ -6,19 +6,18 @@ import lombok.experimental.FieldDefaults;
 /**
  * @author athisii
  * @version 1.0
- * @since 1/29/25
+ * @since 2/25/25
  */
+
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpdateOnboardingReqDto {
-    String pno;
-    String deviceSerialNo;
-    String hardwareType;
+@NoArgsConstructor
+@AllArgsConstructor
+public class OnboardingUnitDetail {
+    String unitCode;
+    String unitName;
     String hwId;
-    String enrollStationId;
-    String action;
+    String serialNo;
 }

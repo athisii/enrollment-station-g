@@ -2,6 +2,7 @@ package com.cdac.enrollmentstation;
 
 
 import com.cdac.enrollmentstation.controller.AbstractBaseController;
+import com.cdac.enrollmentstation.dto.OnboardingUnitDetail;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.util.DisplayUtil;
 import javafx.application.Application;
@@ -32,7 +33,7 @@ public final class App extends Application {
     private static final Logger LOGGER = ApplicationLog.getLogger(App.class);
     private static volatile boolean hostnameChanged = false;
     private static volatile String pno;
-    private static List<String> enrollmentStationIds;
+    private static List<OnboardingUnitDetail> onboardingUnitDetails;
     // GLOBAL THREAD POOL for the application.
     private static final ExecutorService executorService;
 
@@ -96,12 +97,12 @@ public final class App extends Application {
         return App.pno;
     }
 
-    public static void setEnrollmentStationIds(List<String> enrollmentStationIds) {
-        App.enrollmentStationIds = enrollmentStationIds != null ? enrollmentStationIds.stream().sorted().toList() : null;
+    public static void setOnboardingUnitDetails(List<OnboardingUnitDetail> onboardingUnitDetails) {
+        App.onboardingUnitDetails = onboardingUnitDetails != null ? onboardingUnitDetails.stream().sorted().toList() : null;
     }
 
-    public static List<String> getEnrollmentStationIds() {
-        return App.enrollmentStationIds;
+    public static List<OnboardingUnitDetail> getOnboardingUnitDetails() {
+        return App.onboardingUnitDetails;
     }
 
     public static ExecutorService getThreadPool() {

@@ -75,7 +75,7 @@ public class AdminAuthController extends AbstractBaseController {
                 // Hardware Type Mapping:
                 //      PES - 1
                 //      FES - 2
-                MafisServerApi.validateUserCategory(new UserReqDto(username, PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
+                MafisServerApi.validateUserCategory(new UserReqDto(username, PropertyFile.getProperty(PropertyName.DEVICE_SERIAL_NO), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
                 LOGGER.info("Done validating user category.");
             }
             if (AuthUtil.authenticate(username, password)) {

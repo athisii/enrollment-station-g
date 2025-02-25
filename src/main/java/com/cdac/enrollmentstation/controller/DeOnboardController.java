@@ -95,7 +95,8 @@ public class DeOnboardController extends AbstractBaseController {
 
     private void saveChanges() {
         try {
-            MafisServerApi.updateOnboarding(new UpdateOnboardingReqDto(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID), 2));
+            var updateOnboardingReqDto = new UpdateOnboardingReqDto(App.getPno(), PropertyFile.getProperty(PropertyName.DEVICE_SERIAL_NO), "2", PropertyFile.getProperty(PropertyName.HARDWARE_ID), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "OFF");
+            MafisServerApi.updateOnboarding(updateOnboardingReqDto);
             ipAddressTextField.setText("192.168.1.2");
             subnetMaskTextField.setText("255.255.255.0");
             defaultGatewayTextField.setText("192.168.1.1");

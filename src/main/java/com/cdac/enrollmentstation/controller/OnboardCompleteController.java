@@ -4,6 +4,7 @@ import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
+import com.cdac.enrollmentstation.dto.OnboardingUnitDetail;
 import com.cdac.enrollmentstation.dto.UpdateOnboardingReqDto;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.logging.ApplicationLog;
@@ -27,6 +28,7 @@ import javafx.scene.layout.VBox;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,29 +44,27 @@ public class OnboardCompleteController extends AbstractBaseController {
     @FXML
     private ImageView upArrowImageView;
     @FXML
-    private Label enrollmentStationIdLabel;
+    private Label serialNoLabel;
     @FXML
     private VBox hiddenVbox;
     @FXML
-    private HBox enrollmentStationIdDropDownHBox;
+    private HBox serialNoDropDownHBox;
     @FXML
     private BorderPane rootBorderPane;
-
     @FXML
-    private Label enrollmentStationUnitCaptionTextField;
-
-
+    private Label unitCodeLbl;
     @FXML
     private Label messageLabel;
-
     @FXML
     private Button backBtn;
-
     @FXML
     private Button finishBtn;
     @FXML
     private Button homeBtn;
-
+    @FXML
+    private TextField enrollmentStationIdTextField;
+    private List<String> serialNos;
+    private OnboardingUnitDetail onboardingUnitDetail;
 
     @FXML
     public void homeBtnAction() throws IOException {
@@ -78,11 +78,23 @@ public class OnboardCompleteController extends AbstractBaseController {
 
 
     private void finishBtnAction() {
-        disableControls(enrollmentStationUnitCaptionTextField, enrollmentStationIdDropDownHBox, backBtn, homeBtn, finishBtn);
+        disableControls(enrollmentStationIdTextField, serialNoDropDownHBox, backBtn, homeBtn, finishBtn);
         App.getThreadPool().execute(() -> {
             try {
-                MafisServerApi.updateOnboarding(new UpdateOnboardingReqDto(enrollmentStationIdLabel.getText(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID), 1));
-                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_ID, enrollmentStationIdLabel.getText());
+                if (onboardingUnitDetail == null) {
+                    throw new GenericException("No Unit selected.");
+                }
+                var enrollmentStationId = enrollmentStationIdTextField.getText();
+                if (enrollmentStationId.isEmpty()) {
+                    throw new GenericException("Please provide a valid enrolment station ID.");
+                }
+                var updateOnboardingReqDto = new UpdateOnboardingReqDto(App.getPno(), onboardingUnitDetail.getSerialNo(), "2", onboardingUnitDetail.getHwId(), enrollmentStationId, "ON");
+                MafisServerApi.updateOnboarding(updateOnboardingReqDto);
+                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_ID, enrollmentStationId);
+                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION, onboardingUnitDetail.getUnitName());
+                PropertyFile.changePropertyValue(PropertyName.ENROLLMENT_STATION_UNIT_ID, onboardingUnitDetail.getUnitCode());
+                PropertyFile.changePropertyValue(PropertyName.HARDWARE_ID, onboardingUnitDetail.getHwId());
+                PropertyFile.changePropertyValue(PropertyName.DEVICE_SERIAL_NO, onboardingUnitDetail.getSerialNo());
                 PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "0"); // initial setup done.
                 if (App.getHostnameChanged()) {
                     App.setHostnameChanged(false);
@@ -92,7 +104,7 @@ public class OnboardCompleteController extends AbstractBaseController {
             } catch (Exception ex) {
                 LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
                 updateUi(ex.getMessage());
-                enableControls(enrollmentStationUnitCaptionTextField, enrollmentStationIdDropDownHBox, backBtn, homeBtn, finishBtn);
+                enableControls(enrollmentStationIdTextField, serialNoDropDownHBox, backBtn, homeBtn, finishBtn);
             }
         });
     }
@@ -105,20 +117,11 @@ public class OnboardCompleteController extends AbstractBaseController {
                 keyEvent.consume();
             }
         });
-
-        String commonText = " is required in " + ApplicationConstant.DEFAULT_PROPERTY_FILE + ".";
-        String errorMessage = "";
-        String enrollmentStationUnitCaption = PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_CAPTION);
-
-        if (enrollmentStationUnitCaption.isBlank()) {
-            errorMessage += "\n" + PropertyName.ENROLLMENT_STATION_UNIT_CAPTION + commonText;
-        }
-        if (!errorMessage.isBlank()) {
-            throw new GenericException(errorMessage);
-        }
-        enrollmentStationUnitCaptionTextField.setText(enrollmentStationUnitCaption);
-        enrollmentStationIdLabel.setText(App.getEnrollmentStationIds().get(0));
-        enrollmentStationIdDropDownHBox.setOnMouseClicked(this::toggleUnitCaptionListView);
+        onboardingUnitDetail = App.getOnboardingUnitDetails().get(0);// first one
+        serialNoLabel.setText(onboardingUnitDetail.getSerialNo());
+        unitCodeLbl.setText(onboardingUnitDetail.getUnitName());
+        serialNos = App.getOnboardingUnitDetails().stream().map(OnboardingUnitDetail::getSerialNo).sorted().toList();
+        serialNoDropDownHBox.setOnMouseClicked(this::toggleUnitCaptionListView);
         finishBtn.setOnAction(event -> finishBtnAction());
     }
 
@@ -136,10 +139,14 @@ public class OnboardCompleteController extends AbstractBaseController {
             sarchTextField.setPromptText("Search");
             hiddenVbox.getChildren().add(sarchTextField);
             ListView<String> listView = new ListView<>();
-            listView.setItems(FXCollections.observableArrayList(App.getEnrollmentStationIds()));
+            listView.setItems(FXCollections.observableArrayList(serialNos));
             listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue != null) {
-                    enrollmentStationIdLabel.setText(newValue);
+                    serialNoLabel.setText(newValue);
+                    onboardingUnitDetail = App.getOnboardingUnitDetails().stream().filter(ele -> ele.getSerialNo().equalsIgnoreCase(serialNoLabel.getText())).findFirst().orElse(null);
+                    if (onboardingUnitDetail != null) {
+                        unitCodeLbl.setText(onboardingUnitDetail.getUnitName());
+                    }
                     hiddenVbox.getChildren().remove(0, hiddenVbox.getChildren().size());
                     hiddenVbox.setVisible(false);
                     downArrowImageView.setVisible(true);
@@ -153,11 +160,11 @@ public class OnboardCompleteController extends AbstractBaseController {
 
     private void searchFilter(String value, ListView<String> listView) {
         if (value.isEmpty()) {
-            listView.setItems(FXCollections.observableList(App.getEnrollmentStationIds()));
+            listView.setItems(FXCollections.observableList(serialNos));
             return;
         }
         String valueUpper = value.toUpperCase();
-        listView.setItems(FXCollections.observableList(App.getEnrollmentStationIds().stream().filter(enrollmentStationId -> enrollmentStationId.toUpperCase().contains(valueUpper)).toList()));
+        listView.setItems(FXCollections.observableList(serialNos.stream().filter(serialNo -> serialNo.toUpperCase().contains(valueUpper)).toList()));
     }
 
     private void updateUi(String message) {
@@ -182,7 +189,7 @@ public class OnboardCompleteController extends AbstractBaseController {
     @Override
     public void onUncaughtException() {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
-        enableControls(backBtn, homeBtn, finishBtn);
+        enableControls(enrollmentStationIdTextField, backBtn, homeBtn, finishBtn);
         updateUi("Received an invalid data from the server.");
     }
 
@@ -214,7 +221,7 @@ public class OnboardCompleteController extends AbstractBaseController {
             LOGGER.log(Level.INFO, () -> "**Error while rebooting: " + ex.getMessage());
             updateUi(ApplicationConstant.GENERIC_ERR_MSG);
         }
-        enableControls(enrollmentStationUnitCaptionTextField, enrollmentStationIdDropDownHBox, backBtn, homeBtn, finishBtn);
+        enableControls(enrollmentStationIdTextField, serialNoDropDownHBox, backBtn, homeBtn, finishBtn);
     }
 
 }

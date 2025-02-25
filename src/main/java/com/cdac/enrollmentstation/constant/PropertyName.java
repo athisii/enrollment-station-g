@@ -72,4 +72,6 @@ public class PropertyName {
     public static final String CARD_API_VERIFY_PIN = "card.api.verify.pin";
     public static final String SYSTEM_DISPLAY_RESOLUTION_FILE = "system.display.resolution.file";
     public static final String INITIAL_SETUP = "initial.setup";
+    public static final String DEVICE_SERIAL_NO = "device.serial.no";
+    public static final String HARDWARE_ID = "hardware.id";
 }

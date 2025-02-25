@@ -1,5 +1,6 @@
 package com.cdac.enrollmentstation.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,9 +18,8 @@ import java.util.List;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OnboardingResDto {
-    String unitCode;
-    String unitName;
-    List<String> deviceSerialNos;
     int errorCode;
     String desc;
+    @JsonProperty("fpDetails")
+    List<OnboardingUnitDetail> onboardingUnitDetails;
 }

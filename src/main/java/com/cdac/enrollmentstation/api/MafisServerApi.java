@@ -435,9 +435,9 @@ public class MafisServerApi {
             LOGGER.log(Level.INFO, () -> ApplicationConstant.GENERIC_SERVER_ERR_MSG + onboardingResDto.getDesc());
             throw new GenericException(onboardingResDto.getDesc());
         }
-        if (onboardingResDto.getDeviceSerialNos() == null || onboardingResDto.getDeviceSerialNos().isEmpty()) {
-            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: Null or received an empty list of device serial numbers.");
-            throw new GenericException("No FES device serial number available for the selected unit.");
+        if (onboardingResDto.getOnboardingUnitDetails() == null || onboardingResDto.getOnboardingUnitDetails().isEmpty()) {
+            LOGGER.log(Level.INFO, () -> "***ServerErrorCode: Null or received an empty list of FES device.");
+            throw new GenericException("No FES device available for the selected unit.");
         }
         return onboardingResDto;
     }

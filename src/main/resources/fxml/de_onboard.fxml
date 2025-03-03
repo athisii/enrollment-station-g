@@ -86,6 +86,14 @@
                                            style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
                                            editable="false" styleClass="input-field-small"/>
                             </HBox>
+                            <Region styleClass="min-height-small"/>
+                            <HBox alignment="CENTER">
+                                <Label text="MAFIS URL" alignment="CENTER" styleClass="label-border-style"/>
+                                <Region styleClass="min-width-medium"/>
+                                <TextField fx:id="mafisUrlTextField" promptText="https://afsacmafis.indiannavy.mil"
+                                           style="-fx-focus-color: #B1B1B1; -fx-faint-focus-color: transparent;"
+                                           editable="false" styleClass="input-field-small"/>
+                            </HBox>
                         </VBox>
                         <Region styleClass="min-height-small"/>
                         <Label fx:id="messageLabel"/>

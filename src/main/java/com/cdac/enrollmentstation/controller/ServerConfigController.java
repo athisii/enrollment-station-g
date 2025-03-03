@@ -154,12 +154,12 @@ public class ServerConfigController extends AbstractBaseController {
         serialNoOfDevice.setText(deviceSerialNumber);
 
         // hides in prod
-        if ("0".equals(PropertyFile.getProperty(PropertyName.ENV))) {
-            validateBtn.setManaged(false);
-            editBtn.setManaged(false);
-            mafisUrlTextField.setDisable(false);
-            mafisUrlTextField.setEditable(false);
-        }
+//        if ("0".equals(PropertyFile.getProperty(PropertyName.ENV))) {
+//            validateBtn.setManaged(false);
+//            editBtn.setManaged(false);
+//            mafisUrlTextField.setDisable(false);
+//            mafisUrlTextField.setEditable(false);
+//        }
     }
 
 

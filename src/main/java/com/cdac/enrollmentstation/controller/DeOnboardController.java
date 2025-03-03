@@ -53,6 +53,9 @@ public class DeOnboardController extends AbstractBaseController {
     @FXML
     private TextField ldapUrlTextField;
     @FXML
+    private TextField mafisUrlTextField;
+
+    @FXML
     private VBox confirmVbox;
     @FXML
     private Button confirmYesBtn;
@@ -102,8 +105,10 @@ public class DeOnboardController extends AbstractBaseController {
             defaultGatewayTextField.setText("192.168.1.1");
             dnsIpTextField.setText("192.168.1.3");
             ldapUrlTextField.setText("ldap://192.168.1.4:389");
+            mafisUrlTextField.setText("https://afsacmafis.indiannavy.mil");
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText());
             PropertyFile.changePropertyValue(PropertyName.INITIAL_SETUP, "1");
+            PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText());
             saveIpaddressToFile();
             restartNetworkingService();
             Platform.runLater(() -> {
@@ -231,6 +236,7 @@ public class DeOnboardController extends AbstractBaseController {
             });
             hostnameTextField.setText(getHostname());
             ldapUrlTextField.setText(PropertyFile.getProperty(PropertyName.LDAP_URL));
+            mafisUrlTextField.setText(PropertyFile.getProperty(PropertyName.MAFIS_API_URL));
         } catch (Exception ex) {
             LOGGER.log(Level.INFO, () -> "***Error: " + ex.getMessage());
             messageLabel.setText(ex.getMessage());

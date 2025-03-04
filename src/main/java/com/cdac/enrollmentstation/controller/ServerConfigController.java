@@ -92,7 +92,7 @@ public class ServerConfigController extends AbstractBaseController {
             // Hardware Type Mapping:
             //      PES - 1
             //      FES - 2
-            MafisServerApi.validateUserCategory(new UserReqDto(App.getPno(), PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
+            MafisServerApi.validateUserCategory(new UserReqDto(App.getPno(), PropertyFile.getProperty(PropertyName.DEVICE_SERIAL_NO), "2", PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_UNIT_ID)));
             LOGGER.info("Done validating user category.");
         } catch (GenericException ex) {
             updateUi(ex.getMessage());

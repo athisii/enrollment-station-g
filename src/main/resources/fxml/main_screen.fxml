@@ -69,7 +69,7 @@
                             text="TOKEN ISSUANCE"/>
                 </VBox>
             </HBox>
-            <VBox fx:id="onboardMsgVBox" alignment="BASELINE_CENTER" managed="false">
+            <VBox fx:id="onboardMsgVBox" alignment="BASELINE_CENTER" managed="false" visible="false">
                 <Region styleClass="min-height-xlarge"/>
                 <Region styleClass="min-height-xlarge"/>
                 <Label styleClass="font-size-medium"

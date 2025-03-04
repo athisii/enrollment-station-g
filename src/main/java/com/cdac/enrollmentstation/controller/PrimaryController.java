@@ -43,6 +43,7 @@ public class PrimaryController extends AbstractBaseController {
             biometricEnrollmentBtn.setDisable(true);
             tokenIssuanceBtn.setDisable(true);
             onboardMsgVBox.setManaged(true);
+            onboardMsgVBox.setVisible(true);
         }
     }
 

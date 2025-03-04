@@ -16,6 +16,7 @@ import javafx.stage.StageStyle;
 import org.opencv.core.Core;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -98,7 +99,7 @@ public final class App extends Application {
     }
 
     public static void setOnboardingUnitDetails(List<OnboardingUnitDetail> onboardingUnitDetails) {
-        App.onboardingUnitDetails = onboardingUnitDetails != null ? onboardingUnitDetails.stream().sorted().toList() : null;
+        App.onboardingUnitDetails = onboardingUnitDetails != null ? onboardingUnitDetails.stream().sorted(Comparator.comparing(OnboardingUnitDetail::getSerialNo)).toList() : null;
     }
 
     public static List<OnboardingUnitDetail> getOnboardingUnitDetails() {

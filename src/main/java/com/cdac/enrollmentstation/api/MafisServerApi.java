@@ -443,7 +443,7 @@ public class MafisServerApi {
     }
 
     public static String getOnboardingDetailsUrl() {
-        return getMafisApiUrl() + "/GetOnboardingDetailsFesPes";
+        return getMafisApiUrl() + "/GetListOfVacantFPDevice";
     }
 
     public static void updateOnboarding(UpdateOnboardingReqDto updateOnboardingReqDto) {
@@ -471,7 +471,7 @@ public class MafisServerApi {
     }
 
     public static String getUpdateOnboardingUrl() {
-        return getMafisApiUrl() + "/UpdateOnboardingDetailsFesPes";
+        return getMafisApiUrl() + "/GetOnBoardFPDevice";
     }
 
 }

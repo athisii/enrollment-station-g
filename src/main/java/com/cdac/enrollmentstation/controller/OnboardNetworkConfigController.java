@@ -36,6 +36,7 @@ import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT
 public class OnboardNetworkConfigController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(OnboardNetworkConfigController.class);
     private static final String IP_REGEX = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$"; // ipv4 address
+    private static final int NIC_RESTART_TIME_IN_SECOND = 5;
     @FXML
     private BorderPane rootBorderPane;
     @FXML
@@ -250,7 +251,7 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
-            Thread.sleep(Duration.ofSeconds(3).toMillis()); // sleeps for nic to get the new ip
+            Thread.sleep(Duration.ofSeconds(NIC_RESTART_TIME_IN_SECOND).toMillis()); // sleeps for nic to get the new ip
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
             PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS

@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -60,6 +61,7 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
     @FXML
     private TextField mafisUrlTextField;
     private String interfaceName;
+    private byte[] currentInterfaceFileBytes;
 
     public void initialize() {
         // disable 'enter key' on keyboard
@@ -251,7 +253,6 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
-            Thread.sleep(Duration.ofSeconds(NIC_RESTART_TIME_IN_SECOND).toMillis()); // sleeps for nic to get the new ip
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
             PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS
@@ -299,6 +300,7 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
 
     private void setTextFieldValuesOnUI() {
         try {
+            currentInterfaceFileBytes = Files.readAllBytes(Path.of("/etc/network/interfaces"));
             List<String> lines = Files.readAllLines(Path.of("/etc/network/interfaces"));
             lines.forEach(line -> {
                 line = line.trim();
@@ -404,6 +406,12 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
     private void restartNetworkingService() {
         BufferedReader error = null;
         try {
+            byte[] newInterfaceFileBytes = Files.readAllBytes(Path.of("/etc/network/interfaces"));
+            //if same, not needed to restart nic
+            if (Arrays.equals(currentInterfaceFileBytes, newInterfaceFileBytes)) {
+                return;
+            }
+
             Process process = Runtime.getRuntime().exec("systemctl restart networking");
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             String eline;
@@ -431,6 +439,13 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
                 LOGGER.log(Level.SEVERE, e::getMessage);
             }
         }
+        // wait for nic to be restarted
+        try {
+            Thread.sleep(Duration.ofSeconds(NIC_RESTART_TIME_IN_SECOND).toMillis()); // sleeps for nic to get the new ip
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     @Override

@@ -25,19 +25,19 @@ public class HttpUtil {
 
     private static final int CONNECTION_TIMEOUT_IN_SEC = 5;
     private static final int WRITE_TIMEOUT_IN_SEC = 60;
-    private static final HttpClient HTTP_CLIENT;
+    private static HttpClient httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build();
 
     public enum MethodType {
         POST, GET;
     }
 
-    static {
-        HTTP_CLIENT = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build();
-    }
-
     //Suppress default constructor for noninstantiability
     private HttpUtil() {
         throw new AssertionError("The HttpUtil methods must be accessed statically.");
+    }
+
+    public static void buildNewHttpClient() {
+        httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(CONNECTION_TIMEOUT_IN_SEC)).build();
     }
 
     public static HttpRequest createGetHttpRequest(String url) {
@@ -85,7 +85,7 @@ public class HttpUtil {
     public static HttpResponse<String> sendHttpRequest(HttpRequest httpRequest) {
         HttpResponse<String> response = null;
         try {
-            response = HTTP_CLIENT.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, () -> "sendHttpRequestError: " + ex.getMessage());
         } catch (InterruptedException ex) {

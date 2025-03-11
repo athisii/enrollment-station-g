@@ -2,6 +2,7 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.DirectoryLookup;
+import com.cdac.enrollmentstation.api.HttpUtil;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
@@ -253,6 +254,7 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
+            HttpUtil.buildNewHttpClient();
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
             PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS
@@ -424,6 +426,9 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
                 LOGGER.log(Level.INFO, () -> "***Error: Process Exit Value: " + exitVal);
                 throw new GenericException("Re-throwing error.");
             }
+            currentInterfaceFileBytes = newInterfaceFileBytes;
+            // wait for nic to be restarted
+            Thread.sleep(Duration.ofSeconds(NIC_RESTART_TIME_IN_SECOND).toMillis());
         } catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
@@ -439,13 +444,6 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
                 LOGGER.log(Level.SEVERE, e::getMessage);
             }
         }
-        // wait for nic to be restarted
-        try {
-            Thread.sleep(Duration.ofSeconds(NIC_RESTART_TIME_IN_SECOND).toMillis()); // sleeps for nic to get the new ip
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-
     }
 
     @Override

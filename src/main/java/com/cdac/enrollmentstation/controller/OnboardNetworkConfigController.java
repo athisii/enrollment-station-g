@@ -2,6 +2,7 @@ package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
 import com.cdac.enrollmentstation.api.DirectoryLookup;
+import com.cdac.enrollmentstation.api.HttpUtil;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
@@ -253,6 +254,7 @@ public class OnboardNetworkConfigController extends AbstractBaseController {
         try {
             saveIpaddressToFile();
             restartNetworkingService();
+            HttpUtil.buildNewHttpClient();
             PropertyFile.changePropertyValue(PropertyName.LDAP_URL, ldapUrlTextField.getText().trim());
             PropertyFile.changePropertyValue(PropertyName.MAFIS_API_URL, mafisUrlTextField.getText().trim());
 //            // only do for production as there is no ldap connection in MISCOS

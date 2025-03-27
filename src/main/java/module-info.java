@@ -3,11 +3,12 @@ module com.cdac.enrollmentstation {
     requires java.net.http;
     requires java.logging;
     requires java.naming;
+    requires java.smartcardio;
     //javafx
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.swing; // for SwingFXUtils
-    
+
     requires com.twelvemonkeys.common.image; // image resampling
 
     // python
@@ -52,6 +53,4 @@ module com.cdac.enrollmentstation {
     opens com.cdac.enrollmentstation.dto to javafx.fxml;
 
     requires static lombok;
-    requires java.smartcardio;
-
 }

@@ -294,38 +294,44 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     @FXML
     private void captureBtnAction() {
         captureBtn.setDisable(true);
+        disableControls(selectNextContractorBtn, finishBtn);
         if (!isDeviceInitialized && (!initFpReader())) {
             //message updated by initFpReader()
             captureBtn.setDisable(false);
+            enableControls(selectNextContractorBtn, finishBtn);
             return;
         }
         if (tableView.getSelectionModel().getSelectedItem() == null) {
             messageLabel.setText("Kindly select a labour");
+            enableControls(selectNextContractorBtn, finishBtn);
         } else {
             jniErrorCode = midFingerAuth.StartCapture(MIN_QUALITY, (int) TimeUnit.SECONDS.toMillis(FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC));
             if (jniErrorCode != 0) {
                 LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
                 messageLabel.setText(midFingerAuth.GetErrorMessage(jniErrorCode));
+                enableControls(selectNextContractorBtn, finishBtn);
             }
         }
-
     }
 
     // runs in worker thread spawned by OnComplete() callback
     private void matchFingerprintTemplate(byte[] fingerData) {
         LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
         if (selectedLabour == null) {
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi("Kindly select a labour.");
             return;
         }
 
         Labour labour = labourMap.get(selectedLabour.getLabourId());
         if (labour == null) {
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi("No labour details found for selected labour id: " + selectedLabour.getLabourId());
             return;
         }
 
         if (labour.getFps() == null || labour.getFps().isEmpty()) {
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi("No fingerprint data for selected labour id: " + selectedLabour.getLabourId());
             return;
         }
@@ -336,6 +342,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             fpMatchMinThreshold = Integer.parseInt(PropertyFile.getProperty(PropertyName.FP_MATCH_MIN_THRESHOLD_TOKEN_ISSUANCE).trim());
         } catch (NumberFormatException | GenericException ex) {
             LOGGER.log(Level.SEVERE, () -> "Not a number or no entry for '" + PropertyName.FP_MATCH_MIN_THRESHOLD_TOKEN_ISSUANCE + "' in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
+            // must fail
             throw new GenericException(GENERIC_ERR_MSG);
         }
 
@@ -343,6 +350,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             jniErrorCode = midFingerAuth.MatchTemplate(fingerData, Base64.getDecoder().decode(labour.getFps().get(i).getFpData()), matchScore, TemplateFormat.FMR_V2011);
             if (jniErrorCode != 0) {
                 LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(jniErrorCode));
+                enableControls(selectNextContractorBtn, finishBtn);
                 updateUi(midFingerAuth.GetErrorMessage(jniErrorCode));
                 return;
             }
@@ -359,6 +367,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
                 updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
                 if (selectedLabour.getCount() > LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
+                    enableControls(selectNextContractorBtn, finishBtn);
                     return;
                 }
                 if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
@@ -372,10 +381,10 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             } else {
                 updateUi("The remaining attempt(s) for " + selectedLabour.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - selectedLabour.getCount()));
             }
+            enableControls(selectNextContractorBtn, finishBtn);
             return; // return since fingerprint auth failed
         }
         updateUi("Fingerprint matched for labour id: " + selectedLabour.getLabourId());
-        disableControls(selectNextContractorBtn, finishBtn);
         //now match found.
         handleTokenIssuance(labour, true);
     }
@@ -779,6 +788,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         if (errorCode != 0 || imageData == null) {
             LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
             captureBtn.setDisable(false);
+            enableControls(selectNextContractorBtn, finishBtn);
             return;
         }
         InputStream inputStream = new ByteArrayInputStream(imageData);
@@ -792,6 +802,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         if (errorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
             updateUi("Capture timeout. Please try again.");
+            enableControls(selectNextContractorBtn, finishBtn);
             captureBtn.setDisable(false);
             return;
         }
@@ -803,6 +814,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         if (jniErrorCode != 0) {
             LOGGER.log(Level.SEVERE, () -> midFingerAuth.GetErrorMessage(errorCode));
             updateUi(midFingerAuth.GetErrorMessage(errorCode));
+            enableControls(selectNextContractorBtn, finishBtn);
             captureBtn.setDisable(false);
             return;
         }
@@ -814,7 +826,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     @Override
     public void onUncaughtException() {
         LOGGER.log(Level.INFO, "***Unhandled exception occurred.");
-        selectNextContractorBtn.setDisable(false);
+        enableControls(selectNextContractorBtn, finishBtn);
         updateUi("Received an invalid data from the server.");
     }
 
@@ -834,6 +846,4 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             node.setDisable(false);
         }
     }
-
-
 }

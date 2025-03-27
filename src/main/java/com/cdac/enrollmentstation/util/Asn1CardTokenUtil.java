@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.util;
 
 
+import com.cdac.enrollmentstation.CardOrToken;
 import com.cdac.enrollmentstation.api.LocalNavalWebServiceApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
@@ -652,7 +653,7 @@ public class Asn1CardTokenUtil {
      * @throws ConnectionTimeoutException - on timeout or response status code not 200
      * @throws GenericException           - on Exception
      */
-    public static CRWaitForConnectResDto waitForConnect(String readerName) {
+    public static CRWaitForConnectResDto waitForConnect(String readerName, CardOrToken type) {
         String reqData;
         try {
             reqData = Singleton.getObjectMapper().writeValueAsString(new CRWaitForConnectReqDto(readerName));
@@ -665,12 +666,24 @@ public class Asn1CardTokenUtil {
         LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: " + jniErrorCode);
         if (jniErrorCode != 0) {
             if (jniErrorCode == -1090519029) { // custom message when press 'login' without reader connected
-                LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: No card reader detected or unsupported reader name.");
-                throw new NoReaderOrCardException("No card reader detected or unsupported reader name.");
+                String message;
+                if (CardOrToken.CARD.equals(type)) {
+                    message = "No card reader (front) detected or unsupported reader name.";
+                } else {
+                    message = "No token writer (back) detected or unsupported writer name.";
+                }
+                LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: " + message);
+                throw new NoReaderOrCardException(message);
             }
-            if (jniErrorCode == -1090514932) { // custom message when press 'login' without reader connected
-                LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: No token/card detected.");
-                throw new NoReaderOrCardException("No card/token detected. Kindly place it on the reader.");
+            if (jniErrorCode == -1090514932) {
+                String message;
+                if (CardOrToken.CARD.equals(type)) {
+                    message = "No card detected. Kindly place it on the reader.";
+                } else {
+                    message = "No token detected. Kindly place it on the reader.";
+                }
+                LOGGER.log(Level.SEVERE, () -> "****WaitForConnectErrorCode: " + message);
+                throw new NoReaderOrCardException(message);
             }
             throw new GenericException(LocalCardReaderErrMsgUtil.getMessage(jniErrorCode));
         }

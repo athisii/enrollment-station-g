@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.CardOrToken;
 import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
@@ -161,7 +162,7 @@ public class TokenIssuanceController extends AbstractBaseController {
 
             try {
                 LOGGER.log(Level.INFO, () -> "***Card: Calling waitForConnect API.");
-                crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+                crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME, CardOrToken.CARD);
                 break;
             } catch (GenericException ex) { // don't handle NoReaderOrCardException
                 // only restart API service when communication error happens

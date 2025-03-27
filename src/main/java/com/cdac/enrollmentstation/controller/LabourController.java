@@ -1,6 +1,7 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
+import com.cdac.enrollmentstation.CardOrToken;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
@@ -39,6 +40,8 @@ import javafx.util.Duration;
 import org.bouncycastle.util.Strings;
 import org.bouncycastle.util.encoders.Hex;
 
+import javax.smartcardio.CardTerminal;
+import javax.smartcardio.TerminalFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,7 +85,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
-    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 5;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 20;
 
     //***********************Fingerprint***************************//
 
@@ -574,6 +577,17 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                   6. signature 1
                   7. signature 3
          */
+        List<CardTerminal> readers;
+        try {
+            readers = TerminalFactory.getDefault().terminals().list();
+        } catch (Exception e) {
+            LOGGER.log(Level.INFO, () -> "****Error occurred while getting reader list.");
+            throw new GenericException("No card readers found. Please connect and try again.");
+        }
+        if (readers.isEmpty() || readers.size() < 2) {
+            throw new GenericException("Required at least two card readers. Please connect and try again.");
+        }
+
         LOGGER.log(Level.INFO, () -> "***LabourController: Calling deInitialize API.");
         Asn1CardTokenUtil.deInitialize();
         LOGGER.log(Level.INFO, () -> "***LabourController: Calling initialize API.");
@@ -588,7 +602,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
         }
         LOGGER.log(Level.INFO, () -> "***Card: Calling waitForConnect API.");
-        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME);
+        CRWaitForConnectResDto crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_READER_NAME, CardOrToken.CARD);
         // already handled for non-zero error code
         byte[] decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
@@ -604,16 +618,46 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         Asn1CardTokenUtil.selectApp(CARD_TYPE_NUMBER, cardHandle);
 
         // setup writer; need to add a delay for some milliseconds
-        updateUi("Preparing the token for data writing. Please wait.");
+        updateUi("Waiting for token detection. Please wait...");
+        // 0 - card reader (front)
+        // 1 - token writer (back)
+        CardTerminal reader = readers.get(1);
+        boolean waitForConnectResult;
         try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(TOKEN_DROP_SLEEP_TIME_IN_SEC));
+            // throws error when card status unknown or card reader removed.
+            waitForConnectResult = reader.waitForCardPresent(java.time.Duration.ofSeconds(TOKEN_DROP_SLEEP_TIME_IN_SEC).toMillis());
+        } catch (Exception ex) {
+            throw new GenericException("Token writer disconnected or is not responding. Please try again.");
+        }
+        if (!waitForConnectResult) {
+            throw new GenericException("Token detection timeout. Please try again.");
+        }
+        // Waiting 1 sec for safety operation.
+        LOGGER.log(Level.INFO, () -> "****Sleeping 1 sec for safety(bouncing token; insert ->remove ->insert action) operation.");
+        try {
+            Thread.sleep(java.time.Duration.ofSeconds(1).toMillis());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new GenericException(INTERRUPTED_ERROR_MESSAGE);
         }
 
+        boolean isPresent;
+        try {
+            isPresent = reader.isCardPresent();
+        } catch (Exception ex) {
+            String message = "No token writer found or token not detected by the writer.";
+            LOGGER.log(Level.INFO, () -> "****Error: " + message);
+            throw new GenericException(message);
+        }
+
+        if (!isPresent) {
+            String message = "No token not detected by the writer.";
+            LOGGER.log(Level.INFO, () -> "****Error: " + message);
+            throw new GenericException(message);
+        }
+        updateUi("Connecting to the token. Please wait.");
+
         LOGGER.log(Level.INFO, () -> "***Token: Calling waitForConnect API.");
-        crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME);
+        crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME, CardOrToken.TOKEN);
         decodedHexCsn = Base64.getDecoder().decode(crWaitForConnectResDto.getCsn());
         if (decodedHexCsn.length != crWaitForConnectResDto.getCsnLength()) {
             LOGGER.log(Level.INFO, () -> "CSNError: Decoded bytes size not matched with response length.");
@@ -627,6 +671,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         byte[] asn1EncodedTokenStaticData = Asn1CardTokenUtil.readBufferedData(tokenHandle, CardTokenFileType.STATIC);
         String tokenNumber = new String(extractFromAsn1EncodedStaticData(asn1EncodedTokenStaticData, 1), StandardCharsets.UTF_8);
 
+        updateUi("Reading data from the token. Please wait.");
         // read cert now
         LOGGER.log(Level.INFO, () -> "***Card: Calling readData API for reading system certificate.");
         byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle(), CardTokenFileType.SYSTEM_CERTIFICATE);
@@ -637,6 +682,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LOGGER.log(Level.INFO, () -> "***Token: Calling pkiAuth API: handle1=token, handle2=card");
         Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
+        updateUi("Writing data to the token. Please wait.");
         Asn1CardTokenUtil.storeAsn1EncodedDynamicFile(tokenHandle, labour.getDynamicFileASN());
         Asn1CardTokenUtil.storeAsn1EncodedDefaultValidityFile(tokenHandle, labour.getDefaultValidityFileASN());
         Asn1CardTokenUtil.storeAsn1EncodedSpecialAccessFile(tokenHandle, labour.getAccessFileASN());

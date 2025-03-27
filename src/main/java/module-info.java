@@ -52,5 +52,6 @@ module com.cdac.enrollmentstation {
     opens com.cdac.enrollmentstation.dto to javafx.fxml;
 
     requires static lombok;
+    requires java.smartcardio;
 
 }

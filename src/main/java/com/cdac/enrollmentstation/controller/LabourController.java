@@ -85,7 +85,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
-    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 20;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 10;
 
     //***********************Fingerprint***************************//
 
@@ -108,6 +108,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     @FXML
     private TextField searchBox;
+
+    @FXML
+    private Button finishBtn;
 
     @FXML
     private Button captureBtn;
@@ -372,6 +375,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return; // return since fingerprint auth failed
         }
         updateUi("Fingerprint matched for labour id: " + selectedLabour.getLabourId());
+        disableControls(selectNextContractorBtn, finishBtn);
         //now match found.
         handleTokenIssuance(labour, true);
     }
@@ -385,12 +389,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 // if any previous token on reader then drop in bin.
                 updateUi("Initializing the motor. Please wait.");
                 if (!MotorUtil.openSerialPort()) {
+                    enableControls(selectNextContractorBtn, finishBtn);
                     updateUi("Kindly check the Motor and try again.");
                     return;
                 }
                 try {
                     Thread.sleep(4000); // motor arm movement time (every port connection, it moves the arm.)
                 } catch (InterruptedException e) {
+                    enableControls(selectNextContractorBtn, finishBtn);
                     updateUi("Interrupted while initializing motor. Please try again.");
                     MotorUtil.closeSerialPort();
                     Thread.currentThread().interrupt();
@@ -403,11 +409,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         MotorUtil.closeSerialPort();
+                        enableControls(selectNextContractorBtn, finishBtn);
                         updateUi("Interrupted while moving motor arm to home position. Please try again.");
                         return;
                     }
                 } else {
                     MotorUtil.closeSerialPort();
+                    enableControls(selectNextContractorBtn, finishBtn);
                     updateUi("Failed to move motor arm to the home position. Please try again.");
                     return;
                 }
@@ -418,6 +426,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 if (isProd) {
                     MotorUtil.closeSerialPort();
                 }
+                enableControls(selectNextContractorBtn, finishBtn);
                 updateUi("Kindly check the Token Dispenser and try again.");
                 return;
             }
@@ -432,11 +441,13 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 } else {
                     updateUi(ex.getMessage());
                 }
+                enableControls(selectNextContractorBtn, finishBtn);
                 return;
             } catch (ConnectionTimeoutException ex) {
                 if (isProd) {
                     moveTokenToBin();
                 }
+                enableControls(selectNextContractorBtn, finishBtn);
                 updateUi("Something went wrong. Kindly check Card API service.");
                 return;
             }
@@ -455,12 +466,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             if (issueToken && isProd) {
                 moveTokenToBin();
             }
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi(ex.getMessage());
             return;
         } catch (ConnectionTimeoutException ex) {
             if (issueToken && isProd) {
                 moveTokenToBin();
             }
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi("Connection timeout. Failed to update token status to server. Please try again.");
             return;
         }
@@ -471,6 +484,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             if (issueToken && isProd) {
                 moveTokenToBin();
             }
+            enableControls(selectNextContractorBtn, finishBtn);
             updateUi(resDto.getDesc());
             return;
         }
@@ -486,6 +500,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     } catch (InterruptedException e) {
                         Thread.currentThread().interrupt();
                         MotorUtil.closeSerialPort();
+                        enableControls(selectNextContractorBtn, finishBtn);
                         updateUi("Interrupted while moving motor arm to home position. Please try again.");
                         return;
                     }
@@ -502,10 +517,10 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             labourDetailsTableRow.setStrStatus("Token issued"); // not really import now
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
         } else {
+            // for auth fp auth failure, already updated on UI
             updateUi("Failed to issue token for the labor: " + labourDetailsTableRow.getLabourName());
         }
-        // for auth fp auth failure, already updated on UI
-
+        enableControls(selectNextContractorBtn, finishBtn);
 
         tableView.getItems().remove(labourDetailsTableRow);
         tableView.refresh();
@@ -807,4 +822,18 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private void home() throws IOException {
         App.setRoot("main_screen");
     }
+
+    private void disableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(true);
+        }
+    }
+
+    private void enableControls(Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(false);
+        }
+    }
+
+
 }

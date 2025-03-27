@@ -103,7 +103,7 @@
                         onAction="#showContractBtnAction"
                         text="SELECT CONTRACT"/>
                 <Region styleClass="min-width-large"/>
-                <Button styleClass="btn-large, press-effect" onAction="#home"
+                <Button fx:id="finishBtn" styleClass="btn-large, press-effect" onAction="#home"
                         text="FINISH"/>
             </HBox>
         </VBox>

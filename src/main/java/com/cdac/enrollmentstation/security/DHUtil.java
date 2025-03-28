@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation.util;
+package com.cdac.enrollmentstation.security;
 
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.exception.GenericException;
@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class DHUtil {
-    private static final Logger LOGGER = ApplicationLog.getLogger(Asn1CardTokenUtil.class);
+    private static final Logger LOGGER = ApplicationLog.getLogger(DHUtil.class);
 
     private DHUtil() {
         throw new AssertionError("The DHUtil methods must be accessed statically.");

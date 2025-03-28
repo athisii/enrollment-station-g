@@ -1,7 +1,7 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.CardOrToken;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;

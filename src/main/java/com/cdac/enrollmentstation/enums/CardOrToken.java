@@ -1,4 +1,4 @@
-package com.cdac.enrollmentstation;
+package com.cdac.enrollmentstation.enums;
 
 /**
  * @author athisii

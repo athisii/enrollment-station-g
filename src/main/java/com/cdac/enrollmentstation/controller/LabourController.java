@@ -1,7 +1,7 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.CardOrToken;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
@@ -85,7 +85,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private boolean isDeviceInitialized;
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
-    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 10;
+    private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 8;
 
     //***********************Fingerprint***************************//
 

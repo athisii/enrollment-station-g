@@ -1,7 +1,7 @@
 package com.cdac.enrollmentstation.util;
 
 
-import com.cdac.enrollmentstation.CardOrToken;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.api.LocalNavalWebServiceApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;

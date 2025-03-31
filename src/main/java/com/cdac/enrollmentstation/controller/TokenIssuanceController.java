@@ -1,8 +1,8 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.dto.CRWaitForConnectResDto;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.exception.NoReaderOrCardException;
@@ -37,6 +37,8 @@ import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
  */
 public class TokenIssuanceController extends AbstractBaseController {
     private static final Logger LOGGER = ApplicationLog.getLogger(TokenIssuanceController.class);
+    private static final int SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC = 500;
+
     @FXML
     private BorderPane rootBorderPane;
 

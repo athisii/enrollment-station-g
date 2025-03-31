@@ -1,11 +1,11 @@
 package com.cdac.enrollmentstation.util;
 
 
-import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.api.LocalNavalWebServiceApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.exception.NoReaderOrCardException;
@@ -77,7 +77,6 @@ public class Asn1CardTokenUtil {
 
     private static final Logger LOGGER = ApplicationLog.getLogger(Asn1CardTokenUtil.class);
     private static int jniErrorCode;
-    public static final int SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC = 500;
 
     public static final int CARD_TYPE_NUMBER = 4; // Naval ID/Contractor Card
     public static final int TOKEN_TYPE_NUMBER = 5; // Token 5

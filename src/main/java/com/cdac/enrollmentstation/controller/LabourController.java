@@ -1,11 +1,11 @@
 package com.cdac.enrollmentstation.controller;
 
 import com.cdac.enrollmentstation.App;
-import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.api.MafisServerApi;
 import com.cdac.enrollmentstation.constant.ApplicationConstant;
 import com.cdac.enrollmentstation.constant.PropertyName;
 import com.cdac.enrollmentstation.dto.*;
+import com.cdac.enrollmentstation.enums.CardOrToken;
 import com.cdac.enrollmentstation.exception.ConnectionTimeoutException;
 import com.cdac.enrollmentstation.exception.GenericException;
 import com.cdac.enrollmentstation.exception.NoReaderOrCardException;
@@ -86,6 +86,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
     private static final int MIN_QUALITY = 60;
     private static final int FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC = 10;
     private static final int TOKEN_DROP_SLEEP_TIME_IN_SEC = 8;
+    private static final int SLEEP_TIME_BEFORE_WAIT_FOR_CONNECT_CALL_IN_MIL_SEC = 1000;
+
 
     //***********************Fingerprint***************************//
 
@@ -117,6 +119,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
     @FXML
     private Pagination pagination;
+    List<CardTerminal> readers;
 
 
     public void updateUi(String message) {
@@ -277,6 +280,18 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                         return;
                     }
                     messageLabel.setText("");
+                    try {
+                        readers = TerminalFactory.getDefault().terminals().list();
+                    } catch (Exception e) {
+                        LOGGER.log(Level.INFO, () -> "****Error occurred while getting reader list.");
+                        updateUi("No card readers found. Please connect and try again.");
+                        return;
+                    }
+                    if (readers.isEmpty() || readers.size() < 2) {
+                        LOGGER.log(Level.INFO, () -> "****Error: Required at least two card readers. Please connect and try again.");
+                        updateUi("Required at least two card readers. Please connect and try again.");
+                        return;
+                    }
                     captureBtn.setDisable(false);
                 }
             });
@@ -601,16 +616,6 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                   6. signature 1
                   7. signature 3
          */
-        List<CardTerminal> readers;
-        try {
-            readers = TerminalFactory.getDefault().terminals().list();
-        } catch (Exception e) {
-            LOGGER.log(Level.INFO, () -> "****Error occurred while getting reader list.");
-            throw new GenericException("No card readers found. Please connect and try again.");
-        }
-        if (readers.isEmpty() || readers.size() < 2) {
-            throw new GenericException("Required at least two card readers. Please connect and try again.");
-        }
 
         LOGGER.log(Level.INFO, () -> "***LabourController: Calling deInitialize API.");
         Asn1CardTokenUtil.deInitialize();

@@ -73,7 +73,7 @@ public class LocalCardReaderErrMsgUtil {
         errorMessageMap.put("6400", "Execution error.");
         errorMessageMap.put("63C0", "No of retries reached 0.");
         errorMessageMap.put("6702", "Wrong length; no further indication.");
-        errorMessageMap.put("1000", "Kindly reconnect the reader and place card correctly."); // Communication Error if last four digits starts with 10
+        errorMessageMap.put("1000", "Kindly reconnect the reader and place card/token correctly."); // Communication Error if last four digits starts with 10
     }
 
     public static String getMessage(String hexadecimalErrorCode) {

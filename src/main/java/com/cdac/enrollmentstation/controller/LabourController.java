@@ -444,7 +444,9 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     return;
                 }
             }
-            updateUi("Initializing the token dispenser.");
+            updateUi("Initializing the token dispenser. Please wait..");
+            LOGGER.log(Level.INFO, () -> "Initializing the token dispenser.");
+
             //dispenses token on card writer
             if (!TokenDispenserUtil.dispenseToken()) {
                 if (isProd) {
@@ -461,6 +463,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     moveTokenToBin();
                 }
                 if ("Selected File deactivated.".equalsIgnoreCase(ex.getMessage())) {
+                    LOGGER.log(Level.INFO, () -> "The token is deactivated.");
                     updateUi("The token is deactivated. Please try again.");
                 } else {
                     updateUi(ex.getMessage());
@@ -648,6 +651,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         // setup writer; need to add a delay for some milliseconds
         updateUi("Waiting for token detection. Please wait...");
+        LOGGER.log(Level.INFO, () -> "Waiting for token detection.");
+
         // 0 - card reader (front)
         // 1 - token writer (back)
         CardTerminal reader = readers.get(1);
@@ -684,6 +689,8 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             throw new GenericException(message);
         }
         updateUi("Connecting to the token. Please wait.");
+        LOGGER.log(Level.INFO, () -> "Connecting to the token.");
+
 
         LOGGER.log(Level.INFO, () -> "***Token: Calling waitForConnect API.");
         crWaitForConnectResDto = Asn1CardTokenUtil.waitForConnect(MANTRA_CARD_WRITER_NAME, CardOrToken.TOKEN);
@@ -701,6 +708,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         String tokenNumber = new String(extractFromAsn1EncodedStaticData(asn1EncodedTokenStaticData, 1), StandardCharsets.UTF_8);
 
         updateUi("Reading data from the token. Please wait.");
+        LOGGER.log(Level.INFO, () -> "Reading data from the token.");
         // read cert now
         LOGGER.log(Level.INFO, () -> "***Card: Calling readData API for reading system certificate.");
         byte[] systemCertificate = Asn1CardTokenUtil.readBufferedData(TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle(), CardTokenFileType.SYSTEM_CERTIFICATE);
@@ -712,6 +720,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         Asn1CardTokenUtil.pkiAuth(tokenHandle, TokenDetailsHolder.getDetailsHolder().getContractorCardInfo().getCardHandle());
 
         updateUi("Writing data to the token. Please wait.");
+        LOGGER.log(Level.INFO, () -> "Writing data to the token. Please wait.");
         Asn1CardTokenUtil.storeAsn1EncodedDynamicFile(tokenHandle, labour.getDynamicFileASN());
         Asn1CardTokenUtil.storeAsn1EncodedDefaultValidityFile(tokenHandle, labour.getDefaultValidityFileASN());
         Asn1CardTokenUtil.storeAsn1EncodedSpecialAccessFile(tokenHandle, labour.getAccessFileASN());

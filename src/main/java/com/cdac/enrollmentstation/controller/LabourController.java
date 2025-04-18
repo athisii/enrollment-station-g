@@ -46,6 +46,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -54,7 +55,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.cdac.enrollmentstation.constant.ApplicationConstant.GENERIC_ERR_MSG;
-import static com.cdac.enrollmentstation.constant.ApplicationConstant.SCENE_ROOT_ERR_MSG;
 import static com.cdac.enrollmentstation.util.Asn1CardTokenUtil.*;
 
 /**
@@ -175,7 +175,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         ContractorCardInfo contractDetails = tokenDetailsHolder.getContractorCardInfo();
         LabourResDto labourResDto;
-        LOGGER.log(Level.INFO, () -> "***Fetching labour list from the server.");
+        LOGGER.log(Level.INFO, () -> "***Fetching laborer list from the server.");
         try {
             labourResDto = MafisServerApi.fetchLabourList(contractDetails.getContractorId(), contractDetails.getContractId());
         } catch (GenericException ex) {
@@ -193,7 +193,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
         if (labourResDto.getLabours() == null || labourResDto.getLabours().isEmpty()) {
-            messageLabel.setText("No labour found for contract id: " + contractDetails.getContractId());
+            messageLabel.setText("No laborer found for contract ID: " + contractDetails.getContractId());
             return;
         }
 
@@ -276,7 +276,23 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     fingerprintImageView.setImage(null);
                     LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
                     if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                        updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                        updateUi("The allowed number of attempts for laborer ID: " + selectedLabour.getLabourId() + " has been exhausted.");
+                        return;
+                    }
+                    Labour labour = labourMap.get(selectedLabour.getLabourId());
+                    try {
+                        if (!checkValidity(labour)) {
+                            updateUi("The selected laborer's default/access validity has already expired.");
+                            labourDetailsTableRows.remove(selectedLabour);
+                            Platform.runLater(() -> {
+                                tableView.getItems().remove(selectedLabour);
+                                tableView.refresh();
+                            });
+                            return;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.log(Level.INFO, () -> "****Error occurred while checking laborer default/access validity: " + e.getMessage());
+                        updateUi("Error occurred while parsing default/access validity. Received malformed data from the server.");
                         return;
                     }
                     messageLabel.setText("");
@@ -299,6 +315,37 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         });
     }
 
+    private boolean checkValidity(Labour labour) {
+        //check default validity
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String validFromString = labour.getDefaultValidityFile().getValidFrom();
+        LocalDate validFrom = LocalDate.parse(validFromString, formatter);
+        if (validFrom.isAfter(LocalDate.now())) {
+            LOGGER.log(Level.INFO, () -> "****DefaultValidityError: Invalid validFrom date: " + validFromString);
+            return false;
+        }
+        String validToString = labour.getDefaultValidityFile().getValidTo();
+        LocalDate validTo = LocalDate.parse(validToString, formatter);
+        if (validTo.isBefore(LocalDate.now())) {
+            LOGGER.log(Level.INFO, () -> "****DefaultValidityError: expired validTo date: " + validToString);
+            return false;
+        }
+        //check access validity
+        String fromDateString = labour.getAccessFile().getFromDate();
+        LocalDate fromDate = LocalDate.parse(fromDateString, formatter);
+        if (fromDate.isAfter(LocalDate.now())) {
+            LOGGER.log(Level.INFO, () -> "****AccessValidityError: Invalid fromDate date: " + fromDateString);
+            return false;
+        }
+        String toDateString = labour.getAccessFile().getToDate();
+        LocalDate toDate = LocalDate.parse(toDateString, formatter);
+        if (toDate.isBefore(LocalDate.now())) {
+            LOGGER.log(Level.INFO, () -> "****AccessValidityError: expired toDate date: " + toDateString);
+            return false;
+        }
+        return true;
+    }
+
 
     @FXML
     private void showContractBtnAction() throws IOException {
@@ -317,7 +364,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             return;
         }
         if (tableView.getSelectionModel().getSelectedItem() == null) {
-            messageLabel.setText("Kindly select a labour");
+            messageLabel.setText("Kindly select a laborer");
             enableControls(selectNextContractorBtn, finishBtn);
         } else {
             jniErrorCode = midFingerAuth.StartCapture(MIN_QUALITY, (int) TimeUnit.SECONDS.toMillis(FINGERPRINT_CAPTURE_TIMEOUT_IN_SEC));
@@ -334,20 +381,20 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         LabourDetailsTableRow selectedLabour = tableView.getSelectionModel().getSelectedItem();
         if (selectedLabour == null) {
             enableControls(selectNextContractorBtn, finishBtn);
-            updateUi("Kindly select a labour.");
+            updateUi("Kindly select a laborer.");
             return;
         }
 
         Labour labour = labourMap.get(selectedLabour.getLabourId());
         if (labour == null) {
             enableControls(selectNextContractorBtn, finishBtn);
-            updateUi("No labour details found for selected labour id: " + selectedLabour.getLabourId());
+            updateUi("No laborer details found for selected laborer ID: " + selectedLabour.getLabourId());
             return;
         }
 
         if (labour.getFps() == null || labour.getFps().isEmpty()) {
             enableControls(selectNextContractorBtn, finishBtn);
-            updateUi("No fingerprint data for selected labour id: " + selectedLabour.getLabourId());
+            updateUi("No fingerprint data for selected laborer ID: " + selectedLabour.getLabourId());
             return;
         }
         int[] matchScore = new int[1];
@@ -377,10 +424,10 @@ public class LabourController extends AbstractBaseController implements MIDFinge
 
         if (!matchFound) {
             selectedLabour.setCount(selectedLabour.getCount() + 1);
-            LOGGER.log(Level.INFO, () -> "***Fingerprint not matched for labour id: " + selectedLabour.getLabourId() + "***\n\tcount: " + selectedLabour.getCount());
+            LOGGER.log(Level.INFO, () -> "***Fingerprint not matched for laborer ID: " + selectedLabour.getLabourId() + "***\n\tcount: " + selectedLabour.getCount());
             if (selectedLabour.getCount() >= LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
-                LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
-                updateUi("The allowed number of attempts for Labor id: " + selectedLabour.getLabourId() + " has been exhausted.");
+                LOGGER.log(Level.INFO, () -> "***The allowed number of attempts for laborer ID: " + selectedLabour.getLabourId() + " has been exhausted.");
+                updateUi("The allowed number of attempts for laborer ID: " + selectedLabour.getLabourId() + " has been exhausted.");
                 if (selectedLabour.getCount() > LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                     enableControls(selectNextContractorBtn, finishBtn);
                     return;
@@ -392,14 +439,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                     tableView.refresh();
                 }
             } else if (selectedLabour.getCount() < 3) {
-                updateUi("Fingerprint not matched for labour id: " + selectedLabour.getLabourId());
+                updateUi("Fingerprint did not match for laborer ID: " + selectedLabour.getLabourId());
             } else {
                 updateUi("The remaining attempt(s) for " + selectedLabour.getLabourId() + " : " + (LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT - selectedLabour.getCount()));
             }
             enableControls(selectNextContractorBtn, finishBtn);
             return; // return since fingerprint auth failed
         }
-        updateUi("Fingerprint matched for labour id: " + selectedLabour.getLabourId());
+        updateUi("Fingerprint did not match for laborer ID: " + selectedLabour.getLabourId());
         //now match found.
         handleTokenIssuance(labour, true);
     }
@@ -517,7 +564,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
-        LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
+        LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching laborer ID found in the table."));
 
         if (issueToken) {
             if (isProd) {
@@ -545,32 +592,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
         } else {
             // for auth fp auth failure, already updated on UI
-            updateUi("Failed to issue token for the labor: " + labourDetailsTableRow.getLabourName());
+            updateUi("Failed to issue token for the laborer: " + labourDetailsTableRow.getLabourName());
         }
         enableControls(selectNextContractorBtn, finishBtn);
-
-        tableView.getItems().remove(labourDetailsTableRow);
-        tableView.refresh();
         labourDetailsTableRows.remove(labourDetailsTableRow);
-
-        if (tableView.getItems().isEmpty()) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException ex) {
-                LOGGER.log(Level.SEVERE, ex.getMessage());
-                Thread.currentThread().interrupt();
-            }
-            Platform.runLater(() -> {
-                try {
-                    updateUi("Going back to contract page. Please wait.");
-                    App.setRoot("contract");
-                } catch (IOException ex) {
-                    LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
-                    throw new GenericException(GENERIC_ERR_MSG);
-                }
-            });
-        }
-
+        Platform.runLater(() -> {
+            tableView.getItems().remove(labourDetailsTableRow);
+            tableView.refresh();
+        });
     }
 
     private void moveTokenToBin() {

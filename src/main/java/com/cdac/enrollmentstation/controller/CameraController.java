@@ -70,6 +70,7 @@ public class CameraController extends AbstractBaseController {
     private static final Image CHIN_DOWN_COLORED_IMAGE;
     private static final Image CHIN_UP_COLOR_IMAGE;
     private static final Image TICK_GREEN_IMAGE;
+    private static final int MIN_PHOTO_COMPRESSED_SIZE_IN_BYTES = 3072; // 3kb
 
     static {
         try {
@@ -391,8 +392,12 @@ public class CameraController extends AbstractBaseController {
             String line;
             while ((line = input.readLine()) != null) {
                 if (line.contains("Valid")) {
-                    validImage = true;
-                    stopLive = true;
+                    byte[] bytes = Files.readAllBytes(Path.of(PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_FILE)));
+                    LOGGER.log(Level.INFO, () -> "Compressed photo size in bytes: " + bytes.length);
+                    if (bytes.length >= MIN_PHOTO_COMPRESSED_SIZE_IN_BYTES) {
+                        validImage = true;
+                        stopLive = true;
+                    }
                 } else if (line.contains("Message=")) {
                     String subString = line.substring("Message= ".length());
                     Platform.runLater(() -> messageLabel.setText(subString));

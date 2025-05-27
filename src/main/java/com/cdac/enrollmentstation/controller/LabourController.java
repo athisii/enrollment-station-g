@@ -387,9 +387,11 @@ public class LabourController extends AbstractBaseController implements MIDFinge
                 }
                 if (selectedLabour.getCount() == LABOUR_FP_AUTH_ALLOWED_MAX_ATTEMPT) {
                     handleTokenIssuance(labour, false);
-                    labourDetailsTableRows.remove(selectedLabour);
-                    tableView.getItems().remove(selectedLabour);
-                    tableView.refresh();
+                    Platform.runLater(() -> {
+                        labourDetailsTableRows.remove(selectedLabour);
+                        tableView.getItems().remove(selectedLabour);
+                        tableView.refresh();
+                    });
                 }
             } else if (selectedLabour.getCount() < 3) {
                 updateUi("Fingerprint not matched for labour id: " + selectedLabour.getLabourId());
@@ -517,7 +519,7 @@ public class LabourController extends AbstractBaseController implements MIDFinge
         }
 
         Optional<LabourDetailsTableRow> labourDetailsTableRowOptional = tableView.getItems().stream().filter(labourDetailsTableRow -> labourDetailsTableRow.getLabourId().equals(labour.getDynamicFile().getLabourId())).findFirst();
-        LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labor id found in the table."));
+        LabourDetailsTableRow labourDetailsTableRow = labourDetailsTableRowOptional.orElseThrow(() -> new GenericException("No matching labour id found in the table."));
 
         if (issueToken) {
             if (isProd) {
@@ -545,14 +547,14 @@ public class LabourController extends AbstractBaseController implements MIDFinge
             LOGGER.log(Level.INFO, "Token dispensed successfully.");
         } else {
             // for auth fp auth failure, already updated on UI
-            updateUi("Failed to issue token for the labor: " + labourDetailsTableRow.getLabourName());
+            updateUi("Failed to issue token for the labour: " + labourDetailsTableRow.getLabourName());
         }
         enableControls(selectNextContractorBtn, finishBtn);
-
-        tableView.getItems().remove(labourDetailsTableRow);
-        tableView.refresh();
-        labourDetailsTableRows.remove(labourDetailsTableRow);
-
+        Platform.runLater(() -> {
+            tableView.getItems().remove(labourDetailsTableRow);
+            tableView.refresh();
+            labourDetailsTableRows.remove(labourDetailsTableRow);
+        });
         if (tableView.getItems().isEmpty()) {
             try {
                 Thread.sleep(5000);

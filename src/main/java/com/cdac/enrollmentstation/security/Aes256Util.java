@@ -47,12 +47,10 @@ public class Aes256Util {
 
     public static Key genKey(String secretKey) {
         return new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
-
     }
 
     public static Key genKey(byte[] secretKey) {
         return new SecretKeySpec(secretKey, "AES");
-
     }
 
     // returns encrypted bytes

@@ -44,7 +44,17 @@ public class HmacUtil {
             LOGGER.log(Level.SEVERE, ex.getMessage());
             throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
         }
+    }
 
+    public static String genHmacSha256(String message, byte[] secret) {
+        try {
+            MAC_THREAD_LOCAL.get().init(new SecretKeySpec(secret, ALGORITHM));
+            byte[] bytes = MAC_THREAD_LOCAL.get().doFinal(message.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(bytes);
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage());
+            throw new GenericException(ApplicationConstant.GENERIC_ERR_MSG);
+        }
     }
 
     private static String bytesToHex(byte[] bytes) {

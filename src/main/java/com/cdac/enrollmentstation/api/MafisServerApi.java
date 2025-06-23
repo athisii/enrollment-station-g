@@ -10,7 +10,6 @@ import com.cdac.enrollmentstation.logging.ApplicationLog;
 import com.cdac.enrollmentstation.security.Aes256Util;
 import com.cdac.enrollmentstation.security.DHUtil;
 import com.cdac.enrollmentstation.security.HmacUtil;
-import com.cdac.enrollmentstation.security.PkiUtil;
 import com.cdac.enrollmentstation.util.PropertyFile;
 import com.cdac.enrollmentstation.util.Singleton;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -215,12 +214,17 @@ public class MafisServerApi {
     }
 
     private static String encryptAndSendToServer(String data, String url) {
-        // assigns random secret key at each call
-        String secret = Aes256Util.genUuid();
+        // Generates key pair
+        KeyPair keyPair = DHUtil.generateKeyPair("EC", "secp256r1");
+        // Exchanges public keys with the server.
+        byte[] mafisPublicKeyBytes = MafisServerApi.exchangePublicKey(PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID), Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
+        // Obtains Mafis' public key
+        PublicKey mafisPublicKey = DHUtil.generatePublicKey(mafisPublicKeyBytes, "EC");
+        // Generates shared secret
+        byte[] sharedSecretBytes = DHUtil.generateSharedSecretBytes(keyPair.getPrivate(), mafisPublicKey, "ECDH");
+        // only uses first 32 bytes
+        byte[] secret = Arrays.copyOfRange(sharedSecretBytes, 0, 32);
         Key key = Aes256Util.genKey(secret);
-        // for sending base64 encoded encrypted SECRET KEY to server in HEADER
-        byte[] pkiEncryptedUniqueKey = PkiUtil.encrypt(secret);
-        String base64EncodedPkiEncryptedUniqueKey = Base64.getEncoder().encodeToString(pkiEncryptedUniqueKey);
 
         // encrypts the actual data passed from the method's argument and encoded to base64
         byte[] encryptedData = Aes256Util.encrypt(data, key);
@@ -229,28 +233,13 @@ public class MafisServerApi {
         // hashKey header
         String messageDigest = HmacUtil.genHmacSha256(base64EncodedEncryptedData, secret);
 
-        KeyPair keyPair = DHUtil.generateKeyPair("EC", "secp256r1");
-
         // need to add unique-key, hash value in request header
         Map<String, String> headersMap = new HashMap<>();
-        headersMap.put(UNIQUE_KEY_HEADER, base64EncodedPkiEncryptedUniqueKey);
         headersMap.put(HASH_KEY_HEADER, messageDigest);
-        headersMap.put(PUBLIC_KEY_HEADER, Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()));
+        headersMap.put(ENROLLMENT_STATION_ID_HEADER, PropertyFile.getProperty(PropertyName.ENROLLMENT_STATION_ID));
 
         HttpRequest postHttpRequest = HttpUtil.createPostHttpRequest(url, base64EncodedEncryptedData, headersMap);
         HttpResponse<String> httpResponse = HttpUtil.sendHttpRequest(postHttpRequest);
-        Optional<String> base64EncodedUniqueKeyOptional = httpResponse.headers().firstValue(PUBLIC_KEY_HEADER);
-
-        if (base64EncodedUniqueKeyOptional.isEmpty()) {
-            LOGGER.log(Level.SEVERE, "Public key header not found in http response");
-            throw new GenericException("There are some technical issues in fetching labour list. Kindly try again.");
-        }
-        // received base64 encoded encrypted secret key from server
-        byte[] mafisPublicKeyBytes = Base64.getDecoder().decode(base64EncodedUniqueKeyOptional.get());
-        PublicKey mafisPublicKey = DHUtil.generatePublicKey(mafisPublicKeyBytes, "EC");
-        byte[] sharedSecretBytes = DHUtil.generateSharedSecretBytes(keyPair.getPrivate(), mafisPublicKey, "ECDH");
-
-        key = Aes256Util.genKey(Arrays.copyOfRange(sharedSecretBytes, 0, 16));
 
         // Received base64 encoded encrypted data
         byte[] encryptedResponseBody = Base64.getDecoder().decode(httpResponse.body());

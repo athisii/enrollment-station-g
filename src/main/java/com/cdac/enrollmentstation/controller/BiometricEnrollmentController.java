@@ -99,7 +99,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
         ArcDetail arcDetail = ArcDetailsHolder.getArcDetailsHolder().getArcDetail();
         if (arcDetail.getBiometricOptions().trim().equalsIgnoreCase("photo")) {
             try {
-                App.setRoot("camera");
+                App.setRoot("photo");
             } catch (IOException ex) {
                 LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
             }
@@ -157,7 +157,7 @@ public class BiometricEnrollmentController extends AbstractBaseController {
                         App.setRoot("biometric_capture_complete");
                         return;
                     }
-                    App.setRoot("camera");
+                    App.setRoot("photo");
                 } catch (IOException ex) {
                     LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
                 }

@@ -4,7 +4,7 @@
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <BorderPane fx:id="rootBorderPane" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.cdac.enrollmentstation.controller.CameraController">
+            fx:controller="com.cdac.enrollmentstation.controller.PhotoController">
     <top>
         <HBox styleClass="padding, bg-color-bright-blue">
             <ImageView preserveRatio="true">

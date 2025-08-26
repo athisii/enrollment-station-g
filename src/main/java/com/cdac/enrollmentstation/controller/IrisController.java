@@ -400,7 +400,7 @@ public class IrisController extends AbstractBaseController implements MIDIrisEnr
                 App.setRoot("biometric_capture_complete");
                 return;
             }
-            App.setRoot("camera");
+            App.setRoot("photo");
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }

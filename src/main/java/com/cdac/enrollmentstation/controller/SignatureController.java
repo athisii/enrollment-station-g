@@ -262,7 +262,7 @@ public class SignatureController extends AbstractBaseController {
                 App.setRoot("iris");
                 return;
             }
-            App.setRoot("camera");
+            App.setRoot("photo");
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
         }

@@ -70,14 +70,18 @@ public class PhotoController extends AbstractBaseController {
     private static final Image CHIN_DOWN_COLORED_IMAGE;
     private static final Image CHIN_UP_COLOR_IMAGE;
     private static final Image TICK_GREEN_IMAGE;
-    private static final int MIN_PHOTO_COMPRESSED_SIZE_IN_BYTES = 3072; // 3kb
+    private static final int IMG_PHOTO_COMPRESSED_MIN_SIZE_IN_BYTES;
+    private static final int IMG_PHOTO_COMPRESSED_MAX_SIZE_IN_BYTES;
 
     static {
         try {
-            IMG_PHOTO_INPUT_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_PHOTO_INPUT_FILE), PropertyName.IMG_PHOTO_INPUT_FILE);
-            IMG_PHOTO_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_PHOTO_FILE), PropertyName.IMG_PHOTO_FILE);
-            IMG_PHOTO_COMPRESSED_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_FILE), PropertyName.IMG_PHOTO_COMPRESSED_FILE);
-            PYTHON_IMAGE_PROCESSOR_COMMAND = requireNonBlank(PropertyFile.getProperty(PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND), PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND);
+            IMG_PHOTO_INPUT_FILE = PropertyFile.getProperty(PropertyName.IMG_PHOTO_INPUT_FILE);
+            IMG_PHOTO_FILE = PropertyFile.getProperty(PropertyName.IMG_PHOTO_FILE);
+            IMG_PHOTO_COMPRESSED_FILE = PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_FILE);
+            PYTHON_IMAGE_PROCESSOR_COMMAND = PropertyFile.getProperty(PropertyName.PYTHON_IMAGE_PROCESSOR_COMMAND);
+            IMG_PHOTO_COMPRESSED_MIN_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_MIN_SIZE));
+            IMG_PHOTO_COMPRESSED_MAX_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_MAX_SIZE));
+
             // loads --> /img/
             NO_MASK_IMAGE = loadFileFromImgDirectory("no_mask.png");
             NO_GLASSES_IMAGE = loadFileFromImgDirectory("no_goggles.png");
@@ -394,7 +398,7 @@ public class PhotoController extends AbstractBaseController {
                 if (line.contains("Valid")) {
                     byte[] bytes = Files.readAllBytes(Path.of(PropertyFile.getProperty(PropertyName.IMG_PHOTO_COMPRESSED_FILE)));
                     LOGGER.log(Level.INFO, () -> "Compressed photo size in bytes: " + bytes.length);
-                    if (bytes.length >= MIN_PHOTO_COMPRESSED_SIZE_IN_BYTES) {
+                    if (bytes.length >= IMG_PHOTO_COMPRESSED_MIN_SIZE_IN_BYTES && bytes.length <= IMG_PHOTO_COMPRESSED_MAX_SIZE_IN_BYTES) {
                         validImage = true;
                         stopLive = true;
                     }
@@ -464,13 +468,6 @@ public class PhotoController extends AbstractBaseController {
         } else if (message.contains("CHIN UP")) {
             updateImageView(msgIcon, CHIN_UP_COLOR_IMAGE);
         }
-    }
-
-    private static String requireNonBlank(String value, String propertyName) {
-        if (value == null || value.isBlank()) {
-            throw new GenericException(propertyName + " value is null or blank in " + ApplicationConstant.DEFAULT_PROPERTY_FILE);
-        }
-        return value;
     }
 
     private static Image loadFileFromFaceCodeDirectory(String filename) {

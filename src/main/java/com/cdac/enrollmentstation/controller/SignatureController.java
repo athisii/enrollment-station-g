@@ -57,11 +57,15 @@ public class SignatureController extends AbstractBaseController {
     private static final int COMPRESSED_HEIGHT = 50;//59*0.85
     private static final String IMG_SIGNATURE_FILE;
     private static final String IMG_SIGNATURE_COMPRESSED_FILE;
+    private static final int IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES;
+    private static final int IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES;
 
     static {
         try {
-            IMG_SIGNATURE_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_FILE), PropertyName.IMG_SIGNATURE_FILE);
-            IMG_SIGNATURE_COMPRESSED_FILE = requireNonBlank(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_FILE), PropertyName.IMG_SIGNATURE_COMPRESSED_FILE);
+            IMG_SIGNATURE_FILE = PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_FILE);
+            IMG_SIGNATURE_COMPRESSED_FILE = PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_FILE);
+            IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_MIN_SIZE));
+            IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_MAX_SIZE));
         } catch (Exception ex) {
             throw new GenericException(ex.getMessage());
         }
@@ -326,9 +330,14 @@ public class SignatureController extends AbstractBaseController {
             byteArrayOutputStream.close();
             byte[] data = byteArrayOutputStream.toByteArray();
 
-            if (data.length < 1024) {
+            if (data.length < IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES) {
                 LOGGER.log(Level.WARNING, () -> "Signature byte size: " + data.length);
-                messageLabel.setText("Kindly provide a valid or larger signature.");
+                messageLabel.setText("Kindly provide a larger signature.");
+                return;
+            }
+            if (data.length > IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES) {
+                LOGGER.log(Level.WARNING, () -> "Signature byte size: " + data.length);
+                messageLabel.setText("Kindly provide a smaller signature.");
                 return;
             }
 
@@ -470,14 +479,5 @@ public class SignatureController extends AbstractBaseController {
         enableControls(backBtn);
         clearBtnAction();
         updateUi("Something went wrong. Kindly try again.");
-    }
-
-    private static String requireNonBlank(String value, String propertyName) {
-        if (value == null || value.isBlank()) {
-            String errorMessage = propertyName + " value is null or blank in " + ApplicationConstant.DEFAULT_PROPERTY_FILE;
-            LOGGER.log(Level.SEVERE, errorMessage);
-            throw new GenericException(errorMessage);
-        }
-        return value;
     }
 }

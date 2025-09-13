@@ -32,7 +32,7 @@ import javafx.scene.paint.Color;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -57,6 +57,8 @@ public class SignatureController extends AbstractBaseController {
     private static final int COMPRESSED_HEIGHT = 50;//59*0.85
     private static final String IMG_SIGNATURE_FILE;
     private static final String IMG_SIGNATURE_COMPRESSED_FILE;
+    private static final int IMG_SIGNATURE_MIN_SIZE_IN_BYTES;
+    private static final int IMG_SIGNATURE_MAX_SIZE_IN_BYTES;
     private static final int IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES;
     private static final int IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES;
 
@@ -64,6 +66,8 @@ public class SignatureController extends AbstractBaseController {
         try {
             IMG_SIGNATURE_FILE = PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_FILE);
             IMG_SIGNATURE_COMPRESSED_FILE = PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_FILE);
+            IMG_SIGNATURE_MIN_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_MIN_SIZE));
+            IMG_SIGNATURE_MAX_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_MAX_SIZE));
             IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_MIN_SIZE));
             IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES = Integer.parseInt(PropertyFile.getProperty(PropertyName.IMG_SIGNATURE_COMPRESSED_MAX_SIZE));
         } catch (Exception ex) {
@@ -325,22 +329,6 @@ public class SignatureController extends AbstractBaseController {
             BufferedImage imageBoundedBox = image.getSubimage((int) minX, (int) minY, width, height);
             BufferedImage resizedImage = resizeImage(width, height, imageBoundedBox, RAW_WIDTH, RAW_HEIGHT);
 
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            ImageIO.write(resizedImage, "png", byteArrayOutputStream);
-            byteArrayOutputStream.close();
-            byte[] data = byteArrayOutputStream.toByteArray();
-
-            if (data.length < IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES) {
-                LOGGER.log(Level.WARNING, () -> "Signature byte size: " + data.length);
-                messageLabel.setText("Kindly provide a larger signature.");
-                return;
-            }
-            if (data.length > IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES) {
-                LOGGER.log(Level.WARNING, () -> "Signature byte size: " + data.length);
-                messageLabel.setText("Kindly provide a smaller signature.");
-                return;
-            }
-
             // Convert the resized BufferedImage to WritableImage
             WritableImage wImage = new WritableImage(resizedImage.getWidth(), resizedImage.getHeight());
             wImage = SwingFXUtils.toFXImage(resizedImage, wImage);
@@ -357,6 +345,7 @@ public class SignatureController extends AbstractBaseController {
 
             Path signaturePath = Paths.get(IMG_SIGNATURE_FILE);
             ImageIO.write(finalImage, "png", signaturePath.toFile());
+            validateSignatureSize();
 
             // for compressed image
             BufferedImage resizedImageCompressed = resizeImage(width, height, imageBoundedBox, COMPRESSED_WIDTH, COMPRESSED_HEIGHT);
@@ -377,6 +366,7 @@ public class SignatureController extends AbstractBaseController {
 
             Path signatureCompressedPath = Paths.get(IMG_SIGNATURE_COMPRESSED_FILE);
             ImageIO.write(finalImageCompressed, "png", signatureCompressedPath.toFile());
+            validateSignatureCompressedSize();
 
             SaveEnrollmentDetail saveEnrollmentDetail = ArcDetailsHolder.getArcDetailsHolder().getSaveEnrollmentDetail();
             saveEnrollmentDetail.setSignatureRequired(true);
@@ -385,9 +375,36 @@ public class SignatureController extends AbstractBaseController {
             saveEnrollmentDetail.setEnrollmentStatus("SignatureCompleted");
             SaveEnrollmentDetailUtil.writeToFile(saveEnrollmentDetail);
             App.setRoot("biometric_capture_complete");
+        } catch (GenericException ex) {
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+            messageLabel.setText(ex.getMessage());
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, SCENE_ROOT_ERR_MSG, ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             messageLabel.setText(ApplicationConstant.GENERIC_ERR_MSG);
+        }
+    }
+
+    private void validateSignatureSize() throws IOException {
+        byte[] bytes = Files.readAllBytes(Path.of(IMG_SIGNATURE_FILE));
+        if (bytes.length < IMG_SIGNATURE_MIN_SIZE_IN_BYTES) {
+            LOGGER.log(Level.WARNING, () -> "Signature byte size: " + bytes.length);
+            throw new GenericException("Kindly provide a larger signature.");
+        }
+        if (bytes.length > IMG_SIGNATURE_MAX_SIZE_IN_BYTES) {
+            LOGGER.log(Level.WARNING, () -> "Signature byte size: " + bytes.length);
+            throw new GenericException("Kindly provide a smaller signature.");
+        }
+    }
+
+    private void validateSignatureCompressedSize() throws IOException {
+        byte[] bytes = Files.readAllBytes(Path.of(IMG_SIGNATURE_COMPRESSED_FILE));
+        if (bytes.length < IMG_SIGNATURE_COMPRESSED_MIN_SIZE_IN_BYTES) {
+            LOGGER.log(Level.WARNING, () -> "Signature byte size: " + bytes.length);
+            throw new GenericException("Kindly provide a larger signature(compressed).");
+        }
+        if (bytes.length > IMG_SIGNATURE_COMPRESSED_MAX_SIZE_IN_BYTES) {
+            LOGGER.log(Level.WARNING, () -> "Signature byte size: " + bytes.length);
+            throw new GenericException("Kindly provide a smaller signature(compressed).");
         }
     }
 

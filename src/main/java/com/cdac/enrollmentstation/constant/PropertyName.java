@@ -75,8 +75,12 @@ public class PropertyName {
     public static final String DEVICE_SERIAL_NO = "device.serial.no";
     public static final String HARDWARE_ID = "hardware.id";
     public static final String FPS_MAX_TOTAL_SIZE = "fps.max.total.size";
+    public static final String IMG_SIGNATURE_MIN_SIZE = "img.signature.min.size";
+    public static final String IMG_SIGNATURE_MAX_SIZE = "img.signature.max.size";
     public static final String IMG_SIGNATURE_COMPRESSED_MIN_SIZE = "img.signature.compressed.min.size";
     public static final String IMG_SIGNATURE_COMPRESSED_MAX_SIZE = "img.signature.compressed.max.size";
+    public static final String IMG_PHOTO_MIN_SIZE = "img.photo.min.size";
+    public static final String IMG_PHOTO_MAX_SIZE = "img.photo.max.size";
     public static final String IMG_PHOTO_COMPRESSED_MIN_SIZE = "img.photo.compressed.min.size";
     public static final String IMG_PHOTO_COMPRESSED_MAX_SIZE = "img.photo.compressed.max.size";
 }
